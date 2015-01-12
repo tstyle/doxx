@@ -7,36 +7,18 @@
 # MIT license
 #------------------------------------------------------------------------------
 
-#------------------------------------------------------------------------------------
-# c.cmd = Primary command (doxx <primary command>)
-# c.cmd2 = Secondary command (doxx <primary command> <secondary command>)
-#
-# c.arg_to_cmd = first positional argument to the primary command
-# c.arg_to_cmd2 = first positional argument to the secondary command
-#
-# c.option(option_string, [bool argument_required]) = test for option with optional positional argument to option test
-# c.option_with_arg(option_string) = test for option and mandatory positional argument to option
-# c.flag(flag_string) = test for presence of a "option=argument" style flag
-#
-# c.arg(arg_string) = returns the next positional argument to the arg_string argument
-# c.flag_arg(flag_string) = returns the flag assignment for a "--option=argument" style flag
-#------------------------------------------------------------------------------------
-
 # Application start
 def main():
     import sys
     from Naked.commandline import Command
-    from Naked.toolshed.state import StateObject
+    from doxx.commands.build import Builder
+    from doxx.commands.make import Maker
 
     #------------------------------------------------------------------------------------------
     # [ Instantiate command line object ]
     #   used for all subsequent conditional logic in the CLI application
     #------------------------------------------------------------------------------------------
     c = Command(sys.argv[0], sys.argv[1:])
-    #------------------------------------------------------------------------------
-    # [ Instantiate state object ]
-    #------------------------------------------------------------------------------
-    state = StateObject()
     #------------------------------------------------------------------------------------------
     # [ Command Suite Validation ] - early validation of appropriate command syntax
     # Test that user entered at least one argument to the executable, print usage if not
@@ -67,21 +49,16 @@ def main():
     # [ PRIMARY COMMAND LOGIC ]
     #   Enter your command line parsing logic below
     #------------------------------------------------------------------------------------------
-
-    # [[ Example usage ]] ------------------------------->>>
-    # if c.cmd == 'hello':
-    #     if c.cmd2 = 'world':
-    # 	      if c.option('--print'):
-    # 		      print('Hello World!')
-    # elif c.cmd == 'spam':
-    #     if c.option_with_arg('--with'):
-    # 		  friend_of_spam = c.arg('--with')    # user enters doxx spam --with eggs
-    # 		  print('spam and ' + friend_of_spam) # prints 'spam and eggs'
-    # elif c.cmd == 'naked':
-    #     if c.flag("--language"):
-    #         lang = c.flag_arg("--language")     # user enters doxx naked --language=python
-    #         print("Naked & " + lang)            # prints 'Naked & python'
-    # End example --------------------------------------->>>
+    elif c.cmd == "build":
+        b = Builder()
+        b.run()
+    elif c.cmd == "key":
+        m = Maker()
+        if c.argc > 1:
+            m.make_key(c.arg1)
+        else:
+            m.make_key("key.yaml")
+        
 
     #------------------------------------------------------------------------------------------
     # [ DEFAULT MESSAGE FOR MATCH FAILURE ]
