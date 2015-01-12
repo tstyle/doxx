@@ -13,6 +13,7 @@ def main():
     from Naked.commandline import Command
     from doxx.commands.build import Builder
     from doxx.commands.make import Maker
+    from doxx.datatypes.key import DoxxKey
 
     #------------------------------------------------------------------------------------------
     # [ Instantiate command line object ]
@@ -50,8 +51,13 @@ def main():
     #   Enter your command line parsing logic below
     #------------------------------------------------------------------------------------------
     elif c.cmd == "build":
+        if c.argc > 1:
+            key_path = c.arg1  # todo : add file_exists check on this user argument
+        else:
+            key_path = "key.yaml"
+        doxxkey = DoxxKey(key_path)
         b = Builder()
-        b.run()
+        b.single_key_run(doxxkey)
     elif c.cmd == "key":
         m = Maker()
         if c.argc > 1:
