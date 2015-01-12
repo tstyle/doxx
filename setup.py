@@ -29,9 +29,9 @@ def version_read():
 setup(
     name='doxx',
     version=version_read(),
-    description='',
+    description='Simple, flexible text file templating engine',
     long_description=(docs_read('README.rst')),
-    url='',
+    url='https://github.com/chrissimpkins/doxx',
     license='MIT license',
     author='Christopher Simpkins',
     author_email='',
@@ -44,7 +44,19 @@ setup(
     packages=find_packages("lib"),
     package_dir={'': 'lib'},
     install_requires=['Naked'],
-    keywords='',
+    keywords='text,template,templates,templating,key,documents,text files',
     include_package_data=True,
-    classifiers=[],
+    classifiers=[
+        'Intended Audience :: End Users/Desktop',
+        'Development Status :: 2 - Pre-Alpha',
+        'Natural Language :: English',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: POSIX',
+        'Operating System :: Unix',
+        'Operating System :: Microsoft :: Windows'        
+    ],
 )
