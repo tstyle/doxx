@@ -11,6 +11,7 @@
 def main():
     import sys
     from Naked.commandline import Command
+    from Naked.toolshed.system import stdout, stderr
     from Naked.toolshed.system import file_exists
     from doxx.commands.build import Builder
     from doxx.commands.make import Maker
@@ -59,12 +60,24 @@ def main():
         doxxkey = DoxxKey(key_path)
         b = Builder()
         b.run(doxxkey)
-    elif c.cmd == "key":
-        m = Maker()
+    elif c.cmd == "make":
         if c.argc > 1:
-            m.make_key(c.arg1)
+            if c.cmd2 == "key":            
+                m = Maker()
+                if c.argc > 2:
+                    m.make_key(c.arg1)
+                else:
+                    m.make_key("key.yaml")
+            elif c.cmd2 == "template":
+                m = Maker()
+                if c.argc > 2:
+                    m.make_template(c.arg1)
+                else:
+                    m.make_template("stub.doxt")  # default name is 'stub.doxt' for new template if not specified by user
+            else:
+                stderr("Usage: doxx make [key | template]", exit=1)
         else:
-            m.make_key("key.yaml")
+            stderr("Please include the secondary command 'key' or 'template' with the 'make' command.", exit=1)
 
     #------------------------------------------------------------------------------------------
     # [ DEFAULT MESSAGE FOR MATCH FAILURE ]
