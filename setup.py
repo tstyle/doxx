@@ -29,7 +29,7 @@ def version_read():
 setup(
     name='doxx',
     version=version_read(),
-    description='Simple, flexible text file templating engine',
+    description='Simple, flexible text file templating system',
     long_description=(docs_read('README.rst')),
     url='https://github.com/chrissimpkins/doxx',
     license='MIT license',
