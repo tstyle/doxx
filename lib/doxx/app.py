@@ -11,6 +11,7 @@
 def main():
     import sys
     from Naked.commandline import Command
+    from Naked.toolshed.system import file_exists
     from doxx.commands.build import Builder
     from doxx.commands.make import Maker
     from doxx.datatypes.key import DoxxKey
@@ -52,19 +53,18 @@ def main():
     #------------------------------------------------------------------------------------------
     elif c.cmd == "build":
         if c.argc > 1:
-            key_path = c.arg1  # todo : add file_exists check on this user argument
+            key_path = c.arg1
         else:
             key_path = "key.yaml"
         doxxkey = DoxxKey(key_path)
         b = Builder()
-        b.single_key_run(doxxkey)
+        b.run(doxxkey)
     elif c.cmd == "key":
         m = Maker()
         if c.argc > 1:
             m.make_key(c.arg1)
         else:
             m.make_key("key.yaml")
-        
 
     #------------------------------------------------------------------------------------------
     # [ DEFAULT MESSAGE FOR MATCH FAILURE ]
