@@ -19,13 +19,15 @@ def multi_process_build(key):
     processes = []   # list of spawned processes
     iolock = Lock()  # file read / write lock
     outputlock = Lock()  # stdout / stderr writes lock
+    
+    # create worker processes
     for template in key.meta_data['templates']:
         p = Process(target=single_process_runner, args=(template, key, iolock, outputlock))
         p.start()
         processes.append(p)
-    
+    # join worker processes upon completion or with 60 second timeout
     for process in processes:
-        process.join()
+        process.join(timeout=60)
     
     # zombie process finder for testing
     # active_child_processes = active_children()
@@ -40,8 +42,9 @@ def single_process_runner(template_path, key, iolock, outputlock):
     b.set_key_data(key)
     b.multi_process_run(template_path, iolock, outputlock)
 
+
 class Builder(object):
-    """The Builder class contains renders doxx templates from user provided keys"""
+    """The Builder class renders doxx templates from user provided keys"""
     def __init__(self):
         self.key_data = {}
     
@@ -116,38 +119,35 @@ class DoxxTemplate(object):
         
     def parse_template_text(self):
         """parses doxx template meta data YAML and main body text and defines instance variables for the DoxxTemplate (public method)"""
-        if file_exists(self.inpath):
-            fr = FileReader(self.inpath)
-            the_text = fr.read()
-            the_yaml = load_all(the_text, Loader=Loader)
-            i = 0
-            # parse meta data and the text from the template file
-            for the_text_block in the_yaml:
-                if i == 0:
-                    self.meta_data = the_text_block
-                elif i == 1:
-                    self.text = the_text_block
-                i += 1
-            # parse file extension type, base file name, and directory path
-            if self.meta_data['extension'] == None:
-                stderr("Please enter a file extension type in the template file " + self.inpath, exit=1)
-            else:
-                the_extension = self.meta_data['extension']
-                if the_extension[0] == ".":
-                    self.extension = the_extension
-                else:
-                    self.extension = "." + the_extension  # add a period if the user did not include it
-                
-                self.basename = splitext(basename(self.inpath))[0]
-                file_name = self.basename + self.extension
-                directory_path = dirname(self.inpath)
-                # make the outfile path to be used for the rendered file write
-                if len(directory_path) > 0:
-                    self.outfile = make_path(directory_path, file_name)
-                else:
-                    self.outfile = file_name 
+        fr = FileReader(self.inpath)
+        the_text = fr.read()
+        the_yaml = load_all(the_text, Loader=Loader)
+        i = 0
+        # parse meta data and the text from the template file
+        for the_text_block in the_yaml:
+            if i == 0:
+                self.meta_data = the_text_block
+            elif i == 1:
+                self.text = the_text_block
+            i += 1
+        # parse file extension type, base file name, and directory path
+        if self.meta_data['extension'] == None:
+            stderr("Please enter a file extension type in the template file " + self.inpath, exit=1)
         else:
-            stderr("Unable to identify the requested template file " + self.inpath, exit=1)
+            the_extension = self.meta_data['extension']
+            if the_extension[0] == ".":
+                self.extension = the_extension
+            else:
+                self.extension = "." + the_extension  # add a period if the user did not include it
+            
+            self.basename = splitext(basename(self.inpath))[0]
+            file_name = self.basename + self.extension
+            directory_path = dirname(self.inpath)
+            # make the outfile path to be used for the rendered file write
+            if len(directory_path) > 0:
+                self.outfile = make_path(directory_path, file_name)
+            else:
+                self.outfile = file_name 
         
     
     
