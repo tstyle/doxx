@@ -7,7 +7,11 @@ from Naked.toolshed.file import FileWriter
 key_template = """
 ---
 
-outfile_extension:
+# enter your build template path or multi-template paths
+# then remove or comment out the other field:
+
+template: ***.doxt
+templates: [***.doxt, ***.doxt]
 
 ---
 
