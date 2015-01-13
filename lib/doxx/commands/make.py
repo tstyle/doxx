@@ -18,6 +18,17 @@ templates: [***.doxt, ***.doxt]
 # Enter the key to your template in YAML syntax below:
 """
 
+temp_template = """
+---
+
+# enter the appropriate extension for files generated from this template below:
+
+extension:
+
+---
+
+"""
+
 class Maker(object):
     def __init__(self):
         pass
@@ -26,6 +37,9 @@ class Maker(object):
         fw = FileWriter(outpath)
         fw.write(key_template)
         
+    def make_template(self, outpath):
+        fw = FileWriter(outpath)
+        fw.write(temp_template)
 
     
     
