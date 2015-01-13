@@ -3,12 +3,15 @@
 
 from Naked.toolshed.file import FileWriter
 
-# the generic key template
-key_template = """
+#############
+# KEY STUB
+#############
+
+key_stub = """
 ---
 
-# enter your build template path or multi-template paths
-# then remove or comment out the other field:
+# enter a template path (template) OR multiple template paths (templates)
+# relative to this key file, then remove or comment out the other field:
 
 template: ***.doxt
 templates: [***.doxt, ***.doxt]
@@ -18,10 +21,17 @@ templates: [***.doxt, ***.doxt]
 # Enter the key to your template in YAML syntax below:
 """
 
-temp_template = """
+#### END KEY STUB
+
+
+##################
+# TEMPLATE STUB
+##################
+
+template_stub = """
 ---
 
-# enter the appropriate extension for files generated from this template below:
+# enter the extension for files generated from this template below:
 
 extension:
 
@@ -29,17 +39,20 @@ extension:
 
 """
 
+### END TEMPLATE STUB
+
+
 class Maker(object):
     def __init__(self):
         pass
     
     def make_key(self, outpath):
         fw = FileWriter(outpath)
-        fw.write(key_template)
+        fw.write(key_stub)
         
     def make_template(self, outpath):
         fw = FileWriter(outpath)
-        fw.write(temp_template)
+        fw.write(template_stub)
 
     
     
