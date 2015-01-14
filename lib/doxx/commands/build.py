@@ -2,10 +2,11 @@
 # encoding: utf-8
 
 import sys
+import os
 from os.path import basename, splitext, dirname
 from multiprocessing import Process, Lock, active_children
 from Naked.toolshed.file import FileReader, FileWriter
-from Naked.toolshed.system import file_exists, make_path, stderr, stdout
+from Naked.toolshed.system import dir_exists, file_exists, make_dirs, make_path, stderr, stdout
 from Naked.toolshed.ink import Renderer as InkRenderer
 from Naked.toolshed.ink import Template as InkTemplate
 from yaml import load, load_all
@@ -55,21 +56,25 @@ class Builder(object):
     def run(self, key):
         # detect single vs multiple keys in the template and execute replacements with every requested template
         self.key_data = key.key_data  # assign key data from the doxx Key
-        if key.multi_template_key == True:
-            # for template in key.meta_data['templates']:
-                # self.single_template_run(template, key.key_data)
-            multi_process_build(key)
-        else:
-            self.single_template_run(key.meta_data['template']) # process single template file
+        
+        try:
+            if key.multi_template_key == True:
+                multi_process_build(key)
+            else:
+                self.single_template_run(key.meta_data['template']) # process single template file
+        except Exception as e:
+            stderr("Error: Unable to run the build command. ", exit=0)
+            stderr("Error Message: " + str(e), exit=1)
         
     
     def single_template_run(self, template_path):
-        """Render replacements using a single template file as defined in a doxx Key file (public method)"""
+        """Render replacements using a single template file as defined in a doxx key file (public method)"""
         #----------------------------------------------------------------------------
         # NOTE : changes in this method require the same changes to multi_process_run
         #----------------------------------------------------------------------------
         if file_exists(template_path):
             template = DoxxTemplate(template_path)
+            template.parse_template_for_errors()
             template.parse_template_text()
             
             # template meta data is in template.meta_data
@@ -78,36 +83,49 @@ class Builder(object):
             ink_renderer = InkRenderer(ink_template, self.key_data)
             rendered_text = ink_renderer.render()
             
-            print(rendered_text)
-            print(template.outfile)
-            # fw = FileWriter(template.outfile)
-            # fw.write(rendered_text)
+            # if the requested destination directory path does not exist, make it
+            if not dir_exists(dirname(template.outfile)):
+                make_dirs(dirname(template.outfile))
+            
+            
+            # print(rendered_text)
+            # print(template.outfile)
+            fw = FileWriter(template.outfile)
+            fw.write(rendered_text)
         else:
             stderr("Unable to find the requested template file " + template_path, exit=1)  # print error message and halt execution of application
             
     def multi_process_run(self, template_path, iolock, outputlock):
-        """Render replacements over multiple template files as defined in doxx Key file using multiple processes (public method)"""
+        """Render replacements over multiple template files as defined in doxx key file using multiple processes (public method)"""
         #-------------------------------------------------------------------------------
         # NOTE : changes in this method require the same changes to single_template_run
         #-------------------------------------------------------------------------------
         if file_exists(template_path):
-            template = DoxxTemplate(template_path)
-            
-            # parse the template text with read of the input template file
             iolock.acquire()  # acquire the IO lock for template file read
-            template.parse_template_text()
+            template = DoxxTemplate(template_path)
             iolock.release()  # release the IO lock for template file read
+            
+            outputlock.acquire()  # acquire stderr lock
+            template.parse_template_for_errors()
+            outputlock.release()  # release stderr lock
+            
+            # parse the template text
+            template.parse_template_text()
+            
     
             # template meta data is in template.meta_data
             # template text is in template.text
             ink_template = InkTemplate(template.text)
             ink_renderer = InkRenderer(ink_template, self.key_data)
-            rendered_text = ink_renderer.render()
+            rendered_text = ink_renderer.render()            
             
-            outputlock.acquire()  # acquire the stdout lock
-            print(rendered_text)
-            print(template.outfile)
-            outputlock.release()  # release the stdout lock
+            iolock.acquire()
+            # if the requested destination directory path does not exist, make it
+            if not dir_exists(dirname(template.outfile)):
+                make_dirs(dirname(template.outfile))            
+            fw = FileWriter(template.outfile)
+            fw.write(rendered_text)
+            iolock.release()
         else:
             outputlock.acquire()  # acquire the stderr lock
             stdout("Unable to find the requested template file " + template_path)  # print error message in standard output, multi-file run so do not end execution of application       
@@ -126,10 +144,12 @@ class DoxxTemplate(object):
         
         parsed_text = self.raw_text.split("---doxx---")
         
-        # TODO: add try/catch block around the following:
-        
-        self.meta_data = load(parsed_text[1], Loader=Loader)
-        self.text = parsed_text[2][1:]  # define self.text with the template data from the file, the [1:] slice removes /n at end of the delimiter        
+        if len(parsed_text) == 3:  # should split into three sections (0 = before first ---doxx---, 1 = meta data, 2 = template text data after second ---doxx---)
+            self.meta_data = load(parsed_text[1], Loader=Loader)
+            self.text = parsed_text[2][1:]  # define self.text with the template data from the file, the [1:] slice removes /n at end of the delimiter        
+        else:
+            self.meta_data = {}
+            self.text = ""
         
     def parse_template_text(self):
         """parses doxx template meta data YAML and main body text and defines instance variables for the DoxxTemplate (public method)"""
@@ -170,13 +190,10 @@ class DoxxTemplate(object):
     
     def parse_template_for_errors(self):
         # confirm meta data contains data
-        if len(self.meta_data) == 0:
-            return (True, "The template file " + self.inpath + " does not include meta data.  Please include the required meta data in order to process this file.")
-        
+        if self.meta_data == None or len(self.meta_data) == 0:
+            stderr("The template file '" + self.inpath + "' is not properly formatted.  Please include the required meta data block between '---doxx---' delimiters at the top of your file.", exit=1)
         # confirm that there is template text
-        if len(self.text) == 0:
-            return (True, "There is no template text in the template file " + self.inpath)
-
-    
-    def parse_template_for_errors_multiprocess(self, outputlock):
-        pass
+        if self.text == None or len(self.text) < 5:  # if self.text not defined or length of the string < 5 chars (because {{x}} == 5 so must not include any replacement tags)
+            stderr("Unable to parse template text from the template file '" + self.inpath + "'. Please include a template in order to render this file.", exit=1)
+                
+        
