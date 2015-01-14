@@ -8,7 +8,7 @@ from Naked.toolshed.file import FileReader, FileWriter
 from Naked.toolshed.system import file_exists, make_path, stderr, stdout
 from Naked.toolshed.ink import Renderer as InkRenderer
 from Naked.toolshed.ink import Template as InkTemplate
-from yaml import load_all
+from yaml import load, load_all
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
 except ImportError:
@@ -16,8 +16,8 @@ except ImportError:
     
 
 def multi_process_build(key):
-    processes = []   # list of spawned processes
-    iolock = Lock()  # file read / write lock
+    processes = []       # list of spawned processes
+    iolock = Lock()      # file read / write lock
     outputlock = Lock()  # stdout / stderr writes lock
     
     # create worker processes
@@ -29,7 +29,7 @@ def multi_process_build(key):
     for process in processes:
         process.join(timeout=60)
     
-    # zombie process finder for testing
+    ## zombie process finder for testing
     # active_child_processes = active_children()
     
     # if len(active_child_processes) > 0:
@@ -54,7 +54,6 @@ class Builder(object):
     
     def run(self, key):
         # detect single vs multiple keys in the template and execute replacements with every requested template
-        # TODO: add multiprocessing capabilities to multi-template processing
         self.key_data = key.key_data  # assign key data from the doxx Key
         if key.multi_template_key == True:
             # for template in key.meta_data['templates']:
@@ -63,9 +62,12 @@ class Builder(object):
         else:
             self.single_template_run(key.meta_data['template']) # process single template file
         
+    
     def single_template_run(self, template_path):
         """Render replacements using a single template file as defined in a doxx Key file (public method)"""
+        #----------------------------------------------------------------------------
         # NOTE : changes in this method require the same changes to multi_process_run
+        #----------------------------------------------------------------------------
         if file_exists(template_path):
             template = DoxxTemplate(template_path)
             template.parse_template_text()
@@ -78,12 +80,16 @@ class Builder(object):
             
             print(rendered_text)
             print(template.outfile)
+            # fw = FileWriter(template.outfile)
+            # fw.write(rendered_text)
         else:
             stderr("Unable to find the requested template file " + template_path, exit=1)  # print error message and halt execution of application
             
     def multi_process_run(self, template_path, iolock, outputlock):
         """Render replacements over multiple template files as defined in doxx Key file using multiple processes (public method)"""
-        # NOTE: changes in this method require the same changes in single_template_run
+        #-------------------------------------------------------------------------------
+        # NOTE : changes in this method require the same changes to single_template_run
+        #-------------------------------------------------------------------------------
         if file_exists(template_path):
             template = DoxxTemplate(template_path)
             
@@ -110,45 +116,67 @@ class Builder(object):
 class DoxxTemplate(object):
     """A doxx template class that maintains state of user designed templates during the rendering process"""
     def __init__(self, inpath):
-        self.text = ""
-        self.meta_data = {}
         self.inpath = inpath
         self.extension = ""     # stored in the format '.txt'
         self.basename = ""      # base filename for the out write file path
         self.outfile = ""
         
+        fr = FileReader(inpath)
+        self.raw_text = fr.read()
+        
+        parsed_text = self.raw_text.split("---doxx---")
+        
+        # TODO: add try/catch block around the following:
+        
+        self.meta_data = load(parsed_text[1], Loader=Loader)
+        self.text = parsed_text[2][1:]  # define self.text with the template data from the file, the [1:] slice removes /n at end of the delimiter        
+        
     def parse_template_text(self):
         """parses doxx template meta data YAML and main body text and defines instance variables for the DoxxTemplate (public method)"""
-        fr = FileReader(self.inpath)
-        the_text = fr.read()
-        the_yaml = load_all(the_text, Loader=Loader)
-        i = 0
-        # parse meta data and the text from the template file
-        for the_text_block in the_yaml:
-            if i == 0:
-                self.meta_data = the_text_block
-            elif i == 1:
-                self.text = the_text_block
-            i += 1
-        # parse file extension type, base file name, and directory path
-        if self.meta_data['extension'] == None:
-            stderr("Please enter a file extension type in the template file " + self.inpath, exit=1)
+        
+        meta_keys = self.meta_data.keys()
+        
+        # if user did not enter an extension type, use .doxr as the default
+        if not 'extension' in meta_keys or self.meta_data['extension'] == None:
+            self.meta_data['extension'] = ".doxr"
+        
+        # the user specified destination directory for the rendered file
+        if not 'destination_directory' in meta_keys or self.meta_data['destination_directory'] == None:
+            dest_dir = ""
         else:
-            the_extension = self.meta_data['extension']
-            if the_extension[0] == ".":
-                self.extension = the_extension
-            else:
-                self.extension = "." + the_extension  # add a period if the user did not include it
-            
-            self.basename = splitext(basename(self.inpath))[0]
-            file_name = self.basename + self.extension
-            directory_path = dirname(self.inpath)
-            # make the outfile path to be used for the rendered file write
-            if len(directory_path) > 0:
-                self.outfile = make_path(directory_path, file_name)
-            else:
-                self.outfile = file_name 
+            dest_dir = self.meta_data['destination_directory']
+        
+        # the user specified file extension for the rendered file
+        the_extension = self.meta_data['extension']
+        if the_extension[0] == ".":
+            self.extension = the_extension
+        else:
+            self.extension = "." + the_extension  # add a period if the user did not include it
+        
+        self.basename = splitext(basename(self.inpath))[0]
+        file_name = self.basename + self.extension
+        
+        if len(dest_dir) > 0:  # confirm that a destination directory was specified
+            directory_path = make_path(dirname(self.inpath), dest_dir)  # make path that includes user specified destination directory if present
+        else:
+            directory_path = dirname(self.inpath)  # otherwise just use the directory path to the template file
+        
+        # make the outfile path to be used for the rendered file write
+        if len(directory_path) > 0:
+            self.outfile = make_path(directory_path, file_name)
+        else:
+            self.outfile = file_name 
         
     
-    
+    def parse_template_for_errors(self):
+        # confirm meta data contains data
+        if len(self.meta_data) == 0:
+            return (True, "The template file " + self.inpath + " does not include meta data.  Please include the required meta data in order to process this file.")
+        
+        # confirm that there is template text
+        if len(self.text) == 0:
+            return (True, "There is no template text in the template file " + self.inpath)
 
+    
+    def parse_template_for_errors_multiprocess(self, outputlock):
+        pass
