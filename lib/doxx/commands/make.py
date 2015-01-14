@@ -4,7 +4,7 @@
 from Naked.toolshed.file import FileWriter
 
 #############
-# KEY STUB
+# KEY STUB - changes to this stub require changes to the datatypes.key._parse_yaml_for_errors method
 #############
 
 key_stub = """
@@ -15,6 +15,8 @@ key_stub = """
 
 template: ***.doxt
 templates: [***.doxt, ***.doxt]
+
+destination-directory: build
 
 ---
 
@@ -29,13 +31,13 @@ templates: [***.doxt, ***.doxt]
 ##################
 
 template_stub = """
----
+---doxx---
 
 # enter the extension for files generated from this template below:
 
 extension:
 
----
+---doxx---
 
 """
 
@@ -43,6 +45,7 @@ extension:
 
 
 class Maker(object):
+    """doxx key and template stub generator class"""
     def __init__(self):
         pass
     
