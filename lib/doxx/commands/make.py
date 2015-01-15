@@ -16,8 +16,6 @@ key_stub = """
 template: ***.doxt
 templates: [***.doxt, ***.doxt]
 
-destination-directory: build
-
 ---
 
 # Enter the key to your template in YAML syntax below:
@@ -34,8 +32,10 @@ template_stub = """
 ---doxx---
 
 # enter the extension for files generated from this template below:
-
 extension:
+
+# enter a path to the directory for your rendered files from this template
+destination-directory: build
 
 ---doxx---
 
