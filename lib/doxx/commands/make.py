@@ -31,11 +31,16 @@ templates: [***.doxt, ***.doxt]
 template_stub = """
 ---doxx---
 
-# enter the extension for files generated from this template below:
+# (REQUIRED) enter the file extension for files generated from this template:
 extension:
 
-# enter a path to the directory for your rendered files from this template
-destination-directory: build
+# (OPTIONAL) enter a base file name for files generated from this template:
+#  default: use the template base file name for the generated file
+basename:
+
+# (OPTIONAL) enter a directory path relative to this file for files generated from this template:
+#  default : write to directory that contains this template file
+destination-directory:
 
 ---doxx---
 
