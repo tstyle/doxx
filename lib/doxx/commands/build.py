@@ -137,7 +137,7 @@ class DoxxTemplate(object):
         self.inpath = inpath
         self.extension = ""     # stored in the format '.txt'
         self.basename = ""      # base filename for the out write file path
-        self.outfile = ""
+        self.outfile = ""       # write file path for use by calling code
         
         fr = FileReader(inpath)
         self.raw_text = fr.read()
@@ -160,32 +160,35 @@ class DoxxTemplate(object):
         if not 'extension' in meta_keys or self.meta_data['extension'] == None:
             self.meta_data['extension'] = ".doxr"
         
-        # the user specified destination directory for the rendered file
+        # define rendered file destination directory relative to current working directory
         if not 'destination_directory' in meta_keys or self.meta_data['destination_directory'] == None:
             dest_dir = ""
         else:
             dest_dir = self.meta_data['destination_directory']
-        
-        # the user specified file extension for the rendered file
+            
+        # define rendered file extension
         the_extension = self.meta_data['extension']
         if the_extension[0] == ".":
             self.extension = the_extension
         else:
             self.extension = "." + the_extension  # add a period if the user did not include it
-        
-        self.basename = splitext(basename(self.inpath))[0]
-        file_name = self.basename + self.extension
-        
-        if len(dest_dir) > 0:  # confirm that a destination directory was specified
-            directory_path = make_path(dirname(self.inpath), dest_dir)  # make path that includes user specified destination directory if present
+            
+        # define rendered file base file name
+        if not 'basename' in meta_keys or self.meta_data['basename'] == None:
+            self.basename = splitext(basename(self.inpath))[0]
         else:
-            directory_path = dirname(self.inpath)  # otherwise just use the directory path to the template file
+            self.basename = self.meta_data['basename']
+        
+        file_name = self.basename + self.extension  # local temp file_name variable, modified below to final write path
         
         # make the outfile path to be used for the rendered file write
-        if len(directory_path) > 0:
-            self.outfile = make_path(directory_path, file_name)
+        if len(dest_dir) > 0:
+            self.outfile = make_path(dest_dir, file_name)
         else:
-            self.outfile = file_name 
+            self.outfile = file_name
+            
+        print(self.outfile)
+        sys.exit(0)
         
     
     def parse_template_for_errors(self):
