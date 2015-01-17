@@ -77,14 +77,14 @@ def main():
             else:
                 stderr("Usage: doxx make [key | template]", exit=1)
         else:
-            stderr("Please include the secondary command 'key' or 'template' with the 'make' command.", exit=1)
+            stderr("[!] doxx: Please include the secondary command 'key' or 'template' with the 'make' command.", exit=1)
 
     #------------------------------------------------------------------------------------------
     # [ DEFAULT MESSAGE FOR MATCH FAILURE ]
     #  Message to provide to the user when all above conditional logic fails to meet a true condition
     #------------------------------------------------------------------------------------------
     else:
-        print("Could not complete the command that you entered.  Please try again.")
+        stderr("[!] doxx: Could not complete the command that you entered.  Please try again.")
         sys.exit(1) #exit
 
 if __name__ == '__main__':

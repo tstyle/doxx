@@ -15,6 +15,7 @@ class DoxxKey(object):
         # instance variables
         self.meta_data = {}      # holds key meta data
         self.key_data = {}       # holds key data
+        self.key_path = inpath
         self.multi_template_key = False  # changed to True in the _generate_dir_paths method if method detects multiple requested templates
         
         # define instance variables on object instantiation
@@ -44,7 +45,7 @@ class DoxxKey(object):
         
                 i += 1
         else:
-            stderr("Unable to load the requested key " + inpath + ". Please check the path and try again.", exit=1)
+            stderr("[!] doxx: Unable to load the requested key " + inpath + ". Please check the path and try again.", exit=1)
     
     def _cast_values_to_string(self):
         """cast non-string doxx key values to strings (private method)"""
@@ -94,27 +95,27 @@ class DoxxKey(object):
         
         # key data absence test
         if test_key_data == None:
-            stderr("There is no text replacement data in your key file.  Please update the key file and try again.", exit=1)
+            stderr("[!] doxx: There is no text replacement data in your key file.  Please update the key file and try again.", exit=1)
         
         # meta data absence test
         if test_meta_data == None:
-            stderr("There is no meta data in your key file.  Please review the doxx documentation, include the required meta data in your key file, and try again.", exit=1)
+            stderr("[!] doxx: There is no meta data in your key file.  Please review the doxx documentation, include the required meta data in your key file, and try again.", exit=1)
         
         # meta data does not contain a template or templates field test
         if not 'template' in test_metadata_keys:
             if not 'templates' in test_metadata_keys:
-                stderr("There are no template files specified in your key. Please include a template or templates field in the meta data section.", exit=1)
+                stderr("[!] doxx: There are no template files specified in your key. Please include a template or templates field in the meta data section.", exit=1)
             
         # meta data contains both template and templates fields test
         if 'template' in test_metadata_keys and 'templates' in test_metadata_keys:
-            stderr("The 'template' and 'templates' fields are both included in your key file.  Please remove one field and run your command again.", exit=1)
+            stderr("[!] doxx: The 'template' and 'templates' fields are both included in your key file.  Please remove one field and run your command again.", exit=1)
         
         # meta data template field does not include a template path value
         if 'template' in test_metadata_keys and test_meta_data['template'] == None:
-            stderr("The template field in your key is empty. Please include a path to your template file.", exit=1)
+            stderr("[!] doxx: The template field in your key is empty. Please include a path to your template file.", exit=1)
             
         # meta data templates field includes an empty string file path
         if 'templates' in test_metadata_keys:
             for template in test_meta_data['templates']:
                 if template == '':
-                    stderr("The templates field in your key file contains an empty file path.  Please fix this and try again.", exit=1)
+                    stderr("[!] doxx: The templates field in your key file contains an empty file path.  Please fix this and try again.", exit=1)
