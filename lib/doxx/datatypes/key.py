@@ -6,9 +6,9 @@ from Naked.toolshed.system import directory, make_path
 from Naked.toolshed.system import file_exists, stderr
 from yaml import load_all
 try:
-    from yaml import CLoader as Loader, CDumper as Dumper
+    from yaml import CLoader as Loader
 except ImportError:
-    from yaml import Loader, Dumper
+    from yaml import Loader
     
 class DoxxKey(object):
     def __init__(self, inpath):
@@ -119,3 +119,6 @@ class DoxxKey(object):
             for template in test_meta_data['templates']:
                 if template == '':
                     stderr("[!] doxx: The templates field in your key file contains an empty file path.  Please fix this and try again.", exit=1)
+                    
+                    
+                    

@@ -1,21 +1,14 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import os
 import sys
-from os.path import basename, splitext, dirname
-from multiprocessing import Process, Lock, active_children
+from os.path import dirname
+from multiprocessing import Process, Lock
 from doxx.datatypes.template import DoxxTemplate, RemoteDoxxTemplate
-from Naked.toolshed.file import FileReader, FileWriter
-from Naked.toolshed.system import dir_exists, file_exists, make_dirs, make_path, stderr, stdout
+from Naked.toolshed.file import FileWriter
+from Naked.toolshed.system import dir_exists, file_exists, make_dirs, stderr, stdout
 from Naked.toolshed.ink import Renderer as InkRenderer
 from Naked.toolshed.ink import Template as InkTemplate
-from yaml import load, load_all
-try:
-    from yaml import CLoader as Loader, CDumper as Dumper
-except ImportError:
-    from yaml import Loader, Dumper
-    
 
 def multi_process_build(key):
     processes = []       # list of spawned processes
@@ -57,7 +50,6 @@ class Builder(object):
     def run(self, key):
         # detect single vs multiple keys in the template and execute replacements with every requested template
         self.key_data = key.key_data  # assign key data from the doxx Key
-        stdout("[*] doxx: Starting your build with the key file '" + key.key_path + "'...")
         
         try:
             if key.multi_template_key == True:
@@ -152,4 +144,8 @@ class Builder(object):
             make_dirs(dirname(template.outfile))            
         fw = FileWriter(template.outfile)
         fw.write(rendered_text)
-        iolock.release()        
+        iolock.release()
+        
+
+
+        

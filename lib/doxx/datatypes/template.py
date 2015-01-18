@@ -1,17 +1,16 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import sys
-from os.path import basename, splitext, dirname
-from Naked.toolshed.file import FileReader, FileWriter
+from os.path import basename, splitext
+from Naked.toolshed.file import FileReader
 from Naked.toolshed.network import HTTP
-from Naked.toolshed.system import dir_exists, file_exists, make_dirs, make_path, stderr, stdout
+from Naked.toolshed.system import make_path, stderr
 
-from yaml import load, load_all
+from yaml import load
 try:
-    from yaml import CLoader as Loader, CDumper as Dumper
+    from yaml import CLoader as Loader
 except ImportError:
-    from yaml import Loader, Dumper
+    from yaml import Loader
     
     
 
@@ -21,6 +20,7 @@ class DoxxTemplate(object):
         self.inpath = inpath
         self.raw_text = ""
         self.text = ""
+        self.meta_data = {}     # holds meta data from the header of the file
         self.extension = ""     # stored in the format '.txt'
         self.basename = ""      # base filename for the out write file path
         self.outfile = ""       # write file path for use by calling code
@@ -104,4 +104,5 @@ class RemoteDoxxTemplate(DoxxTemplate):
         else:
             fail_status_code = http.res.status_code
             stderr("[!] doxx: Unable to pull the requested template file '" + self.inpath + "' (HTTP status code " + str(fail_status_code) + ")", exit=1)
+        
         

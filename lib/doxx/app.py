@@ -12,7 +12,6 @@ def main():
     import sys
     from Naked.commandline import Command
     from Naked.toolshed.system import stdout, stderr
-    from Naked.toolshed.system import file_exists
     from doxx.commands.build import Builder
     from doxx.commands.make import Maker
     from doxx.datatypes.key import DoxxKey
@@ -57,6 +56,7 @@ def main():
             key_path = c.arg1
         else:
             key_path = "key.yaml"
+        stdout("[*] doxx: Starting your build with the key file '" + key_path + "'...")
         doxxkey = DoxxKey(key_path)
         b = Builder()
         b.run(doxxkey)
@@ -89,3 +89,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+    
+    
