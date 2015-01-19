@@ -24,7 +24,7 @@ class DoxxKey(object):
         # define instance variables on object instantiation
         self._read_yaml(inpath)  # define self.meta_data & self.key_data with the yaml key file
         self._cast_values_to_string()  # cast non-string values to strings (necessary for the Ink Renderer class)
-        self._generate_dir_path(inpath)      # join the directory path to the template files specified in the key (for keys executed from outside of containing directory)
+        self._generate_dir_path(inpath)  # join the directory path to the template files specified in the key (for keys executed from outside of containing directory)
         
         # confirm the integrity of the key file
         self._parse_yaml_for_errors()
@@ -52,18 +52,17 @@ class DoxxKey(object):
     
     def _cast_values_to_string(self):
         """cast non-string doxx key values to unicode strings (private method)"""
+        
+        # convert all key value data to unicode compatible string types (unicode in Py2, str in Py3)
         if self.key_data == None or len(self.key_data) == 0:
             key_list = []  # if key_data is empty then define as empty list
         else:
             key_list = self.key_data.keys()
         for key in key_list:
-            test_key = self.key_data[key]            
-            if is_py2:  # python 2 only
-                if isinstance(test_key, basestring):  # if it is a string
-                    if isinstance(test_key, unicode):  # check if it is a unicode string (this is ok)
-                        pass
-                    else:                      
-                        self.key_data[key] = unicode(test_key)
+            test_key = self.key_data[key]
+            if is_py2():  # python 2 only
+                if isinstance(test_key, unicode):  # if it is a string
+                    pass
                 else:
                     self.key_data[key] = unicode(test_key)
             else:  # python 3 only
