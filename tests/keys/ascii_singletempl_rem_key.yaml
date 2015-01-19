@@ -1,0 +1,16 @@
+---
+
+template: "http://test.com/dir/test.doxt"
+
+---
+
+string: Chris
+string-spaces: more cowbell
+number: 2015
+multiline: 
+    This is a multiple line string
+    with more input
+date: 10/10/2010
+colons: contains:colons
+url: http://test.com/dir/file.txt
+nonalph-chars: "!@#$%^&*()-_=+~``<>,./?:;"
