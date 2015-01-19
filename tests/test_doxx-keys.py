@@ -4,7 +4,11 @@
 import sys
 import os
 import unittest
+import unicodedata
+from Naked.toolshed.system import make_path
 from doxx.datatypes.key import DoxxKey
+
+from Naked.toolshed.python import is_py2, is_py3
 
 class DoxxASCIIKeysTests(unittest.TestCase):
 
@@ -18,7 +22,6 @@ class DoxxASCIIKeysTests(unittest.TestCase):
         self.good_key_path_multitempl_outside = "keys/ascii_multitempl_key.yaml"
         self.good_key_path_remtempl_outside = "keys/ascii_singletempl_rem_key.yaml"
         self.good_key_path_rem_multi_outside = "keys/ascii_multitempl_rem_key.yaml"
-        self.bad_key_path = "boguskey.yaml"
 
     def tearDown(self):
         pass
@@ -215,6 +218,64 @@ class DoxxASCIIKeysTests(unittest.TestCase):
         self.assertEqual('https://test.com/dir/test2.doxt', key.meta_data['templates'][1])
         self.assertEqual('https://test.com/dir/test3.doxt', key.meta_data['templates'][2])
         
+
+
+class DoxxUnicodeKeysTests(unittest.TestCase):
+
+    def setUp(self):
+        self.main_test_dir = os.getcwd()
+        self.good_key_path = "uni_singletemp_key.yaml"  # need to chdir into keys directory to use this path
+        self.good_key_path_multitempl = "uni_multitemp_key.yaml"
+        self.good_key_path_outside = "keys/uni_singletemp_key.yaml"
+        self.good_key_path_multitempl_outside = "keys/uni_multitemp_key.yaml"
+        
+    def make_nfkd_string(self, the_string):
+        return unicodedata.normalize("NFKD", the_string)
+    
     ## Single template unicode tests
+    
+    # test instance attributes on construction
+    def test_doxxkey_unicode_key_read_successful(self):
+        os.chdir('keys')
+        key = DoxxKey(self.good_key_path)
+
+        os.chdir(self.main_test_dir)
+
+    def test_doxxkey_unicode_metadata_template_attr(self):
+        os.chdir('keys')  # switch to keys directory to test file load from inside the directory
+        key = DoxxKey(self.good_key_path)
+        self.assertTrue('template' in key.meta_data.keys())  # assert that 'template' is one of keys in the meta_data attribute
+        
+        if is_py2:
+            norm_path = self.make_nfkd_string(u'ţéśť.doxt')
+            self.assertEqual(norm_path, key.meta_data['template'])  # assert that the template path string is defined relative to the key file when key file in CWD
+
+        else:
+            self.assertEqual('ţéśť.doxt', key.meta_data['template'])
+        
+        os.chdir(self.main_test_dir)
+
+    def test_doxxkey_unicode_metadata_template_attr_diffdir(self):
+        key = DoxxKey(self.good_key_path_outside)
+        self.assertTrue('template' in key.meta_data.keys())  # assert that 'template' is one of keys in the meta_data attribute
+        
+        if is_py2:
+            norm_path = self.make_nfkd_string(u'keys/ţéśť.doxt')
+            self.assertEqual(norm_path, key.meta_data['template'])
+        else:
+            self.assertEqual('keys/ţéśť.doxt', key.meta_data['template'])
+            
+    
+    def test_doxxkey_unicode_keydata_string_attr(self):  # test a single word string value in the key data
+        key = DoxxKey(self.good_key_path_outside)
+        self.assertTrue('string' in key.key_data.keys())
+        
+        if is_py2:
+            norm_value = self.make_nfkd_string(u'ΔϾϘ')
+            self.assertEqual(norm_value, key.key_data['string'])
+        else:
+            self.assertEqual('ΔϾϘ', key.key_data['string']) 
+            
+    
     ## Multi-template unicode tests
     ## Error tests
