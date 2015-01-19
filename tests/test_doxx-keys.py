@@ -38,10 +38,9 @@ class DoxxASCIIKeysTests(unittest.TestCase):
     def test_doxxkey_metadata_template_attr(self):
         os.chdir('keys')  # switch to keys directory to test file load from inside the directory
         key = DoxxKey(self.good_key_path)
+        os.chdir(self.main_test_dir)
         self.assertTrue('template' in key.meta_data.keys())  # assert that 'template' is one of keys in the meta_data attribute
         self.assertEqual('test.doxt', key.meta_data['template'])  # assert that the template path string is defined relative to the key file when key file in CWD
-        
-        os.chdir(self.main_test_dir)
         
     def test_doxxkey_metadata_template_attr_diffdir(self):
         key = DoxxKey(self.good_key_path_outside)
@@ -107,13 +106,12 @@ class DoxxASCIIKeysTests(unittest.TestCase):
     def test_doxxkey_multiascii_metadata_template_attr(self):
         os.chdir('keys')  # switch to keys directory to test file load from inside the directory
         key = DoxxKey(self.good_key_path_multitempl)
+        os.chdir(self.main_test_dir)
         self.assertTrue('templates' in key.meta_data.keys())  # assert that 'template' is one of keys in the meta_data attribute
         meta_keys = key.meta_data['templates']
         self.assertEqual('test1.doxt', meta_keys[0])  # assert that the multiple template path strings are defined relative to the key file when key file in CWD
         self.assertEqual('test2.doxt', meta_keys[1])
         self.assertEqual('test3.doxt', meta_keys[2])
-        
-        os.chdir(self.main_test_dir)
 
     def test_doxxkey_multiascii_metadata_template_attr_diffdir(self):
         key = DoxxKey(self.good_key_path_multitempl_outside)
@@ -180,10 +178,9 @@ class DoxxASCIIKeysTests(unittest.TestCase):
     def test_doxxkey_remascii_metadata_templates_attr(self):  # test meta data load with URL
         os.chdir('keys')  # switch to keys directory to test file load from inside the directory
         key = DoxxKey(self.good_key_path_remtempl)
+        os.chdir(self.main_test_dir)
         self.assertTrue('template' in key.meta_data.keys())  # assert that 'template' is one of keys in the meta_data attribute
         self.assertEqual('http://test.com/dir/test.doxt', key.meta_data['template'])
-        
-        os.chdir(self.main_test_dir)
         
     def test_doxxkey_remascii_metadata_templates_samedir_attr(self):  # test meta data load with URL, key file run from outside working directory
         key = DoxxKey(self.good_key_path_remtempl_outside)
@@ -204,12 +201,11 @@ class DoxxASCIIKeysTests(unittest.TestCase):
     def test_doxxkey_remascii_multi_metadata_templates_attr(self):  # test meta data load with URL
         os.chdir('keys')  # switch to keys directory to test file load from inside the directory
         key = DoxxKey(self.good_key_path_rem_multi)
+        os.chdir(self.main_test_dir)  
         self.assertTrue('templates' in key.meta_data.keys())  # assert that 'template' is one of keys in the meta_data attribute
         self.assertEqual('http://test.com/dir/test1.doxt', key.meta_data['templates'][0])
         self.assertEqual('https://test.com/dir/test2.doxt', key.meta_data['templates'][1])
         self.assertEqual('https://test.com/dir/test3.doxt', key.meta_data['templates'][2])
-    
-        os.chdir(self.main_test_dir)    
     
     def test_doxxkey_remascii_multi_metadata_templates_samedir_attr(self):
         key = DoxxKey(self.good_key_path_rem_multi_outside)
@@ -244,12 +240,12 @@ class DoxxUnicodeKeysTests(unittest.TestCase):
     def test_doxxkey_unicode_metadata_template_attr(self):
         os.chdir('keys')  # switch to keys directory to test file load from inside the directory
         key = DoxxKey(self.good_key_path)
+        os.chdir(self.main_test_dir)
         self.assertTrue('template' in key.meta_data.keys())  # assert that 'template' is one of keys in the meta_data attribute
         
         norm_path = self.make_nfkd_string(u'ţéśť.doxt')
         self.assertEqual(norm_path, key.meta_data['template'])  # assert that the template path string is defined relative to the key file when key file in CWD
 
-        os.chdir(self.main_test_dir)
 
     def test_doxxkey_unicode_metadata_template_attr_diffdir(self):
         key = DoxxKey(self.good_key_path_outside)
@@ -297,5 +293,68 @@ class DoxxUnicodeKeysTests(unittest.TestCase):
         
         self.assertEqual(u'♠♻★©', key.key_data['symbols'])
     
+    
+    
     ## Multi-template unicode tests
+    
+    def test_doxxkey_multiunicode_metadata_template_attr(self):
+        os.chdir('keys')  # switch to keys directory to test file load from inside the directory
+        key = DoxxKey(self.good_key_path_multitempl)
+        os.chdir(self.main_test_dir)
+        self.assertTrue('templates' in key.meta_data.keys())  # assert that 'template' is one of keys in the meta_data attribute
+        meta_keys = key.meta_data['templates']
+        norm_path = unicodedata.normalize("NFKD", u'ţéśť.doxt')
+        self.assertEqual(norm_path, meta_keys[0])  # assert that the multiple template path strings are defined relative to the key file when key file in CWD
+        self.assertEqual('https://test.com/dir/test.doxt', meta_keys[1])
+        self.assertEqual('http://test.com/dir/test2.doxt', meta_keys[2])
+        
+    def test_doxxkey_multiunicode_keydata_string_attr(self):
+        key = DoxxKey(self.good_key_path_multitempl_outside)
+        self.assertTrue('string' in key.key_data.keys())
+    
+        self.assertEqual(u'ΔϾϘ', key.key_data['string'])
+        
     ## Error tests
+    
+class DoxxKeysErrorTests(unittest.TestCase):
+
+    def setUp(self):
+        self.nohead_key = "keys/errors/nohead_key.yaml"          
+        self.emptymeta_key = "keys/errors/emptymeta_key.yaml"    
+        self.two_templates_key = "keys/errors/twotemp_key.yaml"
+        self.nometa_key = "keys/errors/nometa_key.yaml"
+        
+        self.nokey_key = "keys/errors/nokey_key.yaml"
+        self.emptykey_key = "keys/errors/emptykey_key.yaml"
+        
+    # there is no head meta data section
+    def test_doxxkey_errors_nohead(self):
+        with self.assertRaises(SystemExit):
+            key = DoxxKey(self.nohead_key)
+    
+    # there is an empty head meta data section
+    def test_doxxkey_errors_emptymeta(self):
+        with self.assertRaises(SystemExit):
+            key = DoxxKey(self.emptykey_key)
+    
+    # there are template AND templates definitions in the meta data header
+    def test_doxxkey_errors_twotemplates(self):
+        with self.assertRaises(SystemExit):
+            key = DoxxKey(self.two_templates_key)
+    
+    # there is a template or templates but it is undefined
+    def test_doxxkey_errors_nometa(self):
+        with self.assertRaises(SystemExit):
+            key = DoxxKey(self.nometa_key)
+    
+    # there is no key data present in the key file
+    def test_doxxkey_errors_nokey(self):
+        with self.assertRaises(SystemExit):
+            key = DoxxKey(self.nokey_key)
+    
+    # there are key fields, but none are defined with replacement text
+    def test_doxxkey_errors_emptykey(self):
+        with self.assertRaises(SystemExit):
+            key = DoxxKey(self.emptykey_key)
+        
+    

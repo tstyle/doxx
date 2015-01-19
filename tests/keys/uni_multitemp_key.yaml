@@ -1,0 +1,16 @@
+---
+
+templates: [ţéśť.doxt,
+            'https://test.com/dir/test.doxt',
+            'http://test.com/dir/test2.doxt']
+
+---
+
+string: ΔϾϘ
+string-spaces: ༄པ࿔ དར྅
+number: ⅒
+math-operators: ∑∏∫≈⊕
+multiline: 
+    Ǝǆǎ Ǣǧǰ
+    Ǧǭ Ǳǵǽ
+symbols: ♠♻★© 
