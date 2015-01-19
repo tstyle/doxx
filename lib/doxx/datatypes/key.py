@@ -10,8 +10,6 @@ try:
     from yaml import CLoader as Loader
 except ImportError:
     from yaml import Loader
-
-import unicodedata
     
 class DoxxKey(object):
     def __init__(self, inpath):
@@ -52,7 +50,6 @@ class DoxxKey(object):
     
     def _cast_values_to_string(self):
         """cast non-string doxx key values to unicode strings (private method)"""
-        
         # convert all key value data to unicode compatible string types (unicode in Py2, str in Py3)
         if self.key_data == None or len(self.key_data) == 0:
             key_list = []  # if key_data is empty then define as empty list
@@ -61,15 +58,21 @@ class DoxxKey(object):
         for key in key_list:
             test_key = self.key_data[key]
             if is_py2():  # python 2 only
-                if isinstance(test_key, unicode):  # if it is a string
-                    pass
+                if test_key != None:    
+                    if isinstance(test_key, unicode):  # if it is a string
+                        pass
+                    else:
+                        self.key_data[key] = unicode(test_key)
                 else:
-                    self.key_data[key] = unicode(test_key)
+                    self.key_data[key] = u""  # replace with empty string if the key was empty
             else:  # python 3 only
-                if isinstance(test_key, str):
-                    pass  # do nothing, py3 strings are unicode by default
-                else:  # if it is not a python 3 string
-                    self.key_data[key] = str(test_key)  # convert to utf-8 encoded string
+                if test_key != None:
+                    if isinstance(test_key, str):
+                        pass  # do nothing, py3 strings are unicode by default
+                    else:  # if it is not a python 3 string
+                        self.key_data[key] = str(test_key)  # convert to utf-8 encoded string
+                else:
+                    self.key_data[key] = ""
                 
                 
     def _generate_dir_path(self, inpath):
@@ -113,13 +116,23 @@ class DoxxKey(object):
         else:
             test_metadata_keys = self.meta_data.keys()
         
-        # key data absence test
+        # there are no text replacement keys in the file test
         if test_key_data == None:
-            stderr("[!] doxx: There is no text replacement data in your key file.  Please update the key file and try again.", exit=1)
-        
+            stderr("[!] doxx: There are no text replacement data in your key file.  Please update the key file and try again.", exit=1)
+            
+        # keys present but all keys are missing replacement values test
+        number_with_values = 0                
+        for key in test_key_data:
+            if test_key_data[key] == "" or test_key_data[key] == None:
+                pass
+            else:
+                number_with_values += 1  # iterate the number_with_values by 1 if the key is defined with a value
+        if number_with_values == 0:  # true = there were no keys defined with a text replacement string value
+            stderr("[!] doxx: There are no text replacement values in your key.  Please include at least one replacement string.", exit=1)
+            
         # meta data absence test
         if test_meta_data == None:
-            stderr("[!] doxx: There is no meta data in your key file.  Please review the doxx documentation, include the required meta data in your key file, and try again.", exit=1)
+            stderr("[!] doxx: There are no meta data in your key file.  Please review the doxx documentation, include the required meta data in your key file, and try again.", exit=1)
         
         # meta data does not contain a template or templates field test
         if not 'template' in test_metadata_keys:
