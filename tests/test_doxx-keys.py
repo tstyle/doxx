@@ -246,36 +246,56 @@ class DoxxUnicodeKeysTests(unittest.TestCase):
         key = DoxxKey(self.good_key_path)
         self.assertTrue('template' in key.meta_data.keys())  # assert that 'template' is one of keys in the meta_data attribute
         
-        if is_py2:
-            norm_path = self.make_nfkd_string(u'ţéśť.doxt')
-            self.assertEqual(norm_path, key.meta_data['template'])  # assert that the template path string is defined relative to the key file when key file in CWD
+        norm_path = self.make_nfkd_string(u'ţéśť.doxt')
+        self.assertEqual(norm_path, key.meta_data['template'])  # assert that the template path string is defined relative to the key file when key file in CWD
 
-        else:
-            self.assertEqual('ţéśť.doxt', key.meta_data['template'])
-        
         os.chdir(self.main_test_dir)
 
     def test_doxxkey_unicode_metadata_template_attr_diffdir(self):
         key = DoxxKey(self.good_key_path_outside)
         self.assertTrue('template' in key.meta_data.keys())  # assert that 'template' is one of keys in the meta_data attribute
         
-        if is_py2:
-            norm_path = self.make_nfkd_string(u'keys/ţéśť.doxt')
-            self.assertEqual(norm_path, key.meta_data['template'])
-        else:
-            self.assertEqual('keys/ţéśť.doxt', key.meta_data['template'])
+        norm_path = self.make_nfkd_string(u'keys/ţéśť.doxt')  # have to NFKD normalize the unicode in order to perform the string comparison below
+        self.assertEqual(norm_path, key.meta_data['template'])
             
     
     def test_doxxkey_unicode_keydata_string_attr(self):  # test a single word string value in the key data
         key = DoxxKey(self.good_key_path_outside)
         self.assertTrue('string' in key.key_data.keys())
         
-        if is_py2:
-            norm_value = self.make_nfkd_string(u'ΔϾϘ')
-            self.assertEqual(norm_value, key.key_data['string'])
-        else:
-            self.assertEqual('ΔϾϘ', key.key_data['string']) 
-            
+        self.assertEqual(u'ΔϾϘ', key.key_data['string'])
+        
+    def test_doxxkey_unicode_keydata_stringspaces_attr(self):
+        key = DoxxKey(self.good_key_path_outside)
+        self.assertTrue('string-spaces' in key.key_data.keys())
+    
+        self.assertEqual(u'༄པ࿔ དར྅', key.key_data['string-spaces'])
+        
+    def test_doxxkey_unicode_keydata_number_attr(self):
+        key = DoxxKey(self.good_key_path_outside)
+        self.assertTrue('number' in key.key_data.keys())
+    
+        norm_number = self.make_nfkd_string(u'⅒')
+        self.assertEqual(norm_number, key.key_data['number'])
+        
+    def test_doxxkey_unicode_keydata_mathops_attr(self):
+        key = DoxxKey(self.good_key_path_outside)
+        self.assertTrue('math-operators' in key.key_data.keys())
+        
+        self.assertEqual(u"∑∏∫≈⊕", key.key_data['math-operators'])
+        
+    def test_doxxkey_unicode_keydata_multiline_attr(self):
+        key = DoxxKey(self.good_key_path_outside)
+        self.assertTrue('multiline' in key.key_data.keys())
+        
+        norm_multiline = self.make_nfkd_string(u'Ǝǆǎ Ǣǧǰ Ǧǭ Ǳǵǽ')
+        self.assertEqual(norm_multiline, key.key_data['multiline'])
+        
+    def test_doxxkey_unicode_keydata_symbols_attr(self):
+        key = DoxxKey(self.good_key_path_outside)
+        self.assertTrue('symbols' in key.key_data.keys())
+        
+        self.assertEqual(u'♠♻★©', key.key_data['symbols'])
     
     ## Multi-template unicode tests
     ## Error tests
