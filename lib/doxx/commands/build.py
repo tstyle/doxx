@@ -60,7 +60,6 @@ class Builder(object):
             stdout("[*] doxx: Build complete.")
             
         except Exception as e:
-            stderr("[!] doxx: Unable to run the build command. ", exit=0)
             stderr("[!] doxx: Error Message: " + str(e), exit=1)
         
     
