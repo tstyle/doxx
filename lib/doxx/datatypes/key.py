@@ -10,9 +10,8 @@ try:
     from yaml import CLoader as Loader
 except ImportError:
     from yaml import Loader
-    
-if is_py2:
-    import unicodedata
+
+import unicodedata
     
 class DoxxKey(object):
     def __init__(self, inpath):
@@ -58,20 +57,20 @@ class DoxxKey(object):
         else:
             key_list = self.key_data.keys()
         for key in key_list:
-            test_key = self.key_data[key]
+            test_key = self.key_data[key]            
             if is_py2:  # python 2 only
                 if isinstance(test_key, basestring):  # if it is a string
                     if isinstance(test_key, unicode):  # check if it is a unicode string (this is ok)
                         pass
-                    else:
-                        self.key_data['key'] = unicodedata.normalize("NFKD", test_key)
+                    else:                      
+                        self.key_data[key] = unicode(test_key)
                 else:
-                    self.key_data['key'] = unicodedata.normalize("NFKD", test_key)
+                    self.key_data[key] = unicode(test_key)
             else:  # python 3 only
                 if isinstance(test_key, str):
                     pass  # do nothing, py3 strings are unicode by default
                 else:  # if it is not a python 3 string
-                    self.key_data['key'] = unicodedata.normalize("NFKD", test_key)  # convert to NFKD normalized utf-8 encoded string
+                    self.key_data[key] = str(test_key)  # convert to utf-8 encoded string
                 
                 
     def _generate_dir_path(self, inpath):
