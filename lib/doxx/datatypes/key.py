@@ -4,11 +4,15 @@
 from Naked.toolshed.file import FileReader
 from Naked.toolshed.system import directory, make_path
 from Naked.toolshed.system import file_exists, stderr
+from Naked.toolshed.python import is_py2, is_py3
 from yaml import load_all
 try:
     from yaml import CLoader as Loader
 except ImportError:
     from yaml import Loader
+    
+if is_py2:
+    import unicodedata
     
 class DoxxKey(object):
     def __init__(self, inpath):
@@ -30,7 +34,7 @@ class DoxxKey(object):
         """local YAML doxx key file reader (private method)"""
         if file_exists(inpath):
             fr = FileReader(inpath)
-            the_yaml = fr.read()
+            the_yaml = fr.read()  # FileReader reads in utf-8 encoded bytes data
             the_data = load_all(the_yaml, Loader=Loader)
             i = 0
             for x in the_data:
@@ -48,16 +52,26 @@ class DoxxKey(object):
             stderr("[!] doxx: Unable to load the requested key " + inpath + ". Please check the path and try again.", exit=1)
     
     def _cast_values_to_string(self):
-        """cast non-string doxx key values to strings (private method)"""
+        """cast non-string doxx key values to unicode strings (private method)"""
         if self.key_data == None or len(self.key_data) == 0:
             key_list = []  # if key_data is empty then define as empty list
         else:
             key_list = self.key_data.keys()
         for key in key_list:
-            if isinstance(self.key_data[key], str):
-                pass
-            else:
-                self.key_data[key] = str(self.key_data[key])
+            test_key = self.key_data[key]
+            if is_py2:  # python 2 only
+                if isinstance(test_key, basestring):  # if it is a string
+                    if isinstance(test_key, unicode):  # check if it is a unicode string (this is ok)
+                        pass
+                    else:
+                        self.key_data['key'] = unicodedata.normalize("NFKD", test_key)
+                else:
+                    self.key_data['key'] = unicodedata.normalize("NFKD", test_key)
+            else:  # python 3 only
+                if isinstance(test_key, str):
+                    pass  # do nothing, py3 strings are unicode by default
+                else:  # if it is not a python 3 string
+                    self.key_data['key'] = unicodedata.normalize("NFKD", test_key)  # convert to NFKD normalized utf-8 encoded string
                 
                 
     def _generate_dir_path(self, inpath):
