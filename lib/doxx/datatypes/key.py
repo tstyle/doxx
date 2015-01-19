@@ -13,8 +13,8 @@ except ImportError:
 class DoxxKey(object):
     def __init__(self, inpath):
         # instance variables
-        self.meta_data = {}      # holds key meta data
-        self.key_data = {}       # holds key data
+        self.meta_data = {}      # holds key meta data (template or templates keys)
+        self.key_data = {}       # holds key data (user specified keys)
         self.key_path = inpath
         self.multi_template_key = False  # changed to True in the _generate_dir_paths method if method detects multiple requested templates
         
@@ -66,19 +66,27 @@ class DoxxKey(object):
             meta_keys = []
         else:
             meta_keys = self.meta_data.keys()
-        dir_path = directory(inpath)
+        
         if 'template' in meta_keys and not self.meta_data['template'] == None:     # single template file request
             pre_file_path = self.meta_data['template']
-            self.meta_data['template'] = make_path(dir_path, pre_file_path)
+            if len(pre_file_path) > 6 and (pre_file_path[0:7] == "http://" or pre_file_path[0:8] == "https://"):  # not necessary to build new path if it is a URL
+                pass
+            else:
+                dir_path = directory(inpath)
+                self.meta_data['template'] = make_path(dir_path, pre_file_path)
         elif 'templates' in meta_keys:  # multi-template file request
             self.multi_template_key = True  # used to detect whether there is a need to process multiple templates with this key
-            i = 0
+            i = 0  # used for the templates list key during the new path join in following block
             for template in self.meta_data['templates']:  # iterate through template files and join the directory path to the specified template path
                 if template == '':
                     pass  # do nothing if it is an empty string, check will be performed in _parse_yaml_for_errors method below.
                 else:
                     pre_file_path = template
-                    self.meta_data['templates'][i] = make_path(dir_path, pre_file_path)
+                    if len(pre_file_path) > 6 and (pre_file_path[0:7] == "http://" or pre_file_path[0:8] == "https://"):  # not necessary to build new path if it is a URL
+                        pass
+                    else:
+                        dir_path = directory(inpath)
+                        self.meta_data['templates'][i] = make_path(dir_path, pre_file_path)
                 i += 1
         else:
             pass  # if the meta data is missing, the check will be performed in the _parse_yaml_for_errors method below. do nothing here
