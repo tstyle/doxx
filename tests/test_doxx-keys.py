@@ -13,9 +13,11 @@ class DoxxASCIIKeysTests(unittest.TestCase):
         self.good_key_path = "ascii_singletempl_key.yaml"  # need to chdir into keys directory to use this path
         self.good_key_path_multitempl = "ascii_multitempl_key.yaml"
         self.good_key_path_remtempl = "ascii_singletempl_rem_key.yaml"
+        self.good_key_path_rem_multi = "ascii_multitempl_rem_key.yaml"
         self.good_key_path_outside = "keys/ascii_singletempl_key.yaml"
         self.good_key_path_multitempl_outside = "keys/ascii_multitempl_key.yaml"
         self.good_key_path_remtempl_outside = "keys/ascii_singletempl_rem_key.yaml"
+        self.good_key_path_rem_multi_outside = "keys/ascii_multitempl_rem_key.yaml"
         self.bad_key_path = "boguskey.yaml"
 
     def tearDown(self):
@@ -88,6 +90,8 @@ class DoxxASCIIKeysTests(unittest.TestCase):
         self.assertFalse(key.multi_template_key) 
         
     
+    
+    
     ## Multi-template ASCII tests
     
     # test instance attributes on construction
@@ -159,23 +163,58 @@ class DoxxASCIIKeysTests(unittest.TestCase):
         key = DoxxKey(self.good_key_path_multitempl_outside)
         self.assertTrue(key.multi_template_key)
     
-    ## Single remote template test
-    # test instance attributes on construction
+    
+    
+    
+    ## Single remote template tests
+    # test instantiation
     def test_doxxkey_remascii_key_read_successful(self):
         os.chdir('keys')
         key = DoxxKey(self.good_key_path_remtempl)
 
         os.chdir(self.main_test_dir)
         
-    def test_doxxkey_remascii_metadata_template_attr(self):
+    def test_doxxkey_remascii_metadata_templates_attr(self):  # test meta data load with URL
         os.chdir('keys')  # switch to keys directory to test file load from inside the directory
         key = DoxxKey(self.good_key_path_remtempl)
         self.assertTrue('template' in key.meta_data.keys())  # assert that 'template' is one of keys in the meta_data attribute
         self.assertEqual('http://test.com/dir/test.doxt', key.meta_data['template'])
         
         os.chdir(self.main_test_dir)
+        
+    def test_doxxkey_remascii_metadata_templates_samedir_attr(self):  # test meta data load with URL, key file run from outside working directory
+        key = DoxxKey(self.good_key_path_remtempl_outside)
+        self.assertTrue('template' in key.meta_data.keys())  # assert that 'template' is one of keys in the meta_data attribute
+        self.assertEqual('http://test.com/dir/test.doxt', key.meta_data['template'])    
     
-    ## Multiple remote template test
+    
+    
+    ## Multiple remote template tests
+    
+    # test instantiation
+    def test_doxxkey_remascii_multi_read_successful(self):
+        os.chdir('keys')
+        key = DoxxKey(self.good_key_path_rem_multi)
+
+        os.chdir(self.main_test_dir)
+        
+    def test_doxxkey_remascii_multi_metadata_templates_attr(self):  # test meta data load with URL
+        os.chdir('keys')  # switch to keys directory to test file load from inside the directory
+        key = DoxxKey(self.good_key_path_rem_multi)
+        self.assertTrue('templates' in key.meta_data.keys())  # assert that 'template' is one of keys in the meta_data attribute
+        self.assertEqual('http://test.com/dir/test1.doxt', key.meta_data['templates'][0])
+        self.assertEqual('https://test.com/dir/test2.doxt', key.meta_data['templates'][1])
+        self.assertEqual('https://test.com/dir/test3.doxt', key.meta_data['templates'][2])
+    
+        os.chdir(self.main_test_dir)    
+    
+    def test_doxxkey_remascii_multi_metadata_templates_samedir_attr(self):
+        key = DoxxKey(self.good_key_path_rem_multi_outside)
+        self.assertTrue('templates' in key.meta_data.keys())  # assert that 'template' is one of keys in the meta_data attribute
+        self.assertEqual('http://test.com/dir/test1.doxt', key.meta_data['templates'][0])
+        self.assertEqual('https://test.com/dir/test2.doxt', key.meta_data['templates'][1])
+        self.assertEqual('https://test.com/dir/test3.doxt', key.meta_data['templates'][2])
+        
     ## Single template unicode tests
     ## Multi-template unicode tests
     ## Error tests
