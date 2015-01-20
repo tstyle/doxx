@@ -101,7 +101,9 @@ class RemoteDoxxTemplate(DoxxTemplate):
         
         ## TODO : add try/except block and catch timeout exceptions (does not get returned as non-200 status code)
         if http.get_status_ok():
-            self.raw_text = http.res.text
+            import unicodedata
+            norm_text = unicodedata.normalize('NFKD', http.res.text)  # normalize unicode data to NFKD (like local file reads)
+            self.raw_text = norm_text
         else:
             fail_status_code = http.res.status_code
             stderr("[!] doxx: Unable to pull the requested template file '" + self.inpath + "' (HTTP status code " + str(fail_status_code) + ")", exit=1)
