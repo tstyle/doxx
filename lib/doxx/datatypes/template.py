@@ -12,7 +12,6 @@ try:
 except ImportError:
     from yaml import Loader
     
-    
 
 class DoxxTemplate(object):
     """A doxx template class that maintains state of user designed templates during the rendering process"""
@@ -99,6 +98,8 @@ class RemoteDoxxTemplate(DoxxTemplate):
     def load_data(self):
         """overloaded load_data method that retrieves data from a remote file using HTTP or HTTPS protocol instead of a local file"""
         http = HTTP(self.inpath)
+        
+        ## TODO : add try/except block and catch timeout exceptions (does not get returned as non-200 status code)
         if http.get_status_ok():
             self.raw_text = http.res.text
         else:
