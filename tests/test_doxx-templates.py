@@ -227,3 +227,19 @@ class DoxxRemoteTemplateTests(unittest.TestCase):
             self.assertEqual(unicode, type(temp.text))
         else:
             self.assertEqual(str, type(temp.text))
+            
+
+class DoxxTemplateErrors(unittest.TestCase):
+    
+    def setUp:
+        pass
+    
+    # bad local file path
+    # URL 404 error - nonexistent page
+    # URL timeout error - ? need to handle with try/except block
+    # malformed template file - absent header meta data section
+    # malformed template file - missing extension data
+    # destination_directory specified but not defined in the file
+    # basename specified but not defined in the file
+    # malformed template file - absent template data
+    # malformed template file - no replacement tags in the template
