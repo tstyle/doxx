@@ -25,8 +25,11 @@ class DoxxTemplate(object):
         self.outfile = ""       # write file path for use by calling code
     
     def load_data(self):
-        fr = FileReader(self.inpath)
-        self.raw_text = fr.read()
+        try:
+            fr = FileReader(self.inpath)
+            self.raw_text = fr.read()
+        except IOError as e:
+            stderr("[!] doxx: Unable to find the requested template file '" + self.inpath + "'.", exit=1)
 
     def split_data(self):
         parsed_text = self.raw_text.split("---doxx---")
