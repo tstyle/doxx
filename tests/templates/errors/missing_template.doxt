@@ -1,0 +1,7 @@
+---doxx---
+
+extension: txt
+basename: test
+destination_directory: build
+
+---doxx---
