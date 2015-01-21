@@ -235,6 +235,7 @@ class DoxxTemplateErrors(unittest.TestCase):
         self.bad_template_path = "templates/bogus.doxt"
         self.missing_extension = "templates/errors/missing_extension.doxt"
         self.missing_ext_val = "templates/errors/missing_extension_value.doxt"
+        self.missing_template_text = "templates/errors/missing_template.doxt"
         self.undefined_dest_dir = "templates/errors/undefined_destination.doxt"
         self.undefined_basename = "templates/errors/undefined_basename.doxt"
         self.nonexist_url_template = "http://www.google.com/templates/doxx/doxx.doxt"
@@ -294,7 +295,17 @@ class DoxxTemplateErrors(unittest.TestCase):
         self.assertEqual('undefined_basename.txt', temp.outfile) 
     
     # malformed template file - absent template data
-
+    def test_template_error_missing_template_text(self):
+        with self.assertRaises(SystemExit):
+            temp = DoxxTemplate(self.missing_template_text)
+            temp.load_data()
+            temp.split_data()
+            temp.parse_template_for_errors()
+            temp.parse_template_text()
     
     # URL 404 error - nonexistent page
+    
+    # malformed URL
+    
+    
     # URL timeout error - ? need to handle with try/except block    
