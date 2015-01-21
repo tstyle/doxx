@@ -231,15 +231,70 @@ class DoxxRemoteTemplateTests(unittest.TestCase):
 
 class DoxxTemplateErrors(unittest.TestCase):
     
-    def setUp:
-        pass
+    def setUp(self):
+        self.bad_template_path = "templates/bogus.doxt"
+        self.missing_extension = "templates/errors/missing_extension.doxt"
+        self.missing_ext_val = "templates/errors/missing_extension_value.doxt"
+        self.undefined_dest_dir = "templates/errors/undefined_destination.doxt"
+        self.undefined_basename = "templates/errors/undefined_basename.doxt"
+        self.nonexist_url_template = "http://www.google.com/templates/doxx/doxx.doxt"
+        
     
     # bad local file path
-    # URL 404 error - nonexistent page
-    # URL timeout error - ? need to handle with try/except block
-    # malformed template file - absent header meta data section
-    # malformed template file - missing extension data
-    # destination_directory specified but not defined in the file
+    def test_template_error_bad_local_path(self):
+        with self.assertRaises(SystemExit):
+            temp = DoxxTemplate(self.bad_template_path)
+            temp.load_data()
+            temp.split_data()
+            temp.parse_template_for_errors()
+            temp.parse_template_text()
+            
+    # malformed template file - absent header meta data section    
+    def test_template_error_missing_header(self):
+        with self.assertRaises(SystemExit):
+            temp = DoxxTemplate(self.bad_template_path)
+            temp.load_data()
+            temp.split_data()
+            temp.parse_template_for_errors()
+            temp.parse_template_text()
+            
+    # malformed template file - missing extension field
+    def test_template_error_missing_extension_field(self):
+        with self.assertRaises(SystemExit):
+            temp = DoxxTemplate(self.missing_extension)
+            temp.load_data()
+            temp.split_data()
+            temp.parse_template_for_errors()
+            temp.parse_template_text()
+        
+    def test_template_error_missing_extension_value(self):
+        temp = DoxxTemplate(self.missing_ext_val)
+        temp.load_data()
+        temp.split_data()
+        temp.parse_template_for_errors()
+        temp.parse_template_text()
+        self.assertEqual('.doxr', temp.extension)  # uses a default of '.doxr' if user does not set it    
+        
+    # destination_directory specified but not defined in the template meta data
+    def test_template_error_undefined_destdir(self):
+        temp = DoxxTemplate(self.undefined_dest_dir)
+        temp.load_data()
+        temp.split_data()
+        temp.parse_template_for_errors()
+        temp.parse_template_text()
+        self.assertEqual('undefined_destination.txt', temp.outfile)  # defaults to working directory with template name as base file name
+    
     # basename specified but not defined in the file
+    def test_template_error_undefined_basename(self):
+        temp = DoxxTemplate(self.undefined_basename)
+        temp.load_data()
+        temp.split_data()
+        temp.parse_template_for_errors()
+        temp.parse_template_text()
+        self.assertEqual('undefined_basename.txt', temp.outfile) 
+    
     # malformed template file - absent template data
-    # malformed template file - no replacement tags in the template
+
+    
+    # URL 404 error - nonexistent page
+    # URL timeout error - ? need to handle with try/except block    
