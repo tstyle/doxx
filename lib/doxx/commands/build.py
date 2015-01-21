@@ -98,8 +98,7 @@ class Builder(object):
         print(" ")
         print(rendered_text)
         sys.exit(0)
-        # print(rendered_text)
-        # print(template.outfile)
+
         fw = FileWriter(template.outfile)
         fw.write(rendered_text)        
             
