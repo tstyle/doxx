@@ -56,7 +56,7 @@ def main():
             key_path = c.arg1
         else:
             key_path = "key.yaml"
-        stdout("[*] doxx: Starting your build with the key file '" + key_path + "'...")
+        stdout("[*] doxx: Build started with the key file '" + key_path + "'...")
         doxxkey = DoxxKey(key_path)
         b = Builder()
         b.run(doxxkey)
