@@ -68,24 +68,54 @@ class Builder(object):
         #----------------------------------------------------------------------------
         # NOTE : changes in this method require the same changes to multi_process_run
         #----------------------------------------------------------------------------
+        ## Load the data
+        # remote templates
         if len(template_path) > 6 and (template_path[0:7] == "http://" or template_path[0:8] == "https://"):
             template = RemoteDoxxTemplate(template_path)
+            try:
+                result = template.load_data()
+                if result[0] == False:  # if the method responds False, then HTTP data load did not work
+                    stderr(result[1], exit=1)  # write out the returned error message in result[1] position of the tuple
+                    # halt execution if unsuccessful
+            except Exception as e:
+                stderr("[!] doxx: Unable to load the remote template file '" + template_path + "'. Error message: " + str(e), exit=1)
+        # local templates        
         elif file_exists(template_path):
             template = DoxxTemplate(template_path)
+            try:
+                template.load_data()
+            except Exception as e:
+                stderr("[!] doxx: Unable to read the local template file '" + template_path + "'. Error message: " + str(e), exit=1)
         else:
             stderr("[!] doxx: Unable to find the requested template file " + template_path, exit=1)  # print error message and halt execution of application
-            
-        # have kept the following out of the constructor in order to isolate I/O and stdout/stderr writes for multiprocessing runs, need to run each instance method from the calling func/method
-        template.load_data()
-        template.split_data()
-        template.parse_template_for_errors()
-        template.parse_template_text()
+         
+        ## Split the data  
+        try:
+            template.split_data()
+        except Exception as e:
+            stderr("[!] doxx: Unable to parse the template data.  Please verify the template syntax and try again.  Error message: " + str(e), exit=1)
+        
+        ## Parse data for errors
+        error_parse_result = template.parse_template_for_errors()
+        
+        if error_parse_result[0] == True:          # if there was a parsing error
+            stderr(error_parse_result[1], exit=1)  # print the returned error message to stderr and exit application
+        
+        ## Then parse the template text and load instance attributes for the text replacement with Ink below
+        try:
+            template.parse_template_text()
+        except Exception as e:
+            stderr("[!] doxx: An error occurred while parsing your template file. Error message: " + str(e), exit=1)
     
         # template meta data is in template.meta_data
         # template text is in template.text
-        ink_template = InkTemplate(template.text)
-        ink_renderer = InkRenderer(ink_template, self.key_data)
-        rendered_text = ink_renderer.render()
+        # perform the text replacements:
+        try:
+            ink_template = InkTemplate(template.text)
+            ink_renderer = InkRenderer(ink_template, self.key_data)
+            rendered_text = ink_renderer.render()
+        except Exception as e:
+            stderr("[!] doxx: An error occurred during the text replacement attempt.  Error message: " + str(e), exit=1)
     
         # if the requested destination directory path does not exist, make it
         if not dir_exists(dirname(template.outfile)):
@@ -100,41 +130,88 @@ class Builder(object):
         sys.exit(0)
 
         fw = FileWriter(template.outfile)
-        fw.write(rendered_text)        
+        fw.write(rendered_text)
+        
+        stdout("[*] doxx: Build complete.")
             
     def multi_process_run(self, template_path, iolock, outputlock):
         """Render replacements over multiple template files as defined in doxx key file using multiple processes (public method)"""
         #-------------------------------------------------------------------------------
         # NOTE : changes in this method require the same changes to single_template_run
         #-------------------------------------------------------------------------------
+        ## Load the data
         if len(template_path) > 6 and (template_path[0:7] == "http://" or template_path[0:8] == "https://"):
             template = RemoteDoxxTemplate(template_path)
-            template.load_data()  # load remote data from each file (overloaded method in RemoteDoxxTemplate)
+            try:
+                result = template.load_data()  # load remote template file through HTTP or HTTPS protocol
+                if result[0] == False:  # if the method responds False, then HTTP data load was not successful
+                    outputlock.acquire()
+                    stderr(result[1], exit=1)  # write out the returned error message in result[1] position of the tuple
+                    outputlock.release()
+            except Exception as e:
+                outputlock.acquire()
+                stderr("[!] doxx: Unable to load the remote template file '" + template_path + "'. Error message: " + str(e), exit=1)
+                outputlock.release()
         elif file_exists(template_path):
             template = DoxxTemplate(template_path)
             
             iolock.acquire()  # acquire the IO lock for template file read
-            template.load_data()  # load local data
+            try:
+                template.load_data()  # load local data
+            except Exception as e:
+                outputlock.acquire()
+                stderr("[!] doxx: Unable to read the local template file '" + template_path + "'. Error message: " + str(e), exit=1)
+                outputlock.release()
             iolock.release()  # release the IO lock for template file read
         else:
             outputlock.acquire()  # acquire the stderr lock
             stdout("[!] doxx: Unable to find the requested template file " + template_path)  # print error message in standard output, multi-file run so do not end execution of application       
             outputlock.release()  # release the stderr lock
 
-        template.split_data()  # split the data sections
+        ## Split the data
+        try:
+            template.split_data()  # split the data sections
+        except Exception as e:
+            outputlock.acquire()
+            stderr("[!] doxx: Unable to parse the template data.  Please verify the template syntax and try again.  Error message: " + str(e), exit=1)
+            outputlock.release()
+            
+        ## Parse the data for errors
+        error_parse_result = template.parse_template_for_errors()
+        
+        if error_parse_result[0] == True:          # if there was a parsing error
+            outputlock.acquire()
+            stderr(error_parse_result[1], exit=1)  # print the returned error message to stderr and exit application
+            outputlock.release()
     
-        outputlock.acquire()  # acquire stderr lock
-        template.parse_template_for_errors()
-        outputlock.release()  # release stderr lock
-    
-        # parse the template text
-        template.parse_template_text()
+        ## Parse the template text
+        try:
+            template.parse_template_text()
+        except Exception as e:
+            outputlock.acquire()
+            stderr("[!] doxx: An error occurred while parsing your template file. Error message: " + str(e), exit=1)
+            outputlock.release()
+            
     
         # template meta data is in template.meta_data
         # template text is in template.text
-        ink_template = InkTemplate(template.text)
-        ink_renderer = InkRenderer(ink_template, self.key_data)
-        rendered_text = ink_renderer.render()            
+        # perform the text replacements:
+        try:
+            ink_template = InkTemplate(template.text)
+            ink_renderer = InkRenderer(ink_template, self.key_data)
+            rendered_text = ink_renderer.render()
+        except Exception as e:
+            outputlock.acquire()
+            stderr("[!] doxx: An error occurred during the text replacement attempt.  Error message: " + str(e), exit=1)            
+            outputlock.release()
+
+        ####
+        # TESTING
+        ####
+        print(template.outfile)
+        print(" ")
+        print(rendered_text)
+        sys.exit(0)        
     
         iolock.acquire()
         # if the requested destination directory path does not exist, make it

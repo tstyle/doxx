@@ -25,11 +25,8 @@ class DoxxTemplate(object):
         self.outfile = ""       # write file path for use by calling code
     
     def load_data(self):
-        try:
-            fr = FileReader(self.inpath)
-            self.raw_text = fr.read()
-        except IOError as e:
-            stderr("[!] doxx: Unable to find the requested template file '" + self.inpath + "'.", exit=1)
+        fr = FileReader(self.inpath)
+        self.raw_text = fr.read()
 
     def split_data(self):
         parsed_text = self.raw_text.split("---doxx---")
@@ -39,7 +36,7 @@ class DoxxTemplate(object):
             self.text = parsed_text[2][1:]  # define self.text with the template data from the file, the [1:] slice removes /n at end of the delimiter        
         else:
             self.meta_data = {}
-            self.text = ""
+            self.text = u""
     
     def parse_template_text(self):
         """parses doxx template meta data YAML and main body text and defines instance variables for the DoxxTemplate (public method)"""
@@ -52,7 +49,7 @@ class DoxxTemplate(object):
 
         # define rendered file destination directory relative to current working directory
         if not 'destination_directory' in meta_keys or self.meta_data['destination_directory'] == None:
-            dest_dir = ""
+            dest_dir = u""
         else:
             dest_dir = self.meta_data['destination_directory']
 
@@ -85,12 +82,17 @@ class DoxxTemplate(object):
 
 
     def parse_template_for_errors(self):
+        """evaluates template file for presence of meta data header and template text.  Returns a two-tuple. tuple[0] = True if error identified, False if error not identified.  tuple[1] = error message string"""
         # confirm meta data contains data
         if self.meta_data == None or len(self.meta_data) == 0:
-            stderr("[!] doxx: The template file '" + self.inpath + "' is not properly formatted.  Please include the required meta data block between '---doxx---' delimiters at the top of your file.", exit=1)
+            error_message =  u"[!] doxx: The template file '" + self.inpath + "' is not properly formatted.  Please include the required meta data block between '---doxx---' delimiters at the top of your file."
+            return (True, error_message)
         # confirm that there is template text
-        if self.text == None or len(self.text) < 5:  # if self.text not defined or length of the string < 5 chars (because {{x}} == 5 so must not include any replacement tags)
-            stderr("[!] doxx: Unable to parse template text from the template file '" + self.inpath + "'. Please include a template in order to render this file.", exit=1)
+        elif self.text == None or len(self.text) < 5:  # if self.text not defined or length of the string < 5 chars (because {{x}} == 5 so must not include any replacement tags)
+            error_message = u"[!] doxx: Unable to parse template text from the template file '" + self.inpath + "'. Please include a template in order to render this file."
+            return (True, error_message)
+        else:
+            return(False, "no message")
 
 
 
@@ -107,8 +109,11 @@ class RemoteDoxxTemplate(DoxxTemplate):
             import unicodedata
             norm_text = unicodedata.normalize('NFKD', http.res.text)  # normalize unicode data to NFKD (like local file reads)
             self.raw_text = norm_text
+            return (True, "no message")
         else:
             fail_status_code = http.res.status_code
-            stderr("[!] doxx: Unable to pull the requested template file '" + self.inpath + "' (HTTP status code " + str(fail_status_code) + ")", exit=1)
+            error_message = "[!] doxx: Unable to load the remote template file '" + self.inpath + "' (HTTP status code " + str(fail_status_code) + ")"
+            return (False, error_message)
+            
         
         
