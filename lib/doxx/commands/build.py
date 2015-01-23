@@ -57,8 +57,7 @@ class Builder(object):
             else:
                 self.single_template_run(key.meta_data['template']) # process single template file
             # notify user of build completion
-            stdout("[*] doxx: Build complete.")
-            
+            stdout("[*] doxx: Build complete.")   
         except Exception as e:
             stderr("[!] doxx: Error Message: " + str(e), exit=1)
         
@@ -118,21 +117,17 @@ class Builder(object):
             stderr("[!] doxx: An error occurred during the text replacement attempt.  Error message: " + str(e), exit=1)
     
         # if the requested destination directory path does not exist, make it
-        if not dir_exists(dirname(template.outfile)):
+        if dirname(template.outfile) == "":
+            pass  # do nothing, it is the current working directory
+        elif not dir_exists(dirname(template.outfile)):
             make_dirs(dirname(template.outfile))
-    
-        ####
-        # TESTING
-        ####
-        print(template.outfile)
-        print(" ")
-        print(rendered_text)
-        sys.exit(0)
 
-        fw = FileWriter(template.outfile)
-        fw.write(rendered_text)
-        
-        stdout("[*] doxx: Build complete.")
+        # write rendered file to disk
+        try:
+            fw = FileWriter(template.outfile)
+            fw.write(rendered_text)
+        except Exception as e:
+            stderr("[!] doxx: There was an error with the rendered file write. Error message: " + str(e), exit=1)
             
     def multi_process_run(self, template_path, iolock, outputlock):
         """Render replacements over multiple template files as defined in doxx key file using multiple processes (public method)"""
@@ -191,7 +186,6 @@ class Builder(object):
             outputlock.acquire()
             stderr("[!] doxx: An error occurred while parsing your template file. Error message: " + str(e), exit=1)
             outputlock.release()
-            
     
         # template meta data is in template.meta_data
         # template text is in template.text
