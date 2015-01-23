@@ -271,8 +271,8 @@ class DoxxTemplateErrorsTests(unittest.TestCase):
         result = temp.parse_template_for_errors()
         self.assertEqual(True, result[0])  # first index of the tuple contains True/False for presence of template errors
             
-    # malformed template file - missing extension field
-    def test_template_error_missing_extension_field(self):
+    # malformed template file - missing all meta data fields but the delimiters are present
+    def test_template_error_missing_all_metadata_fields_has_delimiters(self):
         temp = DoxxTemplate(self.missing_extension)
         temp.load_data()
         temp.split_data()
@@ -285,7 +285,7 @@ class DoxxTemplateErrorsTests(unittest.TestCase):
         temp.split_data()
         temp.parse_template_for_errors()
         temp.parse_template_text()
-        self.assertEqual('.doxr', temp.extension)  # uses a default of '.doxr' if user does not set it    
+        self.assertEqual('', temp.extension)  # uses a default of '.doxr' if user does not set it    
         
     # destination_directory specified but not defined in the template meta data
     def test_template_error_undefined_destdir(self):

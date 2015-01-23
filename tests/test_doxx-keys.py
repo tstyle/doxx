@@ -10,6 +10,8 @@ from doxx.datatypes.key import DoxxKey
 
 from Naked.toolshed.python import is_py2, is_py3
 
+## TODO : add new tests for missing extension field and undefined extension field (both default to no file extension - e.g. README file)
+
 class DoxxASCIIKeysTests(unittest.TestCase):
 
     def setUp(self):
