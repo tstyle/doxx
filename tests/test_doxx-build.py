@@ -10,7 +10,7 @@ from Naked.toolshed.file import FileReader
 from doxx.datatypes.key import DoxxKey
 from doxx.commands.build import Builder
 
-from Naked.toolshed.python import is_py2, is_py3
+from Naked.toolshed.python import is_py2
 
 
 # single template, ASCII text build test
@@ -21,6 +21,9 @@ class DoxxLocalMITLicenseBuildTests(unittest.TestCase):
         self.mit_standard = "standards/mit-license.txt"
         self.mit_test_dir = "build-tests/mit-license"
         self.mit_key = "key.yaml"  # executed inside the mit testing directory, no directory path necessary
+        self.mit_key_with_extension = "key-with-extension.yaml"
+        self.mit_key_with_destdir = "key-with-destdir.yaml"
+        self.mit_key_undefined_destdir = "key-undefined-destdir.yaml"
         
         mit_std_reader = FileReader(self.mit_standard)
         self.mit_standard_text = mit_std_reader.read()
@@ -28,10 +31,72 @@ class DoxxLocalMITLicenseBuildTests(unittest.TestCase):
     def tearDown(self):
         pass
     
+   
+    # local ASCII default template style test
+    # should default to template basename as outfile basename, extension is defined in this template as '.txt'
     def test_mit_license_build(self):
         os.chdir(self.mit_test_dir)  # cd to the mit test dir
         try:
             doxxkey = DoxxKey(self.mit_key)
+            b = Builder()
+            b.run(doxxkey)
+            self.assertTrue(file_exists('mit.txt'))                  # confirm that the rendered file write took place
+            fr = FileReader('mit.txt')
+            rendered_text = fr.read()
+            self.assertEqual(self.mit_standard_text, rendered_text)  # confirm that the rendered text matches expected text
+            os.remove('mit.txt')  # remove the rendered file to prepare directory for new tests
+            os.chdir(self.current_dir)
+        except Exception as e:
+            if file_exists('mit.txt'):
+                os.remove('mit.txt')    # remove the generated LICENSE file if it is present before the exception was raised
+            os.chdir(self.current_dir)  # cd back to the main test directory before exception raised (avoids issues with other tests)
+            raise e
+  
+  
+    # test build with new basename and extension assigned
+    def test_mit_license_with_new_basename_extension_build(self):
+        os.chdir(self.mit_test_dir)  # cd to the mit test dir
+        try:
+            doxxkey = DoxxKey(self.mit_key_with_extension)
+            b = Builder()
+            b.run(doxxkey)
+            self.assertTrue(file_exists('LICENSE.txt'))                  # confirm that the rendered file write took place
+            fr = FileReader('LICENSE.txt')
+            rendered_text = fr.read()
+            self.assertEqual(self.mit_standard_text, rendered_text)  # confirm that the rendered text matches expected text
+            os.remove('LICENSE.txt')  # remove the rendered file to prepare directory for new tests
+            os.chdir(self.current_dir)
+        except Exception as e:
+            if file_exists('LICENSE.txt'):
+                os.remove('LICENSE.txt')    # remove the generated LICENSE file if it is present before the exception was raised
+            os.chdir(self.current_dir)  # cd back to the main test directory before exception raised (avoids issues with other tests)
+            raise e          
+    
+    
+    # test build with new destination directory path
+    def test_mit_license_with_destdir_build(self):
+        os.chdir(self.mit_test_dir)  # cd to the mit test dir
+        try:
+            doxxkey = DoxxKey(self.mit_key_with_destdir)
+            b = Builder()
+            b.run(doxxkey)
+            self.assertTrue(file_exists('build/LICENSE'))                  # confirm that the rendered file write took place
+            fr = FileReader('build/LICENSE')
+            rendered_text = fr.read()
+            self.assertEqual(self.mit_standard_text, rendered_text)  # confirm that the rendered text matches expected text
+            os.remove('build/LICENSE')  # remove the rendered file to prepare directory for new tests
+            os.chdir(self.current_dir)
+        except Exception as e:
+            if file_exists('build/LICENSE'):
+                os.remove('build/LICENSE')    # remove the generated LICENSE file if it is present before the exception was raised
+            os.chdir(self.current_dir)  # cd back to the main test directory before exception raised (avoids issues with other tests)
+            raise e
+        
+    # test build with destination_directory present but undefined (should default to CWD)
+    def test_mit_license_undefined_destdir_build(self):
+        os.chdir(self.mit_test_dir)  # cd to the mit test dir
+        try:
+            doxxkey = DoxxKey(self.mit_key_undefined_destdir)
             b = Builder()
             b.run(doxxkey)
             self.assertTrue(file_exists('LICENSE'))                  # confirm that the rendered file write took place
@@ -39,14 +104,13 @@ class DoxxLocalMITLicenseBuildTests(unittest.TestCase):
             rendered_text = fr.read()
             self.assertEqual(self.mit_standard_text, rendered_text)  # confirm that the rendered text matches expected text
             os.remove('LICENSE')  # remove the rendered file to prepare directory for new tests
+            os.chdir(self.current_dir)
         except Exception as e:
             if file_exists('LICENSE'):
                 os.remove('LICENSE')    # remove the generated LICENSE file if it is present before the exception was raised
             os.chdir(self.current_dir)  # cd back to the main test directory before exception raised (avoids issues with other tests)
-            raise e
-        
-    # test build with new destination directory path
-    # test build with extension assigned
-    # test build with a different file name
+            raise e    
+      
+    
     
     

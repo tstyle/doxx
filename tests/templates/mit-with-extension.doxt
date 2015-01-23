@@ -1,6 +1,7 @@
 ---doxx---
 
-extension: .txt
+basename: LICENSE
+extension: txt
 
 ---doxx---
 The MIT License (MIT)
