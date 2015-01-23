@@ -43,22 +43,24 @@ class DoxxTemplate(object):
 
         meta_keys = self.meta_data.keys()
 
-        # if user did not enter an extension type, use .doxr as the default
+        # if user did not enter an extension type, 
         if not 'extension' in meta_keys or self.meta_data['extension'] == None:
-            self.meta_data['extension'] = ".doxr"
-
+            self.extension = ""  # default to no extension if user did not enter the meta data field, or the meta data field has no definition
+        else:
+            self.extension = self.meta_data['extension']  # define the instance extension attribute with the value from the template meta data
+        
         # define rendered file destination directory relative to current working directory
         if not 'destination_directory' in meta_keys or self.meta_data['destination_directory'] == None:
             dest_dir = u""
         else:
             dest_dir = self.meta_data['destination_directory']
 
-        # define rendered file extension
-        the_extension = self.meta_data['extension']
-        if the_extension[0] == ".":
-            self.extension = the_extension
-        else:
-            self.extension = "." + the_extension  # add a period if the user did not include it
+        # define rendered file extension as instance attribute
+        if len(self.extension) > 0:  # if no extension (user did not enter extension field or did not define an extension), then skip '.' check
+            if self.extension[0] == ".":
+                pass
+            else:
+                self.extension = "." + self.extension  # add a period if the user did not include it
 
         # define rendered file base file name (different approach for local vs. remote paths)
         if not 'basename' in meta_keys or self.meta_data['basename'] == None:
@@ -104,7 +106,6 @@ class RemoteDoxxTemplate(DoxxTemplate):
         """overloaded load_data method that retrieves data from a remote file using HTTP or HTTPS protocol instead of a local file"""
         http = HTTP(self.inpath)
         
-        ## TODO : add try/except block and catch timeout exceptions (does not get returned as non-200 status code)
         if http.get_status_ok():
             import unicodedata
             norm_text = unicodedata.normalize('NFKD', http.res.text)  # normalize unicode data to NFKD (like local file reads)
