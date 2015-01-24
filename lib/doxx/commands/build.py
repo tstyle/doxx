@@ -43,13 +43,9 @@ class Builder(object):
     def __init__(self):
         self.key_data = {}
     
-    def set_key_data(self, key):
-        """used to set the key data in multi process, multi template file renders"""
-        self.key_data = key.key_data
-    
     def run(self, key):
         # detect single vs multiple keys in the template and execute replacements with every requested template
-        self.key_data = key.key_data  # assign key data from the doxx Key
+        self.set_key_data(key)  # assign key data from the doxx Key
         
         try:
             if key.multi_template_key == True:
@@ -60,13 +56,18 @@ class Builder(object):
             stdout("[*] doxx: Build complete.")   
         except Exception as e:
             stderr("[!] doxx: Error Message: " + str(e), exit=1)
+            
+    
+    def set_key_data(self, key):
+        """used to set the key data in multi process, multi template file renders"""
+        self.key_data = key.key_data    
         
     
     def single_template_run(self, template_path):
         """Render replacements using a single template file as defined in a doxx key file (public method)"""
         #----------------------------------------------------------------------------
         # NOTE : changes in this method require the same changes to multi_process_run
-        #----------------------------------------------------------------------------
+        #----------------------------------------------------------------------------       
         ## Load the data
         # remote templates
         if len(template_path) > 6 and (template_path[0:7] == "http://" or template_path[0:8] == "https://"):
