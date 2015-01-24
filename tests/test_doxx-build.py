@@ -150,6 +150,9 @@ class DoxxLocalUnicodeMITLicenseBuildTests(unittest.TestCase):
         
         self.key = "rus-key.yaml"
         
+        mit_std_reader = FileReader(self.mit_standard)
+        self.mit_standard_text = mit_std_reader.read()        
+        
     
     # default remote template style test
     # should default to template basename as outfile basename, extension is defined in this template as '.txt'
