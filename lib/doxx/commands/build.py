@@ -7,8 +7,15 @@ from multiprocessing import Process, Lock
 from doxx.datatypes.template import DoxxTemplate, RemoteDoxxTemplate
 from Naked.toolshed.file import FileWriter
 from Naked.toolshed.system import dir_exists, file_exists, make_dirs, stderr, stdout
-from Naked.toolshed.ink import Renderer as InkRenderer
-from Naked.toolshed.ink import Template as InkTemplate
+from Naked.toolshed.python import is_py2
+
+# need a different template for Python 2 & 3
+if is_py2():    
+    from doxx.renderer.inkpy2 import Template as InkTemplate
+    from doxx.renderer.inkpy2 import Renderer as InkRenderer
+else:
+    from doxx.renderer.inkpy3 import Template as InkTemplate
+    from doxx.renderer.inkpy3 import Renderer as InkRenderer
 
 def multi_process_build(key):
     processes = []       # list of spawned processes
@@ -119,7 +126,7 @@ class Builder(object):
         else:
             # template meta data is in template.meta_data
             # template text is in template.text
-            # perform the text replacements:
+            # perform the text replacements:         
             try:
                 ink_template = InkTemplate(template.text)
                 ink_renderer = InkRenderer(ink_template, self.key_data)
