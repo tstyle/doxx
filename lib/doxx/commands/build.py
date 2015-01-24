@@ -106,28 +106,39 @@ class Builder(object):
         except Exception as e:
             stderr("[!] doxx: An error occurred while parsing your template file. Error message: " + str(e), exit=1)
     
-        # template meta data is in template.meta_data
-        # template text is in template.text
-        # perform the text replacements:
-        try:
-            ink_template = InkTemplate(template.text)
-            ink_renderer = InkRenderer(ink_template, self.key_data)
-            rendered_text = ink_renderer.render()
-        except Exception as e:
-            stderr("[!] doxx: An error occurred during the text replacement attempt.  Error message: " + str(e), exit=1)
+        # determine whether this is a verbatim text file (no replacements) or if requires text replacements
+        if template.verbatim == True:
+            # write template.text out verbatim
+            try:
+                fw = FileWriter(template.outfile)
+                fw.write(template.text)
+                stdout("[+] doxx: '" + template.outfile + "' build... check")
+            except Exception as e:
+                stderr("[!] doxx: There was a file write error. Error message: " + str(e), exit=1)        
+        else:
+            # template meta data is in template.meta_data
+            # template text is in template.text
+            # perform the text replacements:
+            try:
+                ink_template = InkTemplate(template.text)
+                ink_renderer = InkRenderer(ink_template, self.key_data)
+                rendered_text = ink_renderer.render()
+            except Exception as e:
+                stderr("[!] doxx: An error occurred during the text replacement attempt.  Error message: " + str(e), exit=1)
+        
+            # if the requested destination directory path does not exist, make it
+            if dirname(template.outfile) == "":
+                pass  # do nothing, it is the current working directory
+            elif not dir_exists(dirname(template.outfile)):
+                make_dirs(dirname(template.outfile))
     
-        # if the requested destination directory path does not exist, make it
-        if dirname(template.outfile) == "":
-            pass  # do nothing, it is the current working directory
-        elif not dir_exists(dirname(template.outfile)):
-            make_dirs(dirname(template.outfile))
-
-        # write rendered file to disk
-        try:
-            fw = FileWriter(template.outfile)
-            fw.write(rendered_text)
-        except Exception as e:
-            stderr("[!] doxx: There was an error with the rendered file write. Error message: " + str(e), exit=1)
+            # write rendered file to disk
+            try:
+                fw = FileWriter(template.outfile)
+                fw.write(rendered_text)
+                stdout("[+] doxx: '" + template.outfile + "' build... check")
+            except Exception as e:
+                stderr("[!] doxx: There was an error with the rendered file write. Error message: " + str(e), exit=1)
             
     def multi_process_run(self, template_path, iolock, outputlock):
         """Render replacements over multiple template files as defined in doxx key file using multiple processes (public method)"""
@@ -186,35 +197,39 @@ class Builder(object):
             outputlock.acquire()
             stderr("[!] doxx: An error occurred while parsing your template file. Error message: " + str(e), exit=1)
             outputlock.release()
-    
-        # template meta data is in template.meta_data
-        # template text is in template.text
-        # perform the text replacements:
-        try:
-            ink_template = InkTemplate(template.text)
-            ink_renderer = InkRenderer(ink_template, self.key_data)
-            rendered_text = ink_renderer.render()
-        except Exception as e:
-            outputlock.acquire()
-            stderr("[!] doxx: An error occurred during the text replacement attempt.  Error message: " + str(e), exit=1)            
-            outputlock.release()
-
-        ####
-        # TESTING
-        ####
-        print(template.outfile)
-        print(" ")
-        print(rendered_text)
-        sys.exit(0)        
-    
-        iolock.acquire()
-        # if the requested destination directory path does not exist, make it
-        if not dir_exists(dirname(template.outfile)):
-            make_dirs(dirname(template.outfile))            
-        fw = FileWriter(template.outfile)
-        fw.write(rendered_text)
-        iolock.release()
         
-
+        # determine whether this is a verbatim text file (no replacements) or if requires text replacements
+        if template.verbatim == True:
+            # write template.text out verbatim
+            try:
+                fw = FileWriter(template.outfile)
+                iolock.acquire()
+                fw.write(template.text)
+                iolock.release()
+            except Exception as e:
+                outputlock.acquire()
+                stderr("[!] doxx: There was a file write error with '" + template_path + "'. Error message: " + str(e), exit=1)
+                outputlock.release()
+        else:
+            # template meta data is in template.meta_data
+            # template text is in template.text
+            # perform the text replacements:
+            try:
+                ink_template = InkTemplate(template.text)
+                ink_renderer = InkRenderer(ink_template, self.key_data)
+                rendered_text = ink_renderer.render()
+            except Exception as e:
+                outputlock.acquire()
+                stderr("[!] doxx: An error occurred during the text replacement attempt.  Error message: " + str(e), exit=1)            
+                outputlock.release()        
+        
+            iolock.acquire()
+            # if the requested destination directory path does not exist, make it
+            if not dir_exists(dirname(template.outfile)):
+                make_dirs(dirname(template.outfile))            
+            fw = FileWriter(template.outfile)
+            fw.write(rendered_text)
+            iolock.release()
+        
 
         

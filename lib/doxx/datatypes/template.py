@@ -20,6 +20,7 @@ class DoxxTemplate(object):
         self.raw_text = ""
         self.text = ""
         self.meta_data = {}     # holds meta data from the header of the file
+        self.verbatim = False   # should file write take place verbatim (without text replacements), default False, changed to True by user meta data verbatim field
         self.extension = ""     # stored in the format '.txt'
         self.basename = ""      # base filename for the out write file path
         self.outfile = ""       # write file path for use by calling code
@@ -81,7 +82,13 @@ class DoxxTemplate(object):
             self.outfile = make_path(dest_dir, file_name)
         else:
             self.outfile = file_name
-
+        
+        # test for user request to write the file out verbatim, skips the text replacement step during the build
+        if 'verbatim' in meta_keys and self.meta_data['verbatim'] == True:
+            self.verbatim = True
+        else:
+            self.meta_data['verbatim'] = False
+            # self.verbatim is False by default, define the meta_data key with False value in case user included it without definining it
 
     def parse_template_for_errors(self):
         """evaluates template file for presence of meta data header and template text.  Returns a two-tuple. tuple[0] = True if error identified, False if error not identified.  tuple[1] = error message string"""
