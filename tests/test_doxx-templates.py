@@ -32,8 +32,10 @@ class DoxxASCIITemplateTests(unittest.TestCase):
         self.assertEqual(u"css", temp.meta_data['extension'])
         self.assertEqual(u"test", temp.meta_data['basename'])
         self.assertEqual(u"css", temp.meta_data['destination_directory'])
+        self.assertEqual(False, temp.meta_data['verbatim'])  # False by default
         self.assertEqual(u".css", temp.extension)
         self.assertEqual(u"test", temp.basename)
+        self.assertEqual(False, temp.verbatim)               # False by default
         self.assertEqual(u"css/test.css", temp.outfile)
         
     # template ASCII template text load
@@ -62,6 +64,7 @@ class DoxxASCIITemplateTests(unittest.TestCase):
             self.assertEqual(unicode, type(temp.text))
         else:
             self.assertEqual(str, type(temp.text))
+            
     
     
 class DoxxUnicodeTemplateTests(unittest.TestCase):
@@ -86,6 +89,8 @@ class DoxxUnicodeTemplateTests(unittest.TestCase):
         self.assertEqual(u"txt", temp.meta_data['extension'])
         self.assertEqual(u"тысячи", temp.meta_data['basename'])
         self.assertEqual(u"text", temp.meta_data['destination_directory'])
+        self.assertEqual(False, temp.meta_data['verbatim'])
+        self.assertEqual(False, temp.verbatim)
         self.assertEqual(u".txt", temp.extension)
         self.assertEqual(u"тысячи", temp.basename)
         self.assertEqual(u"text/тысячи.txt", temp.outfile)
@@ -146,6 +151,8 @@ class DoxxRemoteTemplateTests(unittest.TestCase):
         self.assertEqual(u"css", temp.meta_data['extension'])
         self.assertEqual(u"test", temp.meta_data['basename'])
         self.assertEqual(u"css", temp.meta_data['destination_directory'])
+        self.assertEqual(False, temp.meta_data['verbatim'])
+        self.assertEqual(False, temp.verbatim)
         self.assertEqual(u".css", temp.extension)
         self.assertEqual(u"test", temp.basename)
         self.assertEqual(u"css/test.css", temp.outfile)
@@ -197,6 +204,8 @@ class DoxxRemoteTemplateTests(unittest.TestCase):
         self.assertEqual(u"txt", temp.meta_data['extension'])
         self.assertEqual(u"тысячи", temp.meta_data['basename'])
         self.assertEqual(u"text", temp.meta_data['destination_directory'])
+        self.assertEqual(False, temp.meta_data['verbatim'])
+        self.assertEqual(False, temp.verbatim)
         self.assertEqual(u".txt", temp.extension)
         self.assertEqual(u"тысячи", temp.basename)
         self.assertEqual(u"text/тысячи.txt", temp.outfile)
