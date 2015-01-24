@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+import unicodedata
 from Naked.toolshed.file import FileReader
 from Naked.toolshed.system import directory, make_path
 from Naked.toolshed.system import file_exists, stderr
@@ -21,7 +22,7 @@ class DoxxKey(object):
         
         # define instance variables on object instantiation
         self._read_yaml(inpath)  # define self.meta_data & self.key_data with the yaml key file
-        self._cast_values_to_string()  # cast non-string values to strings (necessary for the Ink Renderer class)
+        self._cast_values_to_unicode()  # cast non-string values to strings (necessary for the Ink Renderer class)
         self._generate_dir_path(inpath)  # join the directory path to the template files specified in the key (for keys executed from outside of containing directory)
         
         # confirm the integrity of the key file
@@ -44,37 +45,39 @@ class DoxxKey(object):
                 else:
                     pass  # ignore any other sections that are included
         
-                i += 1
+                i += 1  # used to iterate through the_data
         else:
             stderr("[!] doxx: Unable to load the requested key " + inpath + ". Please check the path and try again.", exit=1)
-    
-    def _cast_values_to_string(self):
-        """cast non-string doxx key values to unicode strings (private method)"""
-        # convert all key value data to unicode compatible string types (unicode in Py2, str in Py3)
+            
+                    
+    def _cast_values_to_unicode(self):
+        unicode_key_data_dict = {}  # new dictionary that will contain the UTF-8 encoded unicode keys and values from self.key_data
         if self.key_data == None or len(self.key_data) == 0:
-            key_list = []  # if key_data is empty then define as empty list
+            key_list = []
         else:
             key_list = self.key_data.keys()
+            
         for key in key_list:
-            test_key = self.key_data[key]
-            if is_py2():  # python 2 only
-                if test_key != None:    
-                    if isinstance(test_key, unicode):  # if it is a string
-                        pass
-                    else:
-                        self.key_data[key] = unicode(test_key)
-                else:
-                    self.key_data[key] = u""  # replace with empty string if the key was empty
-            else:  # python 3 only
-                if test_key != None:
-                    if isinstance(test_key, str):
-                        pass  # do nothing, py3 strings are unicode by default
-                    else:  # if it is not a python 3 string
-                        self.key_data[key] = str(test_key)  # convert to utf-8 encoded string
-                else:
-                    self.key_data[key] = ""
+            unicode_key = unicodedata.normalize('NFKD', self._create_python_dependent_unicode(key))                    # encode the key
+            unicode_value = unicodedata.normalize('NFKD', self._create_python_dependent_unicode(self.key_data[key]))   # encode the value
+            unicode_key_data_dict[unicode_key] = unicode_value       # assign the encoded values to the new dictionary
+        
+        self.key_data = unicode_key_data_dict     # define the instance key_data with the new unicode encoded keys and values
                 
-                
+    
+    def _create_python_dependent_unicode(self, unknown_encoding_string):
+        if is_py2():  # python 2 only 
+            if isinstance(unknown_encoding_string, unicode):    # test for Python 2 unicode type
+                return unknown_encoding_string                  # it is already unicode, just return it
+            else:
+                return unicode(unknown_encoding_string)         # otherwise, cast to unicode
+        else:  # python 3 only
+            if isinstance(unknown_encoding_string, str):
+                return unknown_encoding_string                  # return unmodified string, py3 strings are unicode by default
+            else:
+                return str(unknown_encoding_string)             # convert to utf-8 encoded string   
+    
+    
     def _generate_dir_path(self, inpath):
         """joins the directory path from the current working directory to the template file paths specified in the doxx key meta data (private method)"""
         if self.meta_data == None:
