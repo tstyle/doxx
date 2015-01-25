@@ -299,3 +299,37 @@ class DoxxRemoteMITLicenseBuildTests(unittest.TestCase):
             os.chdir(self.current_dir)  # cd back to the main test directory before exception raised (avoids issues with other tests)
             raise e          
 
+# single template remote unicode (Russian translation) file build
+class RemoteMITUnicodeLicenseBuildTests(unittest.TestCase):
+    
+    def setUp(self):
+        self.current_dir = os.getcwd()
+        self.mit_standard = "standards/russian-mit-license.txt"
+        self.mit_verbatim_standard = "standards/russian-mit-verbatim.txt"
+        self.mit_test_dir = "build-tests/unicode-mit-license"        
+        
+        self.key = "remote-rus-key.yaml"
+        
+        mit_std_reader = FileReader(self.mit_standard)
+        self.mit_standard_text = mit_std_reader.read()
+        
+    def test_remote_mit_unicode_license_build(self):
+        os.chdir(self.mit_test_dir)  # cd to the mit test dir
+        try:
+            doxxkey = DoxxKey(self.key)
+            b = Builder()
+            b.run(doxxkey)
+            self.assertTrue(file_exists('rus-mit.txt'))                  # confirm that the rendered file write took place
+            fr = FileReader('rus-mit.txt')
+            rendered_text = fr.read()
+            self.assertEqual(self.mit_standard_text, rendered_text)  # confirm that the rendered text matches expected text
+            os.remove('rus-mit.txt')  # remove the rendered file to prepare directory for new tests
+            os.chdir(self.current_dir)
+        except Exception as e:
+            if file_exists('rus-mit.txt'):
+                os.remove('rus-mit.txt')    # remove the generate file if it is present before the exception was raised
+            os.chdir(self.current_dir)  # cd back to the main test directory before exception raised (avoids issues with other tests)
+            raise e
+        
+        
+        
