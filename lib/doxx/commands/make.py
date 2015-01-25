@@ -11,10 +11,10 @@ key_stub = """
 ---
 
 # enter a template path (template) OR multiple template paths (templates)
-# relative to this key file, then remove or comment out the other field:
+# relative to this key file, then remove or comment out the other field with # character:
 
 template: ***.doxt
-templates: [***.doxt, ***.doxt]
+templates: [***.doxt, 'http://somesite.com/templates/template.doxt']
 
 ---
 
@@ -31,16 +31,21 @@ templates: [***.doxt, ***.doxt]
 template_stub = """
 ---doxx---
 
-# (REQUIRED) enter the file extension for files generated from this template:
+# (REQUIRED) enter the file extension for files generated from this template
+#  the use of a '.' in the extension definition is optional (e.g. you can use '.txt' or 'txt')
 extension:
 
 # (OPTIONAL) enter a base file name for files generated from this template:
-#  default: use the template base file name for the generated file
+#  default: absent or undefined = use the template base file name for the generated file
 basename:
 
 # (OPTIONAL) enter a directory path relative to this file for files generated from this template:
-#  default : write to directory that contains this template file
+#  default : absent or undefined = write to current working directory where your build command was executed
 destination-directory:
+
+# (OPTIONAL): switch to 'true' for templates that contain text that should write to disk verbatim (i.e. no replacements)
+#  default: false or absent = perform text replacements in this template file
+verbatim: false
 
 ---doxx---
 
