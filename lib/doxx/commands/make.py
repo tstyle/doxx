@@ -14,7 +14,7 @@ key_stub = """
 # relative to this key file, then remove or comment out the other field with # character:
 
 template: ***.doxt
-templates: [***.doxt, 'http://somesite.com/templates/template.doxt']
+templates: [***.doxt, 'http://***/***.doxt']
 
 ---
 
