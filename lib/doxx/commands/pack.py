@@ -9,7 +9,7 @@ def tar_gzip_package_directory(archive_name, root_dir):
     try:
         current_dir = getcwd()  
         archive_gz_name = archive_name + ".tar.gz"
-        tar = tarfile.open(archive_gz_name, mode="w:gz")    # file writes to current working directory
+        tar = tarfile.open(archive_gz_name, mode="w:gz", compresslevel=8)    # file writes to current working directory
         chdir(root_dir)  # navigate to the root directory to add the files to the archive
         tar.add(".")     # make tar.gz archive
         tar.close()
