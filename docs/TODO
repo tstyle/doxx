@@ -1,0 +1,6 @@
+-- support for gzip compressed remote files
+-- add bzip2 / lzma compression options to pack command?
+
+
+Future commands:
+  analyze: analyze a template or key file or .doxc pack
