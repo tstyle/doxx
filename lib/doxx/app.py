@@ -10,11 +10,12 @@
 # Application start
 def main():
     import sys
+    from os.path import basename
     from Naked.commandline import Command
-    from Naked.toolshed.system import stdout, stderr
+    from Naked.toolshed.system import stdout, stderr, is_dir, is_file, cwd
     from doxx.commands.build import Builder
     from doxx.commands.make import Maker
-    from doxx.datatypes.key import DoxxKey
+    from doxx.datatypes.key import DoxxKey 
 
     #------------------------------------------------------------------------------------------
     # [ Instantiate command line object ]
@@ -78,6 +79,27 @@ def main():
                 stderr("Usage: doxx make [key | template]", exit=1)
         else:
             stderr("[!] doxx: Please include the secondary command 'key' or 'template' with the 'make' command.", exit=1)
+    elif c.cmd == "pack":
+        from doxx.commands.pack import tar_gzip_package_directory  
+        if c.argc > 1:
+            # if requested a path that differs from the cwd
+            if is_dir(c.arg1):
+                tar_gzip_package_directory(c.arg1, c.arg1)
+            else:
+                stderr("[!] doxx: '" + c.arg1 + "' is not a directory.  Please enter an existing path to your project directory or navigate to the directory and execute the pack command without an argument.", exit=1)
+        else:
+            root_dir = cwd()
+            archive_name = basename(root_dir)
+            tar_gzip_package_directory(archive_name, root_dir)
+    elif c.cmd == "unpack":
+        if c.argc > 1:
+            if is_file(c.arg1):
+                from doxx.commands.unpack import unpack_targz_file
+                unpack_targz_file(c.arg1)
+            else:
+                stderr("[!] doxx: '" + c.arg1 + "' is not a file.  Please include a path to your file.", exit=1)
+        else:
+            stderr("[!] doxx: Please include a path to your file.", exit=1)
 
     #------------------------------------------------------------------------------------------
     # [ DEFAULT MESSAGE FOR MATCH FAILURE ]
