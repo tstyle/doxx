@@ -30,9 +30,6 @@ class DoxxLocalMITLicenseBuildTests(unittest.TestCase):
         
         mit_v_reader = FileReader(self.mit_verbatim_standard)
         self.mit_verbatim_standard_text = mit_v_reader.read()
-        
-    def tearDown(self):
-        pass
     
    
     # default template style test
