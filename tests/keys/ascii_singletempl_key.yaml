@@ -14,3 +14,4 @@ date: 10/10/2010
 colons: contains:colons
 url: http://test.com/dir/file.txt
 nonalph-chars: "!@#$%^&*()-_=+~``<>,./?:;"
+undefined-key: 

@@ -89,6 +89,11 @@ class DoxxASCIIKeysTests(unittest.TestCase):
         self.assertTrue('url' in key.key_data.keys())
         self.assertEqual('http://test.com/dir/file.txt', key.key_data['url'])
         
+    def test_doxxkey_keydata_undefined_value(self):  # test that an undefined key value yields an empty string, this is the desired replacement string when undefined
+        key = DoxxKey(self.good_key_path_outside)
+        self.assertTrue('undefined-key' in key.key_data.keys())
+        self.assertEqual(u'', key.key_data['undefined-key'])
+        
     def test_doxxkey_attr_multitemp_false(self):  # assert that the multitemplate attribute is set to False
         key = DoxxKey(self.good_key_path_outside)
         self.assertFalse(key.multi_template_key) 
