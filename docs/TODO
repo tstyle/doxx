@@ -1,7 +1,28 @@
--- cleanup command - remove all .doxt files and key.yaml file following a build
--- support for gzip compressed remote files
--- add bzip2 / lzma compression options to pack command?
+TESTS:
+ -- build - [] multi-file
+            [] multi-file remote
+            [] tar.gz project
+            [] tar.gz project remote
+           
+ -- clean
+ -- pack
+ -- unpack
+ -- pull
+ -- make
+ 
+ 
+BUGS:
+
+[X] missing key fields are replaced with "None" - fix
 
 
-Future commands:
-  analyze: analyze a template or key file or .doxc pack
+NEW:
+
+High Priority
+  -- support for builds from gzip compressed tar archive packages
+
+Medium Priority
+  -- analyze: analyze a template or key file or .tar.gz package
+  
+Low Priority
+  -- add bzip2 / lzma compression options to pack command?
