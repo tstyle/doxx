@@ -22,6 +22,14 @@ def multi_process_build(key):
     iolock = Lock()      # file read / write lock
     outputlock = Lock()  # stdout / stderr writes lock
     
+    
+    # ## SINGLE PROCESS
+    # for template in key.meta_data['templates']:
+        # b = Builder()
+        # b.set_key_data(key)
+        # b.single_template_run(template)
+    
+    ## MULTI-PROCESS    
     # create worker processes
     for template in key.meta_data['templates']:
         p = Process(target=single_process_runner, args=(template, key, iolock, outputlock))
@@ -31,7 +39,7 @@ def multi_process_build(key):
     for process in processes:
         process.join(timeout=60)
     
-    ## zombie process finder for testing
+    # ## zombie process finder for testing
     # active_child_processes = active_children()
     
     # if len(active_child_processes) > 0:
@@ -144,7 +152,7 @@ class Builder(object):
             try:
                 fw = FileWriter(template.outfile)
                 fw.write(rendered_text)
-                stdout("[+] doxx: '" + template.outfile + "' build... check")
+                stdout("[+] doxx: -- " + template.outfile + " ... check")
             except Exception as e:
                 stderr("[!] doxx: There was an error with the rendered file write. Error message: " + str(e), exit=1)
             
@@ -210,10 +218,20 @@ class Builder(object):
         if template.verbatim == True:
             # write template.text out verbatim
             try:
-                fw = FileWriter(template.outfile)
+                # if the requested destination directory path does not exist, make it
                 iolock.acquire()
+                if dirname(template.outfile) == "":
+                    pass  # do nothing, it is the current working directory
+                elif not dir_exists(dirname(template.outfile)):
+                    make_dirs(dirname(template.outfile))
+                # then write the file out verbatim
+                fw = FileWriter(template.outfile)
                 fw.write(template.text)
                 iolock.release()
+                
+                outputlock.acquire()
+                stdout("[+] doxx: -- " + template.outfile + " ... check")
+                outputlock.release()
             except Exception as e:
                 outputlock.acquire()
                 stderr("[!] doxx: There was a file write error with '" + template_path + "'. Error message: " + str(e), exit=1)
@@ -233,11 +251,17 @@ class Builder(object):
         
             iolock.acquire()
             # if the requested destination directory path does not exist, make it
-            if not dir_exists(dirname(template.outfile)):
-                make_dirs(dirname(template.outfile))            
+            if dirname(template.outfile) == "":
+                pass  # do nothing, it is the current working directory
+            elif not dir_exists(dirname(template.outfile)):
+                make_dirs(dirname(template.outfile))          
             fw = FileWriter(template.outfile)
             fw.write(rendered_text)
             iolock.release()
+            
+            outputlock.acquire()
+            stdout("[+] doxx: -- " + template.outfile + " ... check")
+            outputlock.release()
         
 
         
