@@ -94,8 +94,8 @@ def main():
             tar_gzip_package_directory(archive_name, root_dir)
     elif c.cmd == "pull":
         if c.argc > 1:
-            from doxx.commands.pull import run as pull_run
-            pull_run(c.arg1)
+            from doxx.commands.pull import pull_binary_file
+            pull_binary_file(c.arg1)
             stdout("[*] doxx: Pull complete")
         else:
             stderr("[!] doxx: Please include a URL argument for the archive that you would like to pull.", exit=1)

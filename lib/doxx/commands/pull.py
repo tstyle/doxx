@@ -8,9 +8,6 @@ from Naked.toolshed.system import stderr, stdout, stdout_xnl, file_exists
 from doxx.commands.unpack import unpack_compressed_archive_file
 
 
-def run(url):
-    pull_binary_file(url)
-
 def pull_binary_file(url):
     # confirm that it is a properly formatted URL
     if url[0:7] == "http://" or url[0:8] == "https://":
