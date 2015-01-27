@@ -1,3 +1,4 @@
+-- cleanup command - remove all .doxt files and key.yaml file following a build
 -- support for gzip compressed remote files
 -- add bzip2 / lzma compression options to pack command?
 
