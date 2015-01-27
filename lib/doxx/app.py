@@ -61,6 +61,9 @@ def main():
         doxxkey = DoxxKey(key_path)
         b = Builder()
         b.run(doxxkey)
+    elif c.cmd == "clean":
+        from doxx.commands.clean import run_clean
+        run_clean()  # execute the clean routines
     elif c.cmd == "make":
         if c.argc > 1:
             if c.cmd2 == "key":            
