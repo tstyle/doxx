@@ -66,13 +66,13 @@ def main():
         run_clean()  # execute the clean routines
     elif c.cmd == "make":
         if c.argc > 1:
-            if c.cmd2 == "key":            
+            if c.cmd2 == "key":  # secondary command        
                 m = Maker()
                 if c.argc > 2:
                     m.make_key(c.arg1)
                 else:
                     m.make_key("key.yaml")
-            elif c.cmd2 == "template":
+            elif c.cmd2 == "template":  # secondary command
                 m = Maker()
                 if c.argc > 2:
                     m.make_template(c.arg1)
@@ -101,7 +101,7 @@ def main():
             pull_binary_file(c.arg1)
             stdout("[*] doxx: Pull complete")
         else:
-            stderr("[!] doxx: Please include a URL argument for the archive that you would like to pull.", exit=1)
+            stderr("[!] doxx: Please include the URL for the archive that you would like to pull.", exit=1)
     elif c.cmd == "unpack":
         if c.argc > 1:
             if is_file(c.arg1):
