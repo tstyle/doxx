@@ -59,7 +59,10 @@ class DoxxKey(object):
             
         for key in key_list:
             unicode_key = unicodedata.normalize('NFKD', self._create_python_dependent_unicode(key))                    # encode the key
-            unicode_value = unicodedata.normalize('NFKD', self._create_python_dependent_unicode(self.key_data[key]))   # encode the value
+            if self.key_data[key] == None:
+                unicode_value = unicodedata.normalize('NFKD', self._create_python_dependent_unicode(""))              # if value == None (i.e. key present but no definition included), replace with empty string = empty string replacement
+            else:
+                unicode_value = unicodedata.normalize('NFKD', self._create_python_dependent_unicode(self.key_data[key]))  # otherwise normalize it
             unicode_key_data_dict[unicode_key] = unicode_value       # assign the encoded values to the new dictionary
         
         self.key_data = unicode_key_data_dict     # define the instance key_data with the new unicode encoded keys and values
