@@ -4,7 +4,7 @@ TESTS:
             [] tar.gz project
             [] tar.gz project remote
            
- -- clean
+ [X] clean
  -- pack
  -- unpack
  -- pull
