@@ -3,7 +3,7 @@
 
 from os import remove
 from shutil import rmtree
-from Naked.toolshed.system import list_filter_files, list_filter_files_cwd, dir_exists, file_exists, make_path, stderr, stdout
+from Naked.toolshed.system import list_filter_files, list_filter_files_cwd, list_all_files, dir_exists, file_exists, make_path, stderr, stdout
 
 def run_clean():
     _remove_key()
@@ -47,9 +47,9 @@ def _remove_doxt():
     # if there are files still remaining in the templates directory, leave it
     # otherwise, remove the templates directory as well
     if dir_exists('templates'):
-        remaining_template_file_list = list_filter_files(".doxt", "templates")
+        remaining_template_file_list = list_all_files('templates')  # get the remaining non-.doxt files in the directory
         if len(remaining_template_file_list) > 0:
-            pass
+            pass  # do nothing, skip the removal of the 'templates' directory from the project because other files are present in it
         else:
             try:
                 rmtree('templates')
