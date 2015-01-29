@@ -5,10 +5,10 @@ TESTS:
             [] tar.gz project remote
            
  [X] clean
- -- pack
- -- unpack
+ [X] pack
+ [X] unpack
  -- pull
- -- make
+ [X] make
  
  
 BUGS:
