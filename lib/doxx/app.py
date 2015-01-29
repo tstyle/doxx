@@ -69,15 +69,19 @@ def main():
             if c.cmd2 == "key":  # secondary command        
                 m = Maker()
                 if c.argc > 2:
-                    m.make_key(c.arg1)
+                    m.make_key(c.arglp)
+                    stdout("[*] doxx: '" + c.arglp + "' key stub is available in the current directory.")
                 else:
                     m.make_key("key.yaml")
+                    stdout("[*] doxx: 'key.yaml' key stub is available in the current directory.")
             elif c.cmd2 == "template":  # secondary command
                 m = Maker()
                 if c.argc > 2:
-                    m.make_template(c.arg1)
+                    m.make_template(c.arglp)
+                    stdout("[*] doxx: '" + c.arglp + "' template stub is available in the current directory.")
                 else:
                     m.make_template("stub.doxt")  # default name is 'stub.doxt' for new template if not specified by user
+                    stdout("[*] doxx: 'stub.doxt' template stub is available in the current directory.")
             else:
                 stderr("Usage: doxx make [key | template]", exit=1)
         else:
@@ -90,7 +94,7 @@ def main():
                 tar_gzip_package_directory(c.arg1, c.arg1)
                 stdout("[*] doxx: Pack complete")
             else:
-                stderr("[!] doxx: '" + c.arg1 + "' does not appear to be a directory.  Please enter an existing path to your project directory or navigate to the directory and execute the pack command without an argument.", exit=1)
+                stderr("[!] doxx: '" + c.arg1 + "' does not appear to be a directory.  Please enter the path to your project directory.", exit=1)
         else:
             root_dir = cwd()
             archive_name = basename(root_dir)
