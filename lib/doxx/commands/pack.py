@@ -15,6 +15,6 @@ def tar_gzip_package_directory(archive_name, root_dir):
         tar.close()
         chdir(current_dir)  # navigate back to user's current working directory
     except Exception as e:
-        os.chdir(current_dir)  # if exception was raised, make sure that user is back in their current working directory before raising system exit
+        chdir(current_dir)  # if exception was raised, make sure that user is back in their current working directory before raising system exit
         stderr("[!] doxx: Unable to pack the directory '" + root_dir + "'. Error: " + str(e))
         
