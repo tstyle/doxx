@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 from Naked.toolshed.file import FileWriter
+from Naked.toolshed.system import stderr
 
 #############
 # KEY STUB - changes to this stub require changes to the datatypes.key._parse_yaml_for_errors method
@@ -60,12 +61,18 @@ class Maker(object):
         pass
     
     def make_key(self, outpath):
-        fw = FileWriter(outpath)
-        fw.write(key_stub)
+        try:
+            fw = FileWriter(outpath)
+            fw.write(key_stub)
+        except Exception as e:
+            stderr("[!] doxx: Unable to write the key stub to disk.  Error: " + str(e), exit=1)
         
     def make_template(self, outpath):
-        fw = FileWriter(outpath)
-        fw.write(template_stub)
+        try:
+            fw = FileWriter(outpath)
+            fw.write(template_stub)
+        except Exception as e:
+            stderr("[!] doxx: Unable to write the template stub to disk. Error: " + str(e), exit=1)
 
     
     
