@@ -87,30 +87,39 @@ def main():
         else:
             stderr("[!] doxx: Please include the secondary command 'key' or 'template' with the 'make' command.", exit=1)
     elif c.cmd == "pack":
-        from doxx.commands.pack import tar_gzip_package_directory  
+        from doxx.commands.pack import tar_gzip_package_directory, zip_package_directory 
         if c.argc > 1:
-            # if requested a path that differs from the cwd
-            if is_dir(c.arg1):
-                tar_gzip_package_directory(c.arg1, c.arg1)
-                stdout("[*] doxx: Pack complete")
-            else:
-                stderr("[!] doxx: '" + c.arg1 + "' does not appear to be a directory.  Please enter the path to your project directory.", exit=1)
-        else:
+            if c.cmd2 == "zip":
+                if c.argc > 2:  # request for zip with a directory path
+                    if is_dir(c.arglp):
+                        zip_package_directory(c.arglp, c.arglp)
+                    else:
+                        stderr("[!] doxx: '" + c.arglp + "' does not appear to be a directory.  Please enter the path to your project directory.", exit=1)
+                else:  # request for zip with current working directory
+                    stderr("[!] doxx: Please include your project directory as an argument to the zip command", exit=1)
+            else:  # request for tar.gz with a directory path
+                if is_dir(c.arglp):
+                    tar_gzip_package_directory(c.arglp, c.arglp)
+                else:
+                    stderr("[!] doxx: '" + c.arglp + "' does not appear to be a directory.  Please enter the path to your project directory.", exit=1)
+        else:  # request for tar.gz in current working directory
             root_dir = cwd()
             archive_name = basename(root_dir)
             tar_gzip_package_directory(archive_name, root_dir)
+        # end of the pack command
+        stdout("[*] doxx: Pack complete")
     elif c.cmd == "pull":
         if c.argc > 1:
-            from doxx.commands.pull import pull_binary_file
-            pull_binary_file(c.arg1)
+            from doxx.commands.pull import run_pull
+            run_pull(c.arg1)
             stdout("[*] doxx: Pull complete")
         else:
             stderr("[!] doxx: Please include the URL for the archive that you would like to pull.", exit=1)
     elif c.cmd == "unpack":
         if c.argc > 1:
             if is_file(c.arg1):
-                from doxx.commands.unpack import unpack_compressed_archive_file, remove_compressed_archive_file
-                unpack_compressed_archive_file(c.arg1)
+                from doxx.commands.unpack import unpack_run, remove_compressed_archive_file
+                unpack_run(c.arg1)
                 remove_compressed_archive_file(c.arg1)
                 stdout("[*] doxx: Unpack complete")
             else:
