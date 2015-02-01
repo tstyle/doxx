@@ -1,43 +1,130 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+import gzip
 from os import remove
 from Naked.toolshed.network import HTTP
 from Naked.toolshed.file import FileWriter
 from Naked.toolshed.system import stderr, stdout, stdout_xnl, file_exists
-from doxx.commands.unpack import unpack_compressed_archive_file
+from doxx.commands.unpack import unpack_run
 
 
-def pull_binary_file(url):
-    # confirm that it is a properly formatted URL
-    if url[0:7] == "http://" or url[0:8] == "https://":
-        pass
+def run_pull(url):
+    # confirm that the argument is a URL
+    if is_url(url):
+        file_name = get_file_name(url)
+        if len(file_name) == 0:
+            file_name = "pullfile"
+        
+        # begin file pull
+        stdout("[*] doxx: Pulling file...")
+            
+        if is_tar_gz_archive(file_name):
+            pull_binary_file(url, file_name)      # pull remote file
+            stdout("[*] doxx: Unpacking...")
+            unpack_archive(file_name)             # unpack archive
+            remove_file(file_name)                # remove the archive file
+        elif is_zip_archive(file_name):
+            pull_binary_file(url, file_name)      # pull remote file
+            stdout("[*] doxx: Unpacking...")
+            unpack_archive(file_name)             # unpack archive
+            remove_file(file_name)                # remove the arhcive file
+        elif is_gzip_file(file_name):
+            pull_binary_file(url, file_name)      # pull the remote gzip file
+            stdout("[!] doxx: Decompressing...")
+            decompress_gzip(file_name)           # decompress the file text
+            remove_file(file_name)               # remove the gzip compressed file and leave the decompressed text file
+        else:
+            pull_text_file(url, file_name)       # it is assumed to be a plain text template or key file, pull the text
     else:
-        stderr("[!] doxx: Your URL is not properly formatted.  Please include the 'http://' or 'https://' protocol at the beginning of the requested URL.", exit=1)
+        stderr("[!] doxx: Your URL is not properly formatted.  Please include the 'http://' or 'https://' protocol at the beginning of the requested URL.", exit=1)  
+
+
+def is_url(url):
+    """test for HTTP and HTTPS protocol in the string"""
+    if url[0:7] == "http://" or url[0:8] == "https://":
+        return True
+    else:
+        return False
     
-    # if passes above test, find the archive name from the URL
+def is_tar_gz_archive(file_name):
+    """test for tar.gz file archive"""
+    if file_name.lower().endswith('.tar.gz') or file_name.lower().endswith('.tar.gzip'):
+        return True
+    else:
+        return False
+    
+def is_zip_archive(file_name):
+    """test for zip file archive extension"""
+    if file_name.lower().endswith('.zip'):
+        return True
+    else:
+        return False
+    
+# must be tested AFTER tests for tar.gz archive because both will test true
+def is_gzip_file(file_name):
+    """test for gzip compressed file extension"""
+    if file_name.lower().endswith('.gz') or file_name.lower().endswith('.gzip'):
+        return True
+    else:
+        return False
+    
+def get_file_name(url):
+    """returns the filename from a URL"""
     split_url = url.split('/')
-    archive_file_name = split_url[-1]  # last string should contain the filename
-    
-    # test for presence of a filename, some URL may not include the filename in the URL string (e.g. test.com/compress/)
-    if len(archive_file_name) == 0:
-        archive_file_name = "doxx-project.tar.gz"
-    
+    return split_url[-1]
+
+def pull_binary_file(url, binary_file_name):
+    """pulls a remote binary file and writes to disk"""
     # pull the binary file data
-    stdout("[*] doxx: Pulling package...")
     http = HTTP(url)
     binary_data = http.get_bin()
     
     # write binary data to disk
-    fw = FileWriter(archive_file_name)
-    fw.write_bin(binary_data)  
+    fw = FileWriter(binary_file_name)
+    fw.write_bin(binary_data)
     
-    # unpack the file to the current working directory
-    stdout("[*] doxx: Unpacking...")
-    unpack_compressed_archive_file(archive_file_name)
+def pull_text_file(url, text_file_name):
+    """pulls a remote text file and writes to disk"""
+    # pull the binary file data
+    http = HTTP(url)
+    if http.get_status_ok():
+        text_data = http.res.text
+    else:
+        fail_status_code = http.res.status_code
+        stderr("[!] doxx: Unable to pull the remote file '" + url + "' (HTTP status code " + str(fail_status_code) + ")", exit=1)
+
+    # write binary data to disk
+    fw = FileWriter(text_file_name)
+    fw.write_bin(text_data)  
     
-    # remove the compressed archive file that was pulled
-    if file_exists(archive_file_name):
-        remove(archive_file_name)
+def unpack_archive(archive_file_name):
+    """unpacks a tar.gz or zip file archive and writes to local disk"""
+    unpack_run(archive_file_name)
+    
+def decompress_gzip(gz_filename):
+    """decompress gzip compressed file"""
+    # decompress the gzip'd file
+    f = gzip.open(gz_filename, 'rb')
+    file_content = f.read()
+    f.close()
+    
+    # get the base file name for the decompressed file write
+    filename_split = gz_filename.split('.')
+    if len(filename_split) == 2:
+        basename = filename_split[0]
+    elif len(filename_split) > 2:
+        basename = filename_split[0] + '.' + filename_split[1]  # concatenate first two parts of file name (e.g. example + '.' + 'tar' )
+    else:
+        basename = gz_filename
+        
+    # write the file locally
+    fw = FileWriter(basename)
+    fw.write(file_content)
+    
+def remove_file(file_name):
+    """removes archive file that was pulled from a remote source"""
+    if file_exists(file_name):
+        remove(file_name)
     
     
