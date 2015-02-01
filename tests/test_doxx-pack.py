@@ -8,7 +8,7 @@ import unittest
 from Naked.toolshed.system import file_exists
 
 from doxx.commands.pack import tar_gzip_package_directory
-from doxx.commands.unpack import unpack_compressed_archive_file, remove_compressed_archive_file
+from doxx.commands.unpack import unpack_run, remove_compressed_archive_file
 
 class DoxxPackTests(unittest.TestCase):
 
@@ -59,7 +59,7 @@ class DoxxPackTests(unittest.TestCase):
     def test_doxx_unpack_package(self):
         try:
             os.chdir(self.unpack_dir)
-            unpack_compressed_archive_file('unpack.tar.gz')
+            unpack_run('unpack.tar.gz')
             self.assertTrue(file_exists('key.yaml'))
             self.assertTrue(file_exists('test.doxt'))
             self.assertTrue(file_exists('test2.doxt'))
