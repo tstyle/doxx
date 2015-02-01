@@ -3,10 +3,12 @@ TESTS:
             [] multi-file remote
             [] tar.gz project
             [] tar.gz project remote
+            [] .zip project
+            [] .zip project remote
            
  [X] clean
- [X] pack
- [X] unpack
+ -- pack
+ -- unpack
  -- pull
  [X] make
  
