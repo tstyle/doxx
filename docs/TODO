@@ -7,8 +7,8 @@ TESTS:
             [] .zip project remote
            
  [X] clean
- -- pack
- -- unpack
+ [X] pack
+ [X] unpack
  -- pull
  [X] make
  
