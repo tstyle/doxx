@@ -9,7 +9,7 @@ TESTS:
  [X] clean
  [X] pack
  [X] unpack
- -- pull
+ [X] pull
  [X] make
  
  
