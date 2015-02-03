@@ -20,22 +20,46 @@ def run_pull(url):
         stdout("[*] doxx: Pulling file...")
             
         if is_tar_gz_archive(file_name):
-            pull_binary_file(url, file_name)      # pull remote file
+            try:
+                pull_binary_file(url, file_name)      # pull remote file
+            except Exception as e:
+                stderr("[!] doxx: Unable to pull the tar.gz project. Error: " + str(e), exit=1)
             stdout("[*] doxx: Unpacking...")
-            unpack_archive(file_name)             # unpack archive
-            remove_file(file_name)                # remove the archive file
+            try:
+                unpack_archive(file_name)             # unpack archive
+            except Exception as e:
+                stderr("[!] doxx: Unable to unpack the compressed project file. Error: " + str(e), exit=1)
+            if file_exists(file_name):
+                remove_file(file_name)                # remove the archive file
         elif is_zip_archive(file_name):
-            pull_binary_file(url, file_name)      # pull remote file
+            try:
+                pull_binary_file(url, file_name)      # pull remote file
+            except Exception as e:
+                stderr("[!] doxx: Unable to pull the .zip project. Error: " + str(e), exit=1)
             stdout("[*] doxx: Unpacking...")
-            unpack_archive(file_name)             # unpack archive
-            remove_file(file_name)                # remove the arhcive file
+            try:
+                unpack_archive(file_name)             # unpack archive
+            except Exception as e:
+                stderr("[!] doxx: Unable to unpack the compressed project file. Error: " + str(e), exit=1)
+            if file_exists(file_name):
+                remove_file(file_name)                # remove the arhcive file
         elif is_gzip_file(file_name):
-            pull_binary_file(url, file_name)      # pull the remote gzip file
+            try:
+                pull_binary_file(url, file_name)      # pull the remote gzip file
+            except Exception as e:
+                stderr("[!] doxx: Unable to pull the compressed file. Error: " + str(e), exit=1)
             stdout("[!] doxx: Decompressing...")
-            decompress_gzip(file_name)           # decompress the file text
-            remove_file(file_name)               # remove the gzip compressed file and leave the decompressed text file
+            try:
+                decompress_gzip(file_name)           # decompress the file text
+            except Exception as e:
+                stderr("[!] doxx: Unable to decompress the gzip file. Error: " + str(e), exit=1)
+            if file_exists(file_name):
+                remove_file(file_name)               # remove the gzip compressed file and leave the decompressed text file
         else:
-            pull_text_file(url, file_name)       # it is assumed to be a plain text template or key file, pull the text
+            try:
+                pull_text_file(url, file_name)       # it is assumed to be a plain text template or key file, pull the text
+            except Exception as e:
+                stderr("[!] doxx: Unable to pull the requested file. Error: " + str(e), exit=1)
     else:
         stderr("[!] doxx: Your URL is not properly formatted.  Please include the 'http://' or 'https://' protocol at the beginning of the requested URL.", exit=1)  
 
