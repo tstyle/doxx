@@ -143,4 +143,10 @@ class DoxxPullTests(unittest.TestCase):
         except Exception as e:
             os.chdir(self.cwd)
             raise e
+        
+    def test_doxx_pull_bad_url(self):
+        with self.assertRaises(SystemExit):
+            run_pull('https://raw.githubusercontent.com/bit-store/testfiles/master/doxx/pull-tests/completelybogus.html')
+    
+    
     
