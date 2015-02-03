@@ -6,6 +6,7 @@ from os import remove
 from Naked.toolshed.network import HTTP
 from Naked.toolshed.file import FileWriter
 from Naked.toolshed.system import stderr, stdout, stdout_xnl, file_exists
+from Naked.toolshed.python import is_py3
 from doxx.commands.unpack import unpack_run
 
 
@@ -102,25 +103,39 @@ def pull_binary_file(url, binary_file_name):
     """pulls a remote binary file and writes to disk"""
     # pull the binary file data
     http = HTTP(url)
-    binary_data = http.get_bin()
-    
-    # write binary data to disk
-    fw = FileWriter(binary_file_name)
-    fw.write_bin(binary_data)
+    try:
+        if http.get_status_ok():
+            binary_data = http.res.content    
+            # write binary data to disk
+            try:
+                fw = FileWriter(binary_file_name)
+                fw.write_bin(binary_data)
+            except Exception as e:
+                stderr("[!] doxx: File write failed for '" + binary_file_name + "'.  Error: " + str(e), exit=1)
+        else:
+            fail_status_code = http.res.status_code
+            stderr("[!] doxx: Unable to pull '" + url + "'. (HTTP status code: " + str(fail_status_code) + ")", exit=1)
+    except Exception as e:
+        stderr("[!] doxx: Unable to pull '" + url + "'. Error: " + str(e), exit=1)
     
 def pull_text_file(url, text_file_name):
     """pulls a remote text file and writes to disk"""
     # pull the binary file data
     http = HTTP(url)
-    if http.get_status_ok():
-        text_data = http.res.text
-    else:
-        fail_status_code = http.res.status_code
-        stderr("[!] doxx: Unable to pull the remote file '" + url + "' (HTTP status code " + str(fail_status_code) + ")", exit=1)
-
-    # write binary data to disk
-    fw = FileWriter(text_file_name)
-    fw.write_bin(text_data)  
+    try:
+        if http.get_status_ok():
+            text_data = http.res.text
+            # write text data to disk
+            try:
+                fw = FileWriter(text_file_name)
+                fw.write(text_data)
+            except Exception as e:
+                stderr("[!] doxx: File write failed for '" + text_file_name + "'.  Error: " + str(e), exit=1)
+        else:
+            fail_status_code = http.res.status_code
+            stderr("[!] doxx: Unable to pull '" + url + "' (HTTP status code " + str(fail_status_code) + ")", exit=1)
+    except Exception as e:
+        stderr("[!] doxx: Unable to pull '" + url + "'. Error: " + str(e), exit=1)
     
 def unpack_archive(archive_file_name):
     """unpacks a tar.gz or zip file archive and writes to local disk"""
@@ -132,6 +147,10 @@ def decompress_gzip(gz_filename):
     f = gzip.open(gz_filename, 'rb')
     file_content = f.read()
     f.close()
+    
+    # monkeypatch for Python 3 byte string read issue
+    if is_py3():
+        file_content = str(file_content)
     
     # get the base file name for the decompressed file write
     filename_split = gz_filename.split('.')
