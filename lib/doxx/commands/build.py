@@ -70,7 +70,7 @@ class Builder(object):
             # notify user of build completion
             stdout("[*] doxx: Build complete.")   
         except Exception as e:
-            stderr("[!] doxx: Error Message: " + str(e), exit=1)
+            stderr("[!] doxx: Error: " + str(e), exit=1)
             
     
     def set_key_data(self, key):
