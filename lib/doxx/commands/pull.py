@@ -67,7 +67,7 @@ def run_pull(url):
 
 def is_url(url):
     """test for HTTP and HTTPS protocol in the string"""
-    if url[0:7] == "http://" or url[0:8] == "https://":
+    if len(url) > 6 and (url[0:7] == "http://" or url[0:8] == "https://"):
         return True
     else:
         return False
