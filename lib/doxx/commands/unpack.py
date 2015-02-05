@@ -10,7 +10,7 @@ def unpack_run(file_path):
     if tarfile.is_tarfile(file_path):
         return unpack_targz_archive_file(file_path)  # returns the root directory from the unpack function below
     elif zipfile.is_zipfile(file_path):
-        return unpack_zip_archive_file(file_path)
+        return unpack_zip_archive_file(file_path)    # returns the root directory from the unpack function below
     else:
         stderr("[!] doxx: '" + file_path + "' does not appear to be a supported project archive type.  Please review the project archive documentation and try again.", exit=1)
 

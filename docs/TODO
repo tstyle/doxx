@@ -24,6 +24,7 @@ NEW:
 
 High Priority
   -- support for builds from tar.gzip or zip compressed file archives
+  -- add try/except blocks around stderr issues in multi-template multiprocessing builds (the outputlock is not being released when exception raised)
   -- pull command: change 'project.yaml' to 'key.yaml' following pull
 
 Medium Priority
