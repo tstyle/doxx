@@ -11,7 +11,7 @@ from Naked.toolshed.python import is_py2
 
 from doxx.datatypes.template import DoxxTemplate, RemoteDoxxTemplate
 from doxx.datatypes.key import DoxxKey
-from doxx.commands.pull import is_url, is_gzip_file, is_zip_archive, get_file_name
+from doxx.commands.pull import run_pull, is_url, is_gzip_file, is_zip_archive, get_file_name
 from doxx.commands.unpack import unpack_run
 
 # need a different template for Python 2 & 3
@@ -135,9 +135,15 @@ class Builder(object):
         if template.verbatim == True or self.no_key_replacements == True:
             # write template.text out verbatim
             try:
-                fw = FileWriter(template.outfile)
+            # if the requested destination directory path does not exist, make it
+                outfile_dir_path = make_path(dirname(self.key_path), dirname(template.outfile))
+                if not dir_exists(outfile_dir_path):
+                    make_dirs(outfile_dir_path)
+                # write the file
+                outfile_path = make_path(dirname(self.key_path), template.outfile)
+                fw = FileWriter(outfile_path)
                 fw.write(template.text)
-                stdout("[+] doxx: '" + template.outfile + "' build... check")
+                stdout("[+] doxx: '" + outfile_path + "' build... check")
             except Exception as e:
                 stderr("[!] doxx: There was a file write error. Error message: " + str(e), exit=1)        
         else:
@@ -152,16 +158,16 @@ class Builder(object):
                 stderr("[!] doxx: An error occurred during the text replacement attempt.  Error message: " + str(e), exit=1)
         
             # if the requested destination directory path does not exist, make it
-            if dirname(template.outfile) == "":
-                pass  # do nothing, it is the current working directory
-            elif not dir_exists(dirname(template.outfile)):
-                make_dirs(dirname(template.outfile))
+            outfile_dir_path = make_path(dirname(self.key_path), dirname(template.outfile))
+            if not dir_exists(outfile_dir_path):
+                make_dirs(outfile_dir_path)
     
             # write rendered file to disk
             try:
-                fw = FileWriter(template.outfile)
+                outfile_path = make_path(dirname(self.key_path), template.outfile)
+                fw = FileWriter(outfile_path)
                 fw.write(rendered_text)
-                stdout("[+] doxx: -- " + template.outfile + " ... check")
+                stdout("[+] doxx: -- " + outfile_path + " ... check")
             except Exception as e:
                 stderr("[!] doxx: There was an error with the rendered file write. Error message: " + str(e), exit=1)
             
@@ -228,18 +234,21 @@ class Builder(object):
             # write template.text out verbatim
             try:
                 # if the requested destination directory path does not exist, make it
+                outfile_dir_path = make_path(dirname(self.key_path), dirname(template.outfile))
                 iolock.acquire()
-                if dirname(template.outfile) == "":
-                    pass  # do nothing, it is the current working directory
-                elif not dir_exists(dirname(template.outfile)):
-                    make_dirs(dirname(template.outfile))
-                # then write the file out verbatim
-                fw = FileWriter(template.outfile)
+                if not dir_exists(outfile_dir_path):
+                    make_dirs(outfile_dir_path)
+                iolock.release()
+                # write the file
+                outfile_path = make_path(dirname(self.key_path), template.outfile)
+                # then write the file out verbatim                
+                iolock.acquire()
+                fw = FileWriter(outfile_path)
                 fw.write(template.text)
                 iolock.release()
                 
                 outputlock.acquire()
-                stdout("[+] doxx: -- " + template.outfile + " ... check")
+                stdout("[+] doxx: -- " + outfile_path + " ... check")
                 outputlock.release()
             except Exception as e:
                 outputlock.acquire()
@@ -260,16 +269,20 @@ class Builder(object):
         
             iolock.acquire()
             # if the requested destination directory path does not exist, make it
-            if dirname(template.outfile) == "":
-                pass  # do nothing, it is the current working directory
-            elif not dir_exists(dirname(template.outfile)):
-                make_dirs(dirname(template.outfile))          
-            fw = FileWriter(template.outfile)
+            outfile_dir_path = make_path(dirname(self.key_path), dirname(template.outfile))
+            if not dir_exists(outfile_dir_path):
+                make_dirs(outfile_dir_path)
+            iolock.release()
+                
+            outfile_path = make_path(dirname(self.key_path), template.outfile)
+            
+            iolock.acquire()
+            fw = FileWriter(outfile_path)
             fw.write(rendered_text)
             iolock.release()
             
             outputlock.acquire()
-            stdout("[+] doxx: -- " + template.outfile + " ... check")
+            stdout("[+] doxx: -- " + outfile_path + " ... check")
             outputlock.release()
         
 
@@ -279,6 +292,19 @@ class Builder(object):
         if is_url(project_path):
             # define the archive file name from the URL
             project_archive_file_name = get_file_name(project_path)
+            # pull the remote project and unpack it, define the root directory with the returned value from the function
+            root_dir = run_pull(project_path)
+            # make the path to the 'project.yaml' key file
+            project_key_path = make_path(root_dir, 'project.yaml')
+            
+            if file_exists(project_key_path):
+                self.write_project_runner_key(project_key_path)  # append the key data to the project.yaml key
+            else:
+                stderr("[!] doxx: Unable to locate the 'project.yaml' project settings file in your unpacked archive", exit=1)
+            
+            # instantiate a new Builder object with the updated 'project.yaml' local file
+            builder = Builder(project_key_path)
+            builder.run()  # build with the updated 'project.yaml' key
         # Local .tar.gz or .zip project archives
         else:
             project_key_path = self.unpack_and_get_keypath(project_path)
@@ -291,7 +317,7 @@ class Builder(object):
                 
             # instantiate a new Builder object with the updated 'project.yaml' local file
             builder = Builder(project_key_path)
-            builder.run()            
+            builder.run()            # build with the updated 'project.yaml' key
                 
     
     def unpack_and_get_keypath(self, project_path):
@@ -322,12 +348,14 @@ class Builder(object):
             # return the key path to the calling method
             return key_path
         
+    
     def write_project_runner_key(self, project_key_path):
         key_data_string = ""
         if len(self.key_data) > 0:
             for the_key in self.key_data:
                 key_data_string = key_data_string + the_key + ": " + self.key_data[the_key] + "\n" # recreate the YAML from the local key.yaml file to append to the project.yaml file
-
+        # if there is no key data, not necessary to write any additional data to the file.  when doxx key is instantiated it will handle the lack of replacement data
+        
         # append the local key file ('key.yaml') key data to the project meta data to prepare for the build
         try:
             fw = FileWriter(project_key_path)
