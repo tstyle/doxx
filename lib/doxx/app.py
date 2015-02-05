@@ -58,9 +58,9 @@ def main():
         else:
             key_path = "key.yaml"
         stdout("[*] doxx: Build started with the key file '" + key_path + "'...")
-        doxxkey = DoxxKey(key_path)
-        b = Builder()
-        b.run(doxxkey)
+        b = Builder(key_path)
+        b.run()
+        stdout("[*] doxx: Build complete.") 
     elif c.cmd == "clean":
         from doxx.commands.clean import run_clean
         run_clean()  # execute the clean routines

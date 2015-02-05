@@ -2,12 +2,17 @@
 # encoding: utf-8
 
 import sys
-from os.path import dirname
+from os.path import dirname, walk
 from multiprocessing import Process, Lock
-from doxx.datatypes.template import DoxxTemplate, RemoteDoxxTemplate
+
 from Naked.toolshed.file import FileWriter
-from Naked.toolshed.system import dir_exists, file_exists, make_dirs, stderr, stdout
+from Naked.toolshed.system import cwd, dir_exists, file_exists, make_dirs, make_path, stderr, stdout
 from Naked.toolshed.python import is_py2
+
+from doxx.datatypes.template import DoxxTemplate, RemoteDoxxTemplate
+from doxx.datatypes.key import DoxxKey
+from doxx.commands.pull import is_url, is_gzip_file, is_zip_archive, get_file_name
+from doxx.commands.unpack import unpack_run
 
 # need a different template for Python 2 & 3
 if is_py2():    
@@ -17,7 +22,7 @@ else:
     from doxx.renderer.inkpy3 import Template as InkTemplate
     from doxx.renderer.inkpy3 import Renderer as InkRenderer
 
-def multi_process_build(key):
+def multi_process_build(key, key_path):
     processes = []       # list of spawned processes
     iolock = Lock()      # file read / write lock
     outputlock = Lock()  # stdout / stderr writes lock
@@ -32,7 +37,7 @@ def multi_process_build(key):
     ## MULTI-PROCESS    
     # create worker processes
     for template in key.meta_data['templates']:
-        p = Process(target=single_process_runner, args=(template, key, iolock, outputlock))
+        p = Process(target=single_process_runner, args=(template, key, key_path, iolock, outputlock))
         p.start()
         processes.append(p)
     # join worker processes upon completion or with 60 second timeout
@@ -47,35 +52,39 @@ def multi_process_build(key):
     # else:
         # print("no active children detected")
 
-def single_process_runner(template_path, key, iolock, outputlock):
-    b = Builder()
+def single_process_runner(template_path, key, key_path, iolock, outputlock):
+    b = Builder(key_path)
     b.set_key_data(key)
     b.multi_process_run(template_path, iolock, outputlock)
 
 
 class Builder(object):
     """The Builder class renders doxx templates from user provided keys"""
-    def __init__(self):
+    def __init__(self, key_path): 
+        self.key_path = key_path   # the local key file path: key.yaml or as specified by user
         self.key_data = {}
+        self.no_key_replacements = False
     
-    def run(self, key):
+    def run(self):
+        doxxkey = DoxxKey(self.key_path)
         # detect single vs multiple keys in the template and execute replacements with every requested template
-        self.set_key_data(key)  # assign key data from the doxx Key
+        self.set_key_data(doxxkey)  # assign key data from the doxx Key
         
         try:
-            if key.multi_template_key == True:
-                multi_process_build(key)
+            if doxxkey.project_key == True:  # the key is set to run on a local or remote project archive
+                self.project_archive_run(doxxkey)
+            elif doxxkey.multi_template_key == True:  # the key is set to run on multiple local or remote template files
+                multi_process_build(doxxkey, self.key_path)
             else:
-                self.single_template_run(key.meta_data['template']) # process single template file
-            # notify user of build completion
-            stdout("[*] doxx: Build complete.")   
+                self.single_template_run(doxxkey.meta_data['template']) # the key is set to run on a single local or remote template file
         except Exception as e:
             stderr("[!] doxx: Error: " + str(e), exit=1)
             
     
     def set_key_data(self, key):
-        """used to set the key data in multi process, multi template file renders"""
-        self.key_data = key.key_data    
+        """used to set the key data"""
+        self.key_data = key.key_data
+        self.no_key_replacements = key.no_replacements  # defined True if there were no replacement keys in the key file, used to indicate skip replacements in the template(s)
         
     
     def single_template_run(self, template_path):
@@ -122,8 +131,8 @@ class Builder(object):
         except Exception as e:
             stderr("[!] doxx: An error occurred while parsing your template file. Error message: " + str(e), exit=1)
     
-        # determine whether this is a verbatim text file (no replacements) or if requires text replacements
-        if template.verbatim == True:
+        # determine whether this is a verbatim template file (no replacements) or the key file did not include replacement keys
+        if template.verbatim == True or self.no_key_replacements == True:
             # write template.text out verbatim
             try:
                 fw = FileWriter(template.outfile)
@@ -214,8 +223,8 @@ class Builder(object):
             stderr("[!] doxx: An error occurred while parsing your template file. Error message: " + str(e), exit=1)
             outputlock.release()
         
-        # determine whether this is a verbatim text file (no replacements) or if requires text replacements
-        if template.verbatim == True:
+        # determine whether this is a verbatim template file (no replacements) or the key file did not include replacement keys
+        if template.verbatim == True or self.no_key_replacements == True:
             # write template.text out verbatim
             try:
                 # if the requested destination directory path does not exist, make it
@@ -264,4 +273,67 @@ class Builder(object):
             outputlock.release()
         
 
+    def project_archive_run(self, key):
+        project_path = key.meta_data['project']
+        # Remote .tar.gz or .zip project archives
+        if is_url(project_path):
+            # define the archive file name from the URL
+            project_archive_file_name = get_file_name(project_path)
+        # Local .tar.gz or .zip project archives
+        else:
+            project_key_path = self.unpack_and_get_keypath(project_path)
+            
+            # create an updated 'project.yaml' key file from the remote project template paths and the local user key data
+            if file_exists(project_key_path):
+                self.write_project_runner_key(project_key_path)
+            else:
+                stderr("[!] doxx: Unable to locate the 'project.yaml' project settings file in your unpacked archive", exit=1)
+                
+            # instantiate a new Builder object with the updated 'project.yaml' local file
+            builder = Builder(project_key_path)
+            builder.run()            
+                
+    
+    def unpack_and_get_keypath(self, project_path):
+        # unpack the archive and get the root directory from the archive
+        root_directory = unpack_run(project_path)
         
+        if root_directory == None or root_directory == "":
+            key_path = None
+            try:
+                for root, dirs, files in walk(cwd()):
+                    for test_file in files:
+                        if test_file == "project.yaml":
+                            key_path = make_path(root, dirs, test_file)
+            except Exception as e:
+                stderr("[!] doxx: Unable to locate the 'project.yaml' project settings file in your unpacked archive. Error: " + str(e), exit=1)
+                
+            if key_path == None:  # can't find key path
+                stderr("[!] doxx: Unable to locate the 'project.yaml' project settings file in your unpacked archive.", exit=1)
+            else:
+                return key_path  # return key path to the calling method
+        else:
+            if root_directory == ".":
+                key_path = 'project.yaml'  # in current working directory
+            else:
+                # make the path to the key file
+                root_directory = make_path(cwd(), root_directory)
+                key_path = make_path(root_directory, 'project.yaml')
+            # return the key path to the calling method
+            return key_path
+        
+    def write_project_runner_key(self, project_key_path):
+        key_data_string = ""
+        if len(self.key_data) > 0:
+            for the_key in self.key_data:
+                key_data_string = key_data_string + the_key + ": " + self.key_data[the_key] + "\n" # recreate the YAML from the local key.yaml file to append to the project.yaml file
+
+        # append the local key file ('key.yaml') key data to the project meta data to prepare for the build
+        try:
+            fw = FileWriter(project_key_path)
+            fw.append(key_data_string)  # append local key data to the project.yaml file
+        except Exception as e:
+            stderr("[!] doxx: Unable to write the temporary key file for your project build. Error: " + str(e), exit=1)
+        
+        
+    
