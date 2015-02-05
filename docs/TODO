@@ -5,6 +5,8 @@ TESTS:
             [] tar.gz project remote
             [] .zip project
             [] .zip project remote
+            [] verbatim template builds (no replacements)
+            [] empty key builds (no replacements)
            
  [X] clean
  [X] pack
