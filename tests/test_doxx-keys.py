@@ -17,6 +17,7 @@ class DoxxASCIIKeysTests(unittest.TestCase):
     def setUp(self):
         self.main_test_dir = os.getcwd()
         self.good_key_path = "ascii_singletempl_key.yaml"  # need to chdir into keys directory to use this path
+        self.good_key_path_project_outside = "keys/ascii_project_key.yaml" 
         self.good_key_path_multitempl = "ascii_multitempl_key.yaml"
         self.good_key_path_remtempl = "ascii_singletempl_rem_key.yaml"
         self.good_key_path_rem_multi = "ascii_multitempl_rem_key.yaml"
@@ -99,6 +100,11 @@ class DoxxASCIIKeysTests(unittest.TestCase):
         self.assertFalse(key.multi_template_key) 
         
     
+    # Project tests
+    def test_doxxkey_project_metadata(self):  # assert that the multitemplate attribute is set to False
+        key = DoxxKey(self.good_key_path_project_outside)
+        self.assertTrue(key.project_key)
+        self.assertEqual('http://www.test.com/templates/project.tar.gz', key.meta_data['project'])
     
     
     ## Multi-template ASCII tests
@@ -321,7 +327,8 @@ class DoxxUnicodeKeysTests(unittest.TestCase):
     
         self.assertEqual(u'ΔϾϘ', key.key_data['string'])
         
-    ## Error tests
+
+## Error tests
     
 class DoxxKeysErrorTests(unittest.TestCase):
 
@@ -330,9 +337,11 @@ class DoxxKeysErrorTests(unittest.TestCase):
         self.emptymeta_key = "keys/errors/emptymeta_key.yaml"    
         self.two_templates_key = "keys/errors/twotemp_key.yaml"
         self.nometa_key = "keys/errors/nometa_key.yaml"
-        
         self.nokey_key = "keys/errors/nokey_key.yaml"
         self.emptykey_key = "keys/errors/emptykey_key.yaml"
+        self.emptytemplate_key = "keys/errors/emptytemplate_key.yaml"
+        self.emptytemplates_key = "keys/errors/emptytemplates_key.yaml"
+        self.emptyproject_key = "keys/errors/emptyprojects_key.yaml"
         
     # there is no head meta data section
     def test_doxxkey_errors_nohead(self):
@@ -342,7 +351,7 @@ class DoxxKeysErrorTests(unittest.TestCase):
     # there is an empty head meta data section
     def test_doxxkey_errors_emptymeta(self):
         with self.assertRaises(SystemExit):
-            key = DoxxKey(self.emptykey_key)
+            key = DoxxKey(self.emptymeta_key)
     
     # there are template AND templates definitions in the meta data header
     def test_doxxkey_errors_twotemplates(self):
@@ -356,12 +365,28 @@ class DoxxKeysErrorTests(unittest.TestCase):
     
     # there is no key data present in the key file
     def test_doxxkey_errors_nokey(self):
-        with self.assertRaises(SystemExit):
-            key = DoxxKey(self.nokey_key)
+        key = DoxxKey(self.nokey_key)
+        self.assertEqual(key.key_data, {})  # key_data attribute is an empty directory when there are no keys in the file
+        self.assertTrue(key.no_replacements)  # no replacements is defined when there are no keys in the file
     
     # there are key fields, but none are defined with replacement text
     def test_doxxkey_errors_emptykey(self):
         with self.assertRaises(SystemExit):
             key = DoxxKey(self.emptykey_key)
+            
+    # undefined template meta field
+    def test_doxxkey_errors_emptytemplate(self):
+        with self.assertRaises(SystemExit):
+            key = DoxxKey(self.emptytemplate_key)
+            
+    # undefined templates meta field
+    def test_doxxkey_errors_emptytemplates(self):
+        with self.assertRaises(SystemExit):
+            key = DoxxKey(self.emptytemplates_key)
+            
+    # undefined project meta field
+    def test_doxxkey_errors_emptyproject(self):
+        with self.assertRaises(SystemExit):
+            key = DoxxKey(self.emptyproject_key)
         
     

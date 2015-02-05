@@ -1,9 +1,7 @@
 ---
 
-template: "bogus.doxt"
-templates: ["http://test.com/dir/test1.doxt",
-    "https://test.com/dir/test2.doxt",
-    "https://test.com/dir/test3.doxt"]
+project: http://www.test.com/templates/project.tar.gz
+
 ---
 
 string: Chris
