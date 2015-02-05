@@ -21,29 +21,33 @@ def run_pull(url):
         stdout("[*] doxx: Pulling file...")
             
         if is_tar_gz_archive(file_name):
+            root_dir = None
             try:
                 pull_binary_file(url, file_name)      # pull remote file
             except Exception as e:
                 stderr("[!] doxx: Unable to pull the tar.gz project. Error: " + str(e), exit=1)
             stdout("[*] doxx: Unpacking...")
             try:
-                unpack_archive(file_name)             # unpack archive
+                root_dir = unpack_archive(file_name)             # unpack archive and define the root directory
             except Exception as e:
                 stderr("[!] doxx: Unable to unpack the compressed project file. Error: " + str(e), exit=1)
             if file_exists(file_name):
                 remove_file(file_name)                # remove the archive file
+            return root_dir                           # return the root directory path for calling code that needs it
         elif is_zip_archive(file_name):
+            root_dir = None
             try:
                 pull_binary_file(url, file_name)      # pull remote file
             except Exception as e:
                 stderr("[!] doxx: Unable to pull the .zip project. Error: " + str(e), exit=1)
             stdout("[*] doxx: Unpacking...")
             try:
-                unpack_archive(file_name)             # unpack archive
+                root_dir = unpack_archive(file_name)             # unpack archive and define the root directory
             except Exception as e:
                 stderr("[!] doxx: Unable to unpack the compressed project file. Error: " + str(e), exit=1)
             if file_exists(file_name):
                 remove_file(file_name)                # remove the arhcive file
+            return root_dir                           # return the root directory path for calling code that needs it
         elif is_gzip_file(file_name):
             try:
                 pull_binary_file(url, file_name)      # pull the remote gzip file
@@ -139,7 +143,8 @@ def pull_text_file(url, text_file_name):
     
 def unpack_archive(archive_file_name):
     """unpacks a tar.gz or zip file archive and writes to local disk"""
-    unpack_run(archive_file_name)
+    root_dir = unpack_run(archive_file_name)  # root directory of unpacked archive returned from the unpack function if, returned from this function if calling code needs it
+    return root_dir
     
 def decompress_gzip(gz_filename):
     """decompress gzip compressed file"""
