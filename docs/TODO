@@ -23,8 +23,8 @@ BUGS:
 NEW:
 
 High Priority
-  -- modify key file to permit absence of replacement data (i.e. project builds that do not require templating)
   -- support for builds from tar.gzip or zip compressed file archives
+  -- pull command: change 'project.yaml' to 'key.yaml' following pull
 
 Medium Priority
   -- analyze: analyze a template or key file or .tar.gz package
