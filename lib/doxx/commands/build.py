@@ -159,7 +159,7 @@ class Builder(object):
         
             # if the requested destination directory path does not exist, make it
             outfile_dir_path = make_path(dirname(self.key_path), dirname(template.outfile))
-            if not dir_exists(outfile_dir_path):
+            if not outfile_dir_path == '' and not dir_exists(outfile_dir_path):
                 make_dirs(outfile_dir_path)
     
             # write rendered file to disk
@@ -183,12 +183,14 @@ class Builder(object):
                 result = template.load_data()  # load remote template file through HTTP or HTTPS protocol
                 if result[0] == False:  # if the method responds False, then HTTP data load was not successful
                     outputlock.acquire()
-                    stderr(result[1], exit=1)  # write out the returned error message in result[1] position of the tuple
+                    stderr(result[1], exit=0)  # write out the returned error message in result[1] position of the tuple
                     outputlock.release()
+                    sys.exit(1)  # release the lock before raising SystemExit
             except Exception as e:
                 outputlock.acquire()
-                stderr("[!] doxx: Unable to load the remote template file '" + template_path + "'. Error message: " + str(e), exit=1)
+                stderr("[!] doxx: Unable to load the remote template file '" + template_path + "'. Error message: " + str(e), exit=0)
                 outputlock.release()
+                sys.exit(1)  # release the lock before raising SystemExit
         elif file_exists(template_path):
             template = DoxxTemplate(template_path)
             
@@ -197,8 +199,9 @@ class Builder(object):
                 template.load_data()  # load local data
             except Exception as e:
                 outputlock.acquire()
-                stderr("[!] doxx: Unable to read the local template file '" + template_path + "'. Error message: " + str(e), exit=1)
+                stderr("[!] doxx: Unable to read the local template file '" + template_path + "'. Error message: " + str(e), exit=0)
                 outputlock.release()
+                sys.exit(1)  # release the lock before raising SystemExit
             iolock.release()  # release the IO lock for template file read
         else:
             outputlock.acquire()  # acquire the stderr lock
@@ -210,24 +213,27 @@ class Builder(object):
             template.split_data()  # split the data sections
         except Exception as e:
             outputlock.acquire()
-            stderr("[!] doxx: Unable to parse the template data.  Please verify the template syntax and try again.  Error message: " + str(e), exit=1)
+            stderr("[!] doxx: Unable to parse the template data.  Please verify the template syntax and try again.  Error message: " + str(e), exit=0)
             outputlock.release()
+            sys.exit(1)  # release the lock before raising SystemExit
             
         ## Parse the data for errors
         error_parse_result = template.parse_template_for_errors()
         
         if error_parse_result[0] == True:          # if there was a parsing error
             outputlock.acquire()
-            stderr(error_parse_result[1], exit=1)  # print the returned error message to stderr and exit application
+            stderr(error_parse_result[1], exit=0)  # print the returned error message to stderr and exit application
             outputlock.release()
+            sys.exit(1)  # release the lock before raising SystemExit
     
         ## Parse the template text
         try:
             template.parse_template_text()
         except Exception as e:
             outputlock.acquire()
-            stderr("[!] doxx: An error occurred while parsing your template file. Error message: " + str(e), exit=1)
+            stderr("[!] doxx: An error occurred while parsing your template file. Error message: " + str(e), exit=0)
             outputlock.release()
+            sys.exit(1)  # release the lock before raising SystemExit
         
         # determine whether this is a verbatim template file (no replacements) or the key file did not include replacement keys
         if template.verbatim == True or self.no_key_replacements == True:
@@ -252,8 +258,9 @@ class Builder(object):
                 outputlock.release()
             except Exception as e:
                 outputlock.acquire()
-                stderr("[!] doxx: There was a file write error with '" + template_path + "'. Error message: " + str(e), exit=1)
+                stderr("[!] doxx: There was a file write error with '" + template_path + "'. Error message: " + str(e), exit=0)
                 outputlock.release()
+                sys.exit(1)  # release the lock before raising SystemExit
         else:
             # template meta data is in template.meta_data
             # template text is in template.text
@@ -264,23 +271,34 @@ class Builder(object):
                 rendered_text = ink_renderer.render()
             except Exception as e:
                 outputlock.acquire()
-                stderr("[!] doxx: An error occurred during the text replacement attempt.  Error message: " + str(e), exit=1)            
-                outputlock.release()        
+                stderr("[!] doxx: An error occurred during the text replacement attempt.  Error message: " + str(e), exit=0)            
+                outputlock.release()
+                sys.exit(1)  # release the lock before raising SystemExit
         
-            iolock.acquire()
             # if the requested destination directory path does not exist, make it
             outfile_dir_path = make_path(dirname(self.key_path), dirname(template.outfile))
-            if not dir_exists(outfile_dir_path):
-                make_dirs(outfile_dir_path)
-            iolock.release()
+            try:
+                iolock.acquire()
+                if not dir_exists(outfile_dir_path):
+                    make_dirs(outfile_dir_path)
+                iolock.release()
+            except Exception as e:
+                stderr("[!] doxx: Unable to create directory path '" + outfile_dir_path + "' for your file write. Error: " + str(e), exit=0)
+                iolock.release()
+                sys.exit(1)  # release the lock before raising SystemExit
                 
             outfile_path = make_path(dirname(self.key_path), template.outfile)
             
-            iolock.acquire()
-            fw = FileWriter(outfile_path)
-            fw.write(rendered_text)
-            iolock.release()
-            
+            try:
+                iolock.acquire()
+                fw = FileWriter(outfile_path)
+                fw.write(rendered_text)
+                iolock.release()
+            except Exception as e:
+                stderr("[!] doxx: Unable to write the file '" + outfile_path + "'. Error: " + str(e), exit=0)
+                iolock.release()
+                sys.exit(1)  # release the lock before raising SystemExit
+                
             outputlock.acquire()
             stdout("[+] doxx: -- " + outfile_path + " ... check")
             outputlock.release()
