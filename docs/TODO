@@ -17,18 +17,19 @@ TESTS:
  
 BUGS:
 
-[X] missing key fields are replaced with "None" - fix
 
 
 NEW:
 
 High Priority
-  -- support for builds from tar.gzip or zip compressed file archives
-  -- add try/except blocks around stderr issues in multi-template multiprocessing builds (the outputlock is not being released when exception raised)
-  -- pull command: change 'project.yaml' to 'key.yaml' following pull
+  [X] support for builds from tar.gzip or zip compressed file archives
+  -- remove project.yaml and pkey.yaml files with clean command
+  -- add project subcommand to make command (add project files/directories)
+  -- pull command: change 'pkey.yaml' to 'key.yaml' following pull
 
 Medium Priority
-  -- analyze: analyze a template or key file or .tar.gz package
+  -- analyze: analyze a template, key file, or .tar.gz package archive
   
 Low Priority
   -- add bzip2 / lzma compression options to pack command?
+ 
