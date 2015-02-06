@@ -37,9 +37,8 @@ class DoxxLocalMITLicenseBuildTests(unittest.TestCase):
     def test_mit_license_build(self):
         os.chdir(self.mit_test_dir)  # cd to the mit test dir
         try:
-            doxxkey = DoxxKey(self.mit_key)
-            b = Builder()
-            b.run(doxxkey)
+            b = Builder(self.mit_key)
+            b.run()
             self.assertTrue(file_exists('mit.txt'))                  # confirm that the rendered file write took place
             fr = FileReader('mit.txt')
             rendered_text = fr.read()
@@ -57,9 +56,8 @@ class DoxxLocalMITLicenseBuildTests(unittest.TestCase):
     def test_mit_license_with_new_basename_extension_build(self):
         os.chdir(self.mit_test_dir)  # cd to the mit test dir
         try:
-            doxxkey = DoxxKey(self.mit_key_with_extension)
-            b = Builder()
-            b.run(doxxkey)
+            b = Builder(self.mit_key_with_extension)
+            b.run()
             self.assertTrue(file_exists('LICENSE.txt'))                  # confirm that the rendered file write took place
             fr = FileReader('LICENSE.txt')
             rendered_text = fr.read()
@@ -77,9 +75,8 @@ class DoxxLocalMITLicenseBuildTests(unittest.TestCase):
     def test_mit_license_with_destdir_build(self):
         os.chdir(self.mit_test_dir)  # cd to the mit test dir
         try:
-            doxxkey = DoxxKey(self.mit_key_with_destdir)
-            b = Builder()
-            b.run(doxxkey)
+            b = Builder(self.mit_key_with_destdir)
+            b.run()
             self.assertTrue(file_exists('build/LICENSE'))                  # confirm that the rendered file write took place
             fr = FileReader('build/LICENSE')
             rendered_text = fr.read()
@@ -99,9 +96,8 @@ class DoxxLocalMITLicenseBuildTests(unittest.TestCase):
     def test_mit_license_undefined_destdir_build(self):
         os.chdir(self.mit_test_dir)  # cd to the mit test dir
         try:
-            doxxkey = DoxxKey(self.mit_key_undefined_destdir)
-            b = Builder()
-            b.run(doxxkey)
+            b = Builder(self.mit_key_undefined_destdir)
+            b.run()
             self.assertTrue(file_exists('LICENSE'))                  # confirm that the rendered file write took place
             fr = FileReader('LICENSE')
             rendered_text = fr.read()
@@ -119,9 +115,8 @@ class DoxxLocalMITLicenseBuildTests(unittest.TestCase):
     def test_mit_license_verbatim_build(self):
         os.chdir(self.mit_test_dir)  # cd to the mit test dir
         try:
-            doxxkey = DoxxKey(self.mit_key_verbatim)
-            b = Builder()
-            b.run(doxxkey)
+            b = Builder(self.mit_key_verbatim)
+            b.run()
             self.assertTrue(file_exists('mit-verbatim'))   
             fr = FileReader('mit-verbatim')
             rendered_text = fr.read()
@@ -156,9 +151,8 @@ class DoxxLocalUnicodeMITLicenseBuildTests(unittest.TestCase):
     def test_mit_unicode_license_build(self):
         os.chdir(self.mit_test_dir)  # cd to the mit test dir
         try:
-            doxxkey = DoxxKey(self.key)
-            b = Builder()
-            b.run(doxxkey)
+            b = Builder(self.key)
+            b.run()
             self.assertTrue(file_exists('rus-mit.txt'))                  # confirm that the rendered file write took place
             fr = FileReader('rus-mit.txt')
             rendered_text = fr.read()
@@ -202,9 +196,8 @@ class DoxxRemoteMITLicenseBuildTests(unittest.TestCase):
     def test_mit_remote_license_build(self):
         os.chdir(self.mit_test_dir)  # cd to the mit test dir
         try:
-            doxxkey = DoxxKey(self.remote_key)
-            b = Builder()
-            b.run(doxxkey)
+            b = Builder(self.remote_key)
+            b.run()
             self.assertTrue(file_exists('mit.txt'))                  # confirm that the rendered file write took place
             fr = FileReader('mit.txt')
             rendered_text = fr.read()
@@ -222,9 +215,8 @@ class DoxxRemoteMITLicenseBuildTests(unittest.TestCase):
     def test_mit_remote_license_with_new_basename_extension_build(self):
         os.chdir(self.mit_test_dir)  # cd to the mit test dir
         try:
-            doxxkey = DoxxKey(self.remote_key_with_extension)
-            b = Builder()
-            b.run(doxxkey)
+            b = Builder(self.remote_key_with_extension)
+            b.run()
             self.assertTrue(file_exists('LICENSE.txt'))                  # confirm that the rendered file write took place
             fr = FileReader('LICENSE.txt')
             rendered_text = fr.read()
@@ -241,9 +233,8 @@ class DoxxRemoteMITLicenseBuildTests(unittest.TestCase):
     def test_mit_remote_license_with_destdir_build(self):
         os.chdir(self.mit_test_dir)  # cd to the mit test dir
         try:
-            doxxkey = DoxxKey(self.remote_key_with_destdir)
-            b = Builder()
-            b.run(doxxkey)
+            b = Builder(self.remote_key_with_destdir)
+            b.run()
             self.assertTrue(file_exists('build/LICENSE'))                  # confirm that the rendered file write took place
             fr = FileReader('build/LICENSE')
             rendered_text = fr.read()
@@ -262,9 +253,8 @@ class DoxxRemoteMITLicenseBuildTests(unittest.TestCase):
     def test_mit_remote_license_undefined_destdir_build(self):
         os.chdir(self.mit_test_dir)  # cd to the mit test dir
         try:
-            doxxkey = DoxxKey(self.remote_key_undefined_destdir)
-            b = Builder()
-            b.run(doxxkey)
+            b = Builder(self.remote_key_undefined_destdir)
+            b.run()
             self.assertTrue(file_exists('LICENSE'))                  # confirm that the rendered file write took place
             fr = FileReader('LICENSE')
             rendered_text = fr.read()
@@ -281,9 +271,8 @@ class DoxxRemoteMITLicenseBuildTests(unittest.TestCase):
     def test_mit_remote_license_verbatim_build(self):
         os.chdir(self.mit_test_dir)  # cd to the mit test dir
         try:
-            doxxkey = DoxxKey(self.remote_key_verbatim)
-            b = Builder()
-            b.run(doxxkey)
+            b = Builder(self.remote_key_verbatim)
+            b.run()
             self.assertTrue(file_exists('mit-verbatim'))   
             fr = FileReader('mit-verbatim')
             rendered_text = fr.read()
@@ -313,9 +302,8 @@ class RemoteMITUnicodeLicenseBuildTests(unittest.TestCase):
     def test_remote_mit_unicode_license_build(self):
         os.chdir(self.mit_test_dir)  # cd to the mit test dir
         try:
-            doxxkey = DoxxKey(self.key)
-            b = Builder()
-            b.run(doxxkey)
+            b = Builder(self.key)
+            b.run()
             self.assertTrue(file_exists('rus-mit.txt'))                  # confirm that the rendered file write took place
             fr = FileReader('rus-mit.txt')
             rendered_text = fr.read()
