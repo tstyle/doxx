@@ -2,6 +2,7 @@
 
 verbatim: true
 basename: mit-verbatim
+extension: 
 
 ---doxx---
 The MIT License (MIT)

@@ -1,0 +1,15 @@
+---
+
+templates: [/Users/ces/Desktop/code/doxx/tests/templates/mit.doxt,
+            /Users/ces/Desktop/code/doxx/tests/templates/rus-mit.doxt,
+            /Users/ces/Desktop/code/doxx/tests/templates/mit-verbatim.doxt]
+
+---
+
+# mit.doxt
+name: Chris Simpkins
+year: 2015
+
+# rus-mit.doxt
+имя: Крис Симпкинс
+год: 2015
