@@ -1,11 +1,11 @@
 TESTS:
- -- build - [] multi-file
+ -- build - [X] multi-file
             [] multi-file remote
             [] tar.gz project
             [] tar.gz project remote
             [] .zip project
             [] .zip project remote
-            [] verbatim template builds (no replacements)
+            [X] verbatim template builds (no replacements)
             [] empty key builds (no replacements)
            
  [X] clean
@@ -24,11 +24,13 @@ NEW:
 High Priority
   [X] support for builds from tar.gzip or zip compressed file archives
   -- remove project.yaml and pkey.yaml files with clean command
-  -- add project subcommand to make command (add project files/directories)
+  -- add project subcommand to `make` command (add project files/directories)
   -- pull command: change 'pkey.yaml' to 'key.yaml' following pull
 
 Medium Priority
   -- analyze: analyze a template, key file, or .tar.gz package archive
+  -- pull project specific keys to local directories (raw text pkey.yaml pull from GitHub) - use `doxx make key` command?
+  -- automated builds and pulls from official GitHub project repository
   
 Low Priority
   -- add bzip2 / lzma compression options to pack command?
