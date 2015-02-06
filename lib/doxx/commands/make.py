@@ -11,11 +11,12 @@ from Naked.toolshed.system import stderr
 key_stub = """
 ---
 
-# enter a template path (template) OR multiple template paths (templates)
-# relative to this key file, then remove or comment out the other field with # character:
+# enter a template path (template), multiple template paths (templates), OR a project archive
+# path (projects) relative to this key file, then remove or comment out the other fields with # character:
 
 template: ***.doxt
 templates: [***.doxt, 'http://***/***.doxt']
+project: ***.tar.gz
 
 ---
 
@@ -32,7 +33,7 @@ templates: [***.doxt, 'http://***/***.doxt']
 template_stub = """
 ---doxx---
 
-# (REQUIRED) enter the file extension for files generated from this template
+# (REQUIRED) enter the file extension for files generated from this template or leave blank for no extension
 #  the use of a '.' in the extension definition is optional (e.g. you can use '.txt' or 'txt')
 extension:
 
@@ -44,8 +45,8 @@ basename:
 #  default : absent or undefined = write to current working directory where your build command was executed
 destination-directory:
 
-# (OPTIONAL): switch to 'true' for templates that contain text that should write to disk verbatim (i.e. no replacements)
-#  default: false or absent = perform text replacements in this template file
+# (OPTIONAL): change to 'true' for templates that contain text that should write to disk verbatim (i.e. no replacements)
+#  default: false or absent = attempt text replacements in this template file
 verbatim: false
 
 ---doxx---
