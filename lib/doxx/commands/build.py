@@ -137,7 +137,7 @@ class Builder(object):
             try:
             # if the requested destination directory path does not exist, make it
                 outfile_dir_path = make_path(dirname(self.key_path), dirname(template.outfile))
-                if not dir_exists(outfile_dir_path):
+                if not outfile_dir_path == '' and not dir_exists(outfile_dir_path):
                     make_dirs(outfile_dir_path)
                 # write the file
                 outfile_path = make_path(dirname(self.key_path), template.outfile)
@@ -242,7 +242,7 @@ class Builder(object):
                 # if the requested destination directory path does not exist, make it
                 outfile_dir_path = make_path(dirname(self.key_path), dirname(template.outfile))
                 iolock.acquire()
-                if not dir_exists(outfile_dir_path):
+                if not outfile_dir_path == '' and not dir_exists(outfile_dir_path):
                     make_dirs(outfile_dir_path)
                 iolock.release()
                 # write the file
@@ -279,7 +279,7 @@ class Builder(object):
             outfile_dir_path = make_path(dirname(self.key_path), dirname(template.outfile))
             try:
                 iolock.acquire()
-                if not dir_exists(outfile_dir_path):
+                if not outfile_dir_path == '' and not dir_exists(outfile_dir_path):
                     make_dirs(outfile_dir_path)
                 iolock.release()
             except Exception as e:
