@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 import sys
-from os.path import dirname, walk
+import os
 from multiprocessing import Process, Lock
 
 from Naked.toolshed.file import FileWriter
@@ -136,11 +136,11 @@ class Builder(object):
             # write template.text out verbatim
             try:
             # if the requested destination directory path does not exist, make it
-                outfile_dir_path = make_path(dirname(self.key_path), dirname(template.outfile))
+                outfile_dir_path = make_path(os.path.dirname(self.key_path), os.path.dirname(template.outfile))
                 if not outfile_dir_path == '' and not dir_exists(outfile_dir_path):
                     make_dirs(outfile_dir_path)
                 # write the file
-                outfile_path = make_path(dirname(self.key_path), template.outfile)
+                outfile_path = make_path(os.path.dirname(self.key_path), template.outfile)
                 fw = FileWriter(outfile_path)
                 fw.write(template.text)
                 stdout("[+] doxx: '" + outfile_path + "' build... check")
@@ -158,13 +158,13 @@ class Builder(object):
                 stderr("[!] doxx: An error occurred during the text replacement attempt.  Error message: " + str(e), exit=1)
         
             # if the requested destination directory path does not exist, make it
-            outfile_dir_path = make_path(dirname(self.key_path), dirname(template.outfile))
+            outfile_dir_path = make_path(os.path.dirname(self.key_path), os.path.dirname(template.outfile))
             if not outfile_dir_path == '' and not dir_exists(outfile_dir_path):
                 make_dirs(outfile_dir_path)
     
             # write rendered file to disk
             try:
-                outfile_path = make_path(dirname(self.key_path), template.outfile)
+                outfile_path = make_path(os.path.dirname(self.key_path), template.outfile)
                 fw = FileWriter(outfile_path)
                 fw.write(rendered_text)
                 stdout("[+] doxx: -- " + outfile_path + " ... check")
@@ -240,18 +240,26 @@ class Builder(object):
             # write template.text out verbatim
             try:
                 # if the requested destination directory path does not exist, make it
-                outfile_dir_path = make_path(dirname(self.key_path), dirname(template.outfile))
-                iolock.acquire()
-                if not outfile_dir_path == '' and not dir_exists(outfile_dir_path):
-                    make_dirs(outfile_dir_path)
-                iolock.release()
+                outfile_dir_path = make_path(os.path.dirname(self.key_path), os.path.dirname(template.outfile))
+                try:
+                    iolock.acquire()
+                    if not outfile_dir_path == '' and not dir_exists(outfile_dir_path):
+                        make_dirs(outfile_dir_path)
+                    iolock.release()
+                except Exception as e:
+                    iolock.release()  # release the lock then re-raise the exception
+                    raise e
                 # write the file
-                outfile_path = make_path(dirname(self.key_path), template.outfile)
-                # then write the file out verbatim                
-                iolock.acquire()
-                fw = FileWriter(outfile_path)
-                fw.write(template.text)
-                iolock.release()
+                outfile_path = make_path(os.path.dirname(self.key_path), template.outfile)
+                # then write the file out verbatim
+                try:
+                    iolock.acquire()
+                    fw = FileWriter(outfile_path)
+                    fw.write(template.text)
+                    iolock.release()
+                except Exception as e:
+                    iolock.release()  # catch and release the iolock before re-raising the exception
+                    raise e
                 
                 outputlock.acquire()
                 stdout("[+] doxx: -- " + outfile_path + " ... check")
@@ -276,18 +284,20 @@ class Builder(object):
                 sys.exit(1)  # release the lock before raising SystemExit
         
             # if the requested destination directory path does not exist, make it
-            outfile_dir_path = make_path(dirname(self.key_path), dirname(template.outfile))
+            outfile_dir_path = make_path(os.path.dirname(self.key_path), os.path.dirname(template.outfile))
             try:
                 iolock.acquire()
                 if not outfile_dir_path == '' and not dir_exists(outfile_dir_path):
                     make_dirs(outfile_dir_path)
                 iolock.release()
             except Exception as e:
+                outputlock.acquire()
                 stderr("[!] doxx: Unable to create directory path '" + outfile_dir_path + "' for your file write. Error: " + str(e), exit=0)
+                outputlock.release()
                 iolock.release()
-                sys.exit(1)  # release the lock before raising SystemExit
+                sys.exit(1)  # release the iolock before raising SystemExit
                 
-            outfile_path = make_path(dirname(self.key_path), template.outfile)
+            outfile_path = make_path(os.path.dirname(self.key_path), template.outfile)
             
             try:
                 iolock.acquire()
@@ -295,9 +305,11 @@ class Builder(object):
                 fw.write(rendered_text)
                 iolock.release()
             except Exception as e:
+                outputlock.acquire()
                 stderr("[!] doxx: Unable to write the file '" + outfile_path + "'. Error: " + str(e), exit=0)
+                outputlock.release()
                 iolock.release()
-                sys.exit(1)  # release the lock before raising SystemExit
+                sys.exit(1)  # release the iolock before raising SystemExit
                 
             outputlock.acquire()
             stdout("[+] doxx: -- " + outfile_path + " ... check")
@@ -345,7 +357,7 @@ class Builder(object):
         if root_directory == None or root_directory == "":
             key_path = None
             try:
-                for root, dirs, files in walk(cwd()):
+                for root, dirs, files in os.path.walk(cwd()):
                     for test_file in files:
                         if test_file == "project.yaml":
                             key_path = make_path(root, dirs, test_file)
