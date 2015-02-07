@@ -5,8 +5,9 @@ import sys
 import os
 import unittest
 import unicodedata
-from Naked.toolshed.system import make_path, file_exists
-from Naked.toolshed.file import FileReader
+import shutil
+from Naked.toolshed.system import make_path, file_exists, dir_exists
+from Naked.toolshed.file import FileReader, FileWriter
 from doxx.datatypes.key import DoxxKey
 from doxx.commands.build import Builder
 
@@ -434,5 +435,97 @@ class RemoteMultiTemplateBuildTests(unittest.TestCase):
                 os.remove('rus-mit.txt')
             if file_exists('mit-verbatim'):
                 os.remove('mit-verbatim')
+            os.chdir(self.cwd)
+            raise e
+        
+        
+# Local tar.gz project build test
+class LocalProjectTarGZBuildTests(unittest.TestCase):
+    
+    def setUp(self):
+        self.cwd = os.getcwd()
+    
+        self.local_project_testdir = "build-tests/local-project/build"
+        self.local_proj_targz_key = "targz_key.yaml"  # executed from the same directory
+        
+        # remove all contents of the build directory and build directory path from prior test run
+        if dir_exists('build-tests/local-project/build'):
+            shutil.rmtree('build-tests/local-project/build')
+            
+        self.assertFalse(dir_exists('build-tests/local-project/build'))
+        
+        # create the build directory path
+        os.makedirs('build-tests/local-project/build')
+        
+        self.assertTrue(dir_exists('build-tests/local-project/build'))
+    
+        # move the tar.gz file into the build directory
+        fr = FileReader('build-tests/local-project/initializr.tar.gz')
+        targz_data = fr.read_bin()
+        fw = FileWriter('build-tests/local-project/build/initializr.tar.gz')
+        fw.write_bin(targz_data)
+        
+        
+        # move the key into the build directory
+        fr_key = FileReader('build-tests/local-project/targz_key.yaml')
+        targz_key_data = fr_key.read()
+        fw_key = FileWriter('build-tests/local-project/build/targz_key.yaml')
+        fw_key.write(targz_key_data)
+        
+        
+        # confirm that the build files are present
+        self.assertTrue(file_exists('build-tests/local-project/build/initializr.tar.gz'))
+        self.assertTrue(file_exists('build-tests/local-project/build/targz_key.yaml'))
+        
+        # get the expected text for outfile write assertions
+        self.fourohfour_text = FileReader('standards/404.html').read()
+        self.indexhtml_text = FileReader('standards/index.html').read()
+        self.jquery_text = FileReader('standards/jquery.js').read()
+        self.normalize_text = FileReader('standards/normalize-min.css').read()
+
+    
+    def test_local_project_targz_build(self):
+        try:
+            # make the build directory the CWD
+            os.chdir(self.local_project_testdir)
+            # run the project build
+            b = Builder(self.local_proj_targz_key)
+            b.run()
+            
+            # confirm directory unpacked with correct directory structure
+            self.assertTrue(dir_exists('html-initializr-master'))
+            self.assertTrue(dir_exists('html-initializr-master/css'))
+            self.assertTrue(dir_exists('html-initializr-master/js/vendor'))
+            self.assertTrue(dir_exists('html-initializr-master/templates'))
+            
+            # confirm presence of files
+            self.assertTrue(file_exists('html-initializr-master/index.html'))
+            self.assertTrue(file_exists('html-initializr-master/404.html'))
+            self.assertTrue(file_exists('html-initializr-master/pkey.yaml'))
+            self.assertTrue(file_exists('html-initializr-master/project.yaml'))
+            self.assertTrue(file_exists('html-initializr-master/js/vendor/jquery-1.11.1.min.js'))
+            self.assertTrue(file_exists('html-initializr-master/js/vendor/modernizr-2.6.2.min.js'))
+            self.assertTrue(file_exists('html-initializr-master/css/normalize.min.css'))
+            
+            # confirm that the project archive file was removed during build
+            self.assertFalse(file_exists('initializr.tar.gz'))
+            
+            # confirm that the key file still present in the directory after the build
+            self.assertTrue(file_exists('targz_key.yaml'))
+            
+            # read the new outfiles that were generated from templates
+            rendered_fourohfour = FileReader('html-initializr-master/404.html').read()
+            rendered_index = FileReader('html-initializr-master/index.html').read()
+            rendered_jquery = FileReader('html-initializr-master/js/vendor/jquery-1.11.1.min.js').read()
+            rendered_normalize = FileReader('html-initializr-master/css/normalize.min.css').read()
+            
+            # assert correct contents of the files developed from templates
+            self.assertEqual(self.fourohfour_text, rendered_fourohfour)
+            self.assertEqual(self.indexhtml_text, rendered_index)
+            self.assertEqual(self.jquery_text, rendered_jquery)
+            self.assertEqual(self.normalize_text, rendered_normalize)           
+            
+            os.chdir(self.cwd)
+        except Exception as e:
             os.chdir(self.cwd)
             raise e

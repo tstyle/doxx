@@ -1,0 +1,12 @@
+---
+
+project: initializr.zip
+
+---
+
+# index.html (from index.doxt)
+google-analytics: UA-XXXXXXXX-X
+title: Test Project
+description: A test project
+jquery-version: 1.11.1
+modernizr-version: 2.6.2
