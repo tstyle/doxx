@@ -348,6 +348,9 @@ class Builder(object):
             # instantiate a new Builder object with the updated 'project.yaml' local file
             builder = Builder(project_key_path)
             builder.run()            # build with the updated 'project.yaml' key
+            
+            # remove the project archive
+            os.remove(project_path)
                 
     
     def unpack_and_get_keypath(self, project_path):
