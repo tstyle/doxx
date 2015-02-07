@@ -1,0 +1,15 @@
+---
+
+templates: ["https://github.com/bit-store/testfiles/raw/master/doxx/templates/mit.doxt",
+            "https://github.com/bit-store/testfiles/raw/master/doxx/templates/rus-mit.doxt",
+            "https://github.com/bit-store/testfiles/raw/master/doxx/templates/mit-verbatim.doxt"]
+
+---
+
+# mit.doxt
+name: Chris Simpkins
+year: 2015
+
+# rus-mit.doxt
+имя: Крис Симпкинс
+год: 2015

@@ -375,3 +375,64 @@ class LocalMultiTemplateBuildTests(unittest.TestCase):
                 os.remove('mit-verbatim')
             os.chdir(self.cwd)
             raise e
+        
+
+# multi-template build from ASCII and unicode REMOTE templates
+class RemoteMultiTemplateBuildTests(unittest.TestCase):
+    
+    def setUp(self):
+        self.cwd = os.getcwd()
+    
+        self.remote_multi_testdir = "build-tests/remote-multifile"
+        self.remote_multi_key = "key.yaml"  # executed from the same directory
+    
+        self.mit_path = "standards/mit-license.txt"
+        self.mit_rus_path = "standards/russian-mit-license.txt"
+        self.mit_verbatim_path = "standards/mit-verbatim.txt"
+    
+        fr_mit = FileReader(self.mit_path)
+        fr_rusmit = FileReader(self.mit_rus_path)
+        fr_verbatim = FileReader(self.mit_verbatim_path)
+    
+        self.mit_text = fr_mit.read()
+        self.mit_rus_text = fr_rusmit.read()
+        self.mit_verbatim_text = fr_verbatim.read()
+    
+    def test_multifile_remote_build(self):
+        try:
+            os.chdir(self.remote_multi_testdir)
+            b = Builder(self.remote_multi_key)
+            b.run()
+            # assert that files were made
+            self.assertTrue(file_exists('mit.txt'))
+            self.assertTrue(file_exists('rus-mit.txt'))
+            self.assertTrue(file_exists('mit-verbatim'))  # uses 'extension: ' in the template metadata
+
+            fr_m = FileReader('mit.txt')
+            fr_r = FileReader('rus-mit.txt')
+            fr_v = FileReader('mit-verbatim')
+
+            rendered_mit_text = fr_m.read()
+            rendered_rus_text = fr_r.read()
+            rendered_ver_text = fr_v.read()
+
+            # assert that the rendered text is as expected
+            self.assertEqual(self.mit_text, rendered_mit_text)
+            self.assertEqual(self.mit_rus_text, rendered_rus_text)
+            self.assertEqual(self.mit_verbatim_text, rendered_ver_text)
+
+            # remove the rendered files
+            os.remove('mit.txt')
+            os.remove('rus-mit.txt')
+            os.remove('mit-verbatim')
+
+            os.chdir(self.cwd)
+        except Exception as e:
+            if file_exists('mit.txt'):
+                os.remove('mit.txt')
+            if file_exists('rus-mit.txt'):
+                os.remove('rus-mit.txt')
+            if file_exists('mit-verbatim'):
+                os.remove('mit-verbatim')
+            os.chdir(self.cwd)
+            raise e
