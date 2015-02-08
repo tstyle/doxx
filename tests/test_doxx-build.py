@@ -529,3 +529,258 @@ class LocalProjectTarGZBuildTests(unittest.TestCase):
         except Exception as e:
             os.chdir(self.cwd)
             raise e
+
+
+# local .zip project build
+class LocalProjectZipBuildTests(unittest.TestCase):
+
+    def setUp(self):
+        self.cwd = os.getcwd()
+
+        self.local_project_testdir = "build-tests/local-project/build"
+        self.local_proj_zip_key = "zip_key.yaml"  # executed from the same directory
+
+        # remove all contents of the build directory and build directory path from prior test run
+        if dir_exists('build-tests/local-project/build'):
+            shutil.rmtree('build-tests/local-project/build')
+
+        self.assertFalse(dir_exists('build-tests/local-project/build'))
+
+        # create the build directory path
+        os.makedirs('build-tests/local-project/build')
+
+        self.assertTrue(dir_exists('build-tests/local-project/build'))
+
+        # move the tar.gz file into the build directory
+        fr = FileReader('build-tests/local-project/initializr.zip')
+        zip_data = fr.read_bin()
+        fw = FileWriter('build-tests/local-project/build/initializr.zip')
+        fw.write_bin(zip_data)
+
+
+        # move the key into the build directory
+        fr_key = FileReader('build-tests/local-project/zip_key.yaml')
+        zip_key_data = fr_key.read()
+        fw_key = FileWriter('build-tests/local-project/build/zip_key.yaml')
+        fw_key.write(zip_key_data)
+
+
+        # confirm that the build files are present
+        self.assertTrue(file_exists('build-tests/local-project/build/initializr.zip'))
+        self.assertTrue(file_exists('build-tests/local-project/build/zip_key.yaml'))
+
+        # get the expected text for outfile write assertions
+        self.fourohfour_text = FileReader('standards/404.html').read()
+        self.indexhtml_text = FileReader('standards/index.html').read()
+        self.jquery_text = FileReader('standards/jquery.js').read()
+        self.normalize_text = FileReader('standards/normalize-min.css').read()
+
+
+    def test_local_project_zip_build(self):
+        try:
+            # make the build directory the CWD
+            os.chdir(self.local_project_testdir)
+            # run the project build
+            b = Builder(self.local_proj_zip_key)
+            b.run()
+
+            # confirm directory unpacked with correct directory structure
+            self.assertTrue(dir_exists('html-initializr-master'))
+            self.assertTrue(dir_exists('html-initializr-master/css'))
+            self.assertTrue(dir_exists('html-initializr-master/js/vendor'))
+            self.assertTrue(dir_exists('html-initializr-master/templates'))
+
+            # confirm presence of files
+            self.assertTrue(file_exists('html-initializr-master/index.html'))
+            self.assertTrue(file_exists('html-initializr-master/404.html'))
+            self.assertTrue(file_exists('html-initializr-master/pkey.yaml'))
+            self.assertTrue(file_exists('html-initializr-master/project.yaml'))
+            self.assertTrue(file_exists('html-initializr-master/js/vendor/jquery-1.11.1.min.js'))
+            self.assertTrue(file_exists('html-initializr-master/js/vendor/modernizr-2.6.2.min.js'))
+            self.assertTrue(file_exists('html-initializr-master/css/normalize.min.css'))
+
+            # confirm that the project archive file was removed during build
+            self.assertFalse(file_exists('initializr.zip'))
+
+            # confirm that the key file still present in the directory after the build
+            self.assertTrue(file_exists('zip_key.yaml'))
+
+            # read the new outfiles that were generated from templates
+            rendered_fourohfour = FileReader('html-initializr-master/404.html').read()
+            rendered_index = FileReader('html-initializr-master/index.html').read()
+            rendered_jquery = FileReader('html-initializr-master/js/vendor/jquery-1.11.1.min.js').read()
+            rendered_normalize = FileReader('html-initializr-master/css/normalize.min.css').read()
+
+            # assert correct contents of the files developed from templates
+            self.assertEqual(self.fourohfour_text, rendered_fourohfour)
+            self.assertEqual(self.indexhtml_text, rendered_index)
+            self.assertEqual(self.jquery_text, rendered_jquery)
+            self.assertEqual(self.normalize_text, rendered_normalize)           
+
+            os.chdir(self.cwd)
+        except Exception as e:
+            os.chdir(self.cwd)
+            raise e
+        
+        
+# remote .tar.gz project build
+class RemoteProjectTarGZBuildTests(unittest.TestCase):
+    
+    def setUp(self):
+        self.cwd = os.getcwd()
+    
+        self.local_project_testdir = "build-tests/remote-project/build"
+        self.local_proj_targz_key = "targz_key.yaml"  # executed from the same directory
+    
+        # remove all contents of the build directory and build directory path from prior test run
+        if dir_exists('build-tests/remote-project/build'):
+            shutil.rmtree('build-tests/remote-project/build')
+    
+        self.assertFalse(dir_exists('build-tests/remote-project/build'))
+    
+        # create the build directory path
+        os.makedirs('build-tests/remote-project/build')
+    
+        self.assertTrue(dir_exists('build-tests/remote-project/build'))
+    
+        # move the key into the build directory
+        fr_key = FileReader('build-tests/remote-project/targz_key.yaml')
+        targz_key_data = fr_key.read()
+        fw_key = FileWriter('build-tests/remote-project/build/targz_key.yaml')
+        fw_key.write(targz_key_data)
+    
+    
+        # confirm that the build files are present
+        self.assertTrue(file_exists('build-tests/remote-project/build/targz_key.yaml'))
+    
+        # get the expected text for outfile write assertions
+        self.fourohfour_text = FileReader('standards/404.html').read()
+        self.indexhtml_text = FileReader('standards/index.html').read()
+        self.jquery_text = FileReader('standards/jquery.js').read()
+        self.normalize_text = FileReader('standards/normalize-min.css').read()        
+    
+    def test_remote_targz_project_build(self):
+        try:
+            # make the build directory the CWD
+            os.chdir(self.local_project_testdir)
+            # run the project build
+            b = Builder(self.local_proj_targz_key)
+            b.run()
+    
+            # confirm directory unpacked with correct directory structure
+            self.assertTrue(dir_exists('html-initializr-master'))
+            self.assertTrue(dir_exists('html-initializr-master/css'))
+            self.assertTrue(dir_exists('html-initializr-master/js/vendor'))
+            self.assertTrue(dir_exists('html-initializr-master/templates'))
+    
+            # confirm presence of files
+            self.assertTrue(file_exists('html-initializr-master/index.html'))
+            self.assertTrue(file_exists('html-initializr-master/404.html'))
+            self.assertTrue(file_exists('html-initializr-master/pkey.yaml'))
+            self.assertTrue(file_exists('html-initializr-master/project.yaml'))
+            self.assertTrue(file_exists('html-initializr-master/js/vendor/jquery-1.11.1.min.js'))
+            self.assertTrue(file_exists('html-initializr-master/js/vendor/modernizr-2.6.2.min.js'))
+            self.assertTrue(file_exists('html-initializr-master/css/normalize.min.css'))
+    
+    
+            # confirm that the key file still present in the directory after the build
+            self.assertTrue(file_exists('targz_key.yaml'))
+    
+            # read the new outfiles that were generated from templates
+            rendered_fourohfour = FileReader('html-initializr-master/404.html').read()
+            rendered_index = FileReader('html-initializr-master/index.html').read()
+            rendered_jquery = FileReader('html-initializr-master/js/vendor/jquery-1.11.1.min.js').read()
+            rendered_normalize = FileReader('html-initializr-master/css/normalize.min.css').read()
+    
+            # assert correct contents of the files developed from templates
+            self.assertEqual(self.fourohfour_text, rendered_fourohfour)
+            self.assertEqual(self.indexhtml_text, rendered_index)
+            self.assertEqual(self.jquery_text, rendered_jquery)
+            self.assertEqual(self.normalize_text, rendered_normalize)           
+    
+            os.chdir(self.cwd)
+        except Exception as e:
+            os.chdir(self.cwd)
+            raise e
+        
+        
+        
+# remote .zip project build
+class RemoteProjectZipBuildTests(unittest.TestCase):
+
+    def setUp(self):
+        self.cwd = os.getcwd()
+
+        self.local_project_testdir = "build-tests/remote-project/build"
+        self.local_proj_zip_key = "zip_key.yaml"  # executed from the same directory
+
+        # remove all contents of the build directory and build directory path from prior test run
+        if dir_exists('build-tests/remote-project/build'):
+            shutil.rmtree('build-tests/remote-project/build')
+
+        self.assertFalse(dir_exists('build-tests/remote-project/build'))
+
+        # create the build directory path
+        os.makedirs('build-tests/remote-project/build')
+
+        self.assertTrue(dir_exists('build-tests/remote-project/build'))
+
+        # move the key into the build directory
+        fr_key = FileReader('build-tests/remote-project/zip_key.yaml')
+        zip_key_data = fr_key.read()
+        fw_key = FileWriter('build-tests/remote-project/build/zip_key.yaml')
+        fw_key.write(zip_key_data)
+
+
+        # confirm that the build files are present
+        self.assertTrue(file_exists('build-tests/remote-project/build/zip_key.yaml'))
+
+        # get the expected text for outfile write assertions
+        self.fourohfour_text = FileReader('standards/404.html').read()
+        self.indexhtml_text = FileReader('standards/index.html').read()
+        self.jquery_text = FileReader('standards/jquery.js').read()
+        self.normalize_text = FileReader('standards/normalize-min.css').read()        
+
+    def test_remote_zip_project_build(self):
+        try:
+            # make the build directory the CWD
+            os.chdir(self.local_project_testdir)
+            # run the project build
+            b = Builder(self.local_proj_zip_key)
+            b.run()
+
+            # confirm directory unpacked with correct directory structure
+            self.assertTrue(dir_exists('html-initializr-master'))
+            self.assertTrue(dir_exists('html-initializr-master/css'))
+            self.assertTrue(dir_exists('html-initializr-master/js/vendor'))
+            self.assertTrue(dir_exists('html-initializr-master/templates'))
+
+            # confirm presence of files
+            self.assertTrue(file_exists('html-initializr-master/index.html'))
+            self.assertTrue(file_exists('html-initializr-master/404.html'))
+            self.assertTrue(file_exists('html-initializr-master/pkey.yaml'))
+            self.assertTrue(file_exists('html-initializr-master/project.yaml'))
+            self.assertTrue(file_exists('html-initializr-master/js/vendor/jquery-1.11.1.min.js'))
+            self.assertTrue(file_exists('html-initializr-master/js/vendor/modernizr-2.6.2.min.js'))
+            self.assertTrue(file_exists('html-initializr-master/css/normalize.min.css'))
+
+
+            # confirm that the key file still present in the directory after the build
+            self.assertTrue(file_exists('zip_key.yaml'))
+
+            # read the new outfiles that were generated from templates
+            rendered_fourohfour = FileReader('html-initializr-master/404.html').read()
+            rendered_index = FileReader('html-initializr-master/index.html').read()
+            rendered_jquery = FileReader('html-initializr-master/js/vendor/jquery-1.11.1.min.js').read()
+            rendered_normalize = FileReader('html-initializr-master/css/normalize.min.css').read()
+
+            # assert correct contents of the files developed from templates
+            self.assertEqual(self.fourohfour_text, rendered_fourohfour)
+            self.assertEqual(self.indexhtml_text, rendered_index)
+            self.assertEqual(self.jquery_text, rendered_jquery)
+            self.assertEqual(self.normalize_text, rendered_normalize)           
+
+            os.chdir(self.cwd)
+        except Exception as e:
+            os.chdir(self.cwd)
+            raise e        
