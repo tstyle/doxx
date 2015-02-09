@@ -5,3 +5,7 @@ PROJECTS for Official Repository
  -- Python setup.py file
  -- software licenses
  -- mkdocs project
+ -- octopress project
+ -- jekyll project
+ -- ruby gem
+ -- javascript package
