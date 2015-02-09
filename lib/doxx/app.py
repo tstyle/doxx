@@ -70,22 +70,21 @@ def main():
                 m = Maker()
                 if c.argc > 2:
                     m.make_key(c.arglp)
-                    stdout("[*] doxx: '" + c.arglp + "' key stub is available in the current directory.")
                 else:
                     m.make_key("key.yaml")
-                    stdout("[*] doxx: 'key.yaml' key stub is available in the current directory.")
             elif c.cmd2 == "template":  # secondary command
                 m = Maker()
                 if c.argc > 2:
                     m.make_template(c.arglp)
-                    stdout("[*] doxx: '" + c.arglp + "' template stub is available in the current directory.")
                 else:
                     m.make_template("stub.doxt")  # default name is 'stub.doxt' for new template if not specified by user
-                    stdout("[*] doxx: 'stub.doxt' template stub is available in the current directory.")
+            elif c.cmd2 == "project":
+                m = Maker()
+                m.make_project()
             else:
-                stderr("Usage: doxx make [key | template]", exit=1)
+                stderr("Usage: doxx make [key|project|template]", exit=1)
         else:
-            stderr("[!] doxx: Please include the secondary command 'key' or 'template' with the 'make' command.", exit=1)
+            stderr("[!] doxx: Please include the secondary command 'key', 'project', or 'template' with the 'make' command.", exit=1)
     elif c.cmd == "pack":
         from doxx.commands.pack import tar_gzip_package_directory, zip_package_directory 
         if c.argc > 1:
