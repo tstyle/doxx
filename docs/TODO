@@ -25,7 +25,7 @@ High Priority
   [X] support for builds from tar.gzip or zip compressed file archives
   [X] remove the tar.gz or .zip file following the build with a project archive file
   -- remove project.yaml and pkey.yaml files with clean command
-  -- add project subcommand to `make` command (add project files/directories)
+  [X] add project subcommand to `make` command (add project files/directories)
   -- pull command: change 'pkey.yaml' to 'key.yaml' following pull
 
 Medium Priority

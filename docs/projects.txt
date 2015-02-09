@@ -4,3 +4,4 @@ PROJECTS for Official Repository
  -- Grunt project
  -- Python setup.py file
  -- software licenses
+ -- mkdocs project
