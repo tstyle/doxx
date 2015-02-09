@@ -11,12 +11,29 @@ def run_clean():
     stdout("[*] doxx: Clean complete.")
 
 def _remove_key():
+    # remove key.yaml
     if file_exists('key.yaml'):
         try:
             remove('key.yaml')
             stdout("[-] doxx: -- key.yaml ... removed")
         except Exception as e:
             stderr("[!] doxx: Unable to remove 'key.yaml'. Error: " + str(e), exit=0)
+    
+    # remove pkey.yaml (project archives)
+    if file_exists('pkey.yaml'):
+        try:
+            remove('pkey.yaml')
+            stdout("[-] doxx: -- pkey.yaml ... removed")
+        except Exception as e:
+            stderr("[!] doxx: Unable to remove 'pkey.yaml'. Error: " + str(e), exit=0)
+    
+    # remove project.yaml (project archives)
+    if file_exists('project.yaml'):
+        try:
+            remove('project.yaml')
+            stdout("[-] doxx: -- project.yaml ... removed")
+        except Exception as e:
+            stderr("[!] doxx: Unable to remove 'project.yaml'. Error: " + str(e), exit=0)     
         
 def _remove_doxt():
     # check main directory
