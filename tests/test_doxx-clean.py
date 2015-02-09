@@ -23,7 +23,7 @@ class DoxxCleanCommandTests(unittest.TestCase):
         if not dir_exists(make_path(self.onlytemplates_dir, 'templates')):
             os.makedirs(make_path(self.onlytemplates_dir, 'templates'))
             
-        with_only_templates_files = ['key.yaml', 'templates/404.doxt', 'templates/index.doxt', 'templates/normalize.doxt']
+        with_only_templates_files = ['key.yaml', 'pkey.yaml', 'project.yaml', 'templates/404.doxt', 'templates/index.doxt', 'templates/normalize.doxt']
         
         for the_file in with_only_templates_files:
             fw = FileWriter(make_path(self.onlytemplates_dir, the_file))
@@ -34,7 +34,7 @@ class DoxxCleanCommandTests(unittest.TestCase):
         if not dir_exists(make_path(self.otherfiles_dir, 'templates')):
             os.makedirs(make_path(self.otherfiles_dir, 'templates'))
             
-        with_other_files = ['key.yaml', 'templates/404.doxt', 'templates/index.doxt', 'templates/normalize.doxt', 'templates/dontdeleteme.txt']
+        with_other_files = ['key.yaml', 'pkey.yaml', 'project.yaml', 'templates/404.doxt', 'templates/index.doxt', 'templates/normalize.doxt', 'templates/dontdeleteme.txt']
         for the_file in with_other_files:
             fw = FileWriter(make_path(self.otherfiles_dir, the_file))
             fw.write("unimportant text")
@@ -45,6 +45,8 @@ class DoxxCleanCommandTests(unittest.TestCase):
             os.chdir('clean-tests/with-only-templates')
             # confirm files present before clean is executed
             self.assertTrue(file_exists('key.yaml'))
+            self.assertTrue(file_exists('pkey.yaml'))
+            self.assertTrue(file_exists('project.yaml'))
             self.assertTrue(file_exists('templates/404.doxt'))
             self.assertTrue(file_exists('templates/index.doxt'))
             self.assertTrue(file_exists('templates/normalize.doxt'))
@@ -54,6 +56,8 @@ class DoxxCleanCommandTests(unittest.TestCase):
             
             # confirm that the files are now gone
             self.assertFalse(file_exists('key.yaml'))
+            self.assertFalse(file_exists('pkey.yaml'))
+            self.assertFalse(file_exists('project.yaml'))
             self.assertFalse(file_exists('templates/404.doxt'))
             self.assertFalse(file_exists('templates/index.doxt'))
             self.assertFalse(file_exists('templates/normalize.doxt'))
@@ -79,6 +83,8 @@ class DoxxCleanCommandTests(unittest.TestCase):
             os.chdir('clean-tests/with-templates-other-files')
             # confirm files present before clean is executed
             self.assertTrue(file_exists('key.yaml'))
+            self.assertTrue(file_exists('pkey.yaml'))
+            self.assertTrue(file_exists('project.yaml'))
             self.assertTrue(file_exists('templates/404.doxt'))
             self.assertTrue(file_exists('templates/index.doxt'))
             self.assertTrue(file_exists('templates/normalize.doxt'))
@@ -88,6 +94,8 @@ class DoxxCleanCommandTests(unittest.TestCase):
 
             # confirm that the files are now gone
             self.assertFalse(file_exists('key.yaml'))
+            self.assertFalse(file_exists('pkey.yaml'))
+            self.assertFalse(file_exists('project.yaml'))
             self.assertFalse(file_exists('templates/404.doxt'))
             self.assertFalse(file_exists('templates/index.doxt'))
             self.assertFalse(file_exists('templates/normalize.doxt'))
