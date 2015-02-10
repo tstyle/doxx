@@ -40,4 +40,9 @@ Medium Priority
   
 Low Priority
   -- add bzip2 / lzma compression options to pack command?
+  
+
+DOCS:
+
+ -- use unix filepaths in templates and keys (converted to windows paths by doxx, but not vice versa)
  
