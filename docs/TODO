@@ -23,6 +23,7 @@ BUGS:
 NEW:
 
 High Priority
+  --  fix filepaths for windows, need to add os.path.joins for templates/projects (clean user input)
   --  add try/except blocks to project archive runs
   --  add support for official repo projects (test for no tar.gz or .zip filename in project: value)
   --  create a project class under datatypes, maintain URL paths to the official repository
