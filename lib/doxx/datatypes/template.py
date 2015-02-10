@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from os.path import basename, splitext
+from os.path import basename, splitext, normpath
 from Naked.toolshed.file import FileReader
 from Naked.toolshed.network import HTTP
 from Naked.toolshed.system import make_path, stderr
@@ -54,6 +54,8 @@ class DoxxTemplate(object):
         if not 'destination_directory' in meta_keys or self.meta_data['destination_directory'] == None:
             dest_dir = u""
         else:
+            # replace user entered path with OS specific separators and re-define the destination directory attribute
+            self.meta_data['destination_directory'] = self.normalize_filepath(self.meta_data['destination_directory'])
             dest_dir = self.meta_data['destination_directory']
 
         # define rendered file extension as instance attribute
@@ -102,6 +104,11 @@ class DoxxTemplate(object):
             return (True, error_message)
         else:
             return(False, "no message")
+        
+
+    def normalize_filepath(self, pre_filepath):
+        """returns a filepath with the correct OS-dependent path separators"""
+        return normpath(pre_filepath)  
 
 
 
