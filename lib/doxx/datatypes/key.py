@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+import os
 import unicodedata
 from Naked.toolshed.file import FileReader
 from Naked.toolshed.system import directory, make_path
@@ -99,7 +100,9 @@ class DoxxKey(object):
                 pass
             else:
                 dir_path = directory(inpath)
-                self.meta_data['template'] = make_path(dir_path, pre_file_path)
+                # create OS specific path string from the user entered value in 'template:' field
+                os_specific_filepath = self.normalize_filepath(pre_file_path)
+                self.meta_data['template'] = make_path(dir_path, os_specific_filepath)
         elif 'templates' in meta_keys:  # multi-template file request
             self.multi_template_key = True  # used to detect whether there is a need to process multiple templates with this key
             i = 0  # used for the templates list key during the new path join in following block
@@ -112,7 +115,9 @@ class DoxxKey(object):
                         pass
                     else:
                         dir_path = directory(inpath)
-                        self.meta_data['templates'][i] = make_path(dir_path, pre_file_path)
+                        # create OS specific path string from the user entered values in the 'templates:' field
+                        os_specific_filepath = self.normalize_filepath(pre_file_path)
+                        self.meta_data['templates'][i] = make_path(dir_path, os_specific_filepath)
                 i += 1
         elif 'project' in meta_keys and not self.meta_data['project'] == None:
             self.project_key = True  # indicate that this is a key that uses a project file
@@ -121,9 +126,17 @@ class DoxxKey(object):
                 pass
             else:
                 dir_path = directory(inpath)
-                self.meta_data['project'] = make_path(dir_path, pre_file_path)
+                # create OS specific path string from the user entered value in the 'project:' field
+                os_specific_filepath = self.normalize_filepath(pre_file_path)
+                self.meta_data['project'] = make_path(dir_path, os_specific_filepath)
         else:
             pass  # if the meta data is missing, the check will be performed in the _parse_yaml_for_errors method below. do nothing here
+    
+    
+        
+    def normalize_filepath(self, pre_filepath):
+        """returns a filepath with the correct OS-dependent path separators"""
+        return os.path.normpath(pre_filepath)    
     
     
     def _parse_yaml_for_errors(self):
