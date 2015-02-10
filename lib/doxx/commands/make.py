@@ -111,7 +111,8 @@ class Maker(object):
                 os.mkdir('templates')
                 
             # template.doxt file in templates directory
-            fw_template = FileWriter('templates/stub.doxt')
+            template_stub_path =  os.path.join('templates', 'stub.doxt')
+            fw_template = FileWriter(template_stub_path)
             fw_template.write(template_stub)
             
             # confirm for user
@@ -125,10 +126,10 @@ class Maker(object):
             else:
                 stderr("[!] doxx: There was an error writing the 'pkey.yaml' key file to your project directory")
                 
-            if file_exists('templates/stub.doxt'):
-                stdout("[+] doxx: 'templates/stub.doxt' ... check")
+            if file_exists(template_stub_path):
+                stdout("[+] doxx: '" + template_stub_path + "' ... check")
             else:
-                stderr("[!] doxx: There was an error writing the 'templates/stub.doxt' template file to your project directory")
+                stderr("[!] doxx: There was an error writing the '" + template_stub_path + "' template file to your project directory")
                 
             
         except Exception as e:
