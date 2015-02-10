@@ -49,6 +49,10 @@ def unpack_zip_archive_file(zip_file_path):
         # extract the zip archive
         zip_archive.extractall()
         zip_archive.close()
+        
+        # if root_dir is actually a file name, then assume root dir is the CWD
+        if '.' in root_dir:
+            root_dir = "."
         # return the root directory in the zip archive
         return root_dir
     except Exception as e:

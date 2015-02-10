@@ -324,8 +324,9 @@ class Builder(object):
             project_archive_file_name = get_file_name(project_path)
             # pull the remote project and unpack it, define the root directory with the returned value from the function
             root_dir = run_pull(project_path)
+            
             # make the path to the 'project.yaml' key file
-            project_key_path = make_path(root_dir, 'project.yaml')
+            project_key_path = make_path(root_dir, 'project.yaml')           
             
             if file_exists(project_key_path):
                 self.write_project_runner_key(project_key_path)  # append the key data to the project.yaml key
