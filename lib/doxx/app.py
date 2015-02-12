@@ -114,6 +114,12 @@ def main():
             stdout("[*] doxx: Pull complete")
         else:
             stderr("[!] doxx: Please include the URL for the archive that you would like to pull.", exit=1)
+    elif c.cmd == "search":
+        if c.argc > 1:
+            from doxx.commands.search import run_search
+            run_search(c.arg1)
+        else:
+            stderr("[!] doxx: Please include a search string after your command.", exit=1)
     elif c.cmd == "unpack":
         if c.argc > 1:
             if is_file(c.arg1):
