@@ -12,10 +12,6 @@ class FuzzySearcher(object):
         self.needle_word_count = len(needle.split(" "))
         self.needle_length = len(self.needle_normalized)
     
-    def best_ratio(self, haystack):
-        pass
-    
-    
     # Search Types
     
     # test match to the entire haystack string
@@ -123,16 +119,6 @@ class FuzzySearcher(object):
             return alpha_string
         else:
             return pre_string
+        
     
-    def _push_good_result(self, result_string, priority):
-        pass
-    
-    def _push_possible_result(self, result_string, priority):
-        pass
-    
-    def _pop_good_results(self):
-        pass
-    
-    def _pop_possible_results(self):
-        pass
     
