@@ -26,7 +26,7 @@ High Priority
   -- automated builds and pulls from official GitHub project repository
   --  add try/except blocks to project archive runs
   --  add support for official repo projects (test for no tar.gz or .zip filename in project: value)
-  --  create a project class under datatypes, maintain URL paths to the official repository
+  [X]  create a project class under datatypes, maintain URL paths to the official repository
   [X]  fix filepaths for windows, need to add os.path.joins for templates/projects (clean user input)
   [X] support for builds from tar.gzip or zip compressed file archives
   [X] remove the tar.gz or .zip file following the build with a project archive file
@@ -37,6 +37,7 @@ High Priority
 Medium Priority
   -- pull project specific keys to local directories (raw text pkey.yaml pull from GitHub) - use `doxx pull key` command?
   -- analyze: analyze a template, key file, or .tar.gz package archive
+  -- add gzip master official repository list support (currently plain text file)
   
 Low Priority
   -- add bzip2 / lzma compression options to pack command?
