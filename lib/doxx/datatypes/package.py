@@ -8,7 +8,7 @@ class OfficialPackage(object):
         self.binary_package_url_prefix = "https://github.com/doxx-repo/bin/raw/master/"
         self.package_key_file_url_prefix = "https://raw.githubusercontent.com/doxx-repo/"
         self.package_key_file_url_postfix = "/master/pkey.yaml"
-        self.master_package_list_text_url = "https://raw.githubusercontent.com/doxx-repo/master/master/repository-list/list.txt"
+        self.master_package_list_text_url = "http://doxx-repo.github.io/master/repository-list/list.txt"
     
     # Getter methods
     
