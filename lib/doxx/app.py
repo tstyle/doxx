@@ -60,7 +60,7 @@ def main():
         stdout("[*] doxx: Build started with the key file '" + key_path + "'...")
         b = Builder(key_path)
         b.run()
-        stdout("[*] doxx: Build complete.") 
+        stdout("[*] doxx: Build complete.")
     elif c.cmd == "clean":
         from doxx.commands.clean import run_clean
         run_clean()  # execute the clean routines
