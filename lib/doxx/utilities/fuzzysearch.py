@@ -53,7 +53,7 @@ class FuzzySearcher(object):
         normalized_haystack = haystack.lower().strip()
         haystack_token_list = normalized_haystack.split('-')
         haystack_word_count = len(haystack_token_list)
-        if haystack_word_count > self.needle_word_count:
+        if haystack_word_count >= self.needle_word_count:
             first = 0
             last = self.needle_word_count
             best_ratio = 0
