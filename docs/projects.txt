@@ -2,6 +2,7 @@ PROJECTS for Official Repository
 
  -- Bootstrap
  -- Grunt project
+ -- makefiles
  -- Python setup.py file
  -- software licenses
  -- mkdocs project
