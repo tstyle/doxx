@@ -11,10 +11,12 @@ class OfficialPackage(object):
         self.package_key_file_url_postfix = "/releases/download/current/pkey.yaml"
         self.master_package_list_text_url = "https://objects.dreamhost.com/doxx/list.txt"
         
-        # https://github.com/doxx-repo/license-apache/releases/download/current/license-apache.tar.gz
-        # https://github.com/doxx-repo/license-apache/releases/download/current/pkey.yaml
+        # Release file URL's
+        # https://github.com/doxx-repo/{package-name}/releases/download/current/{package-name}.tar.gz
+        # https://github.com/doxx-repo/{package-name}/releases/download/current/{package-name}.zip
+        # https://github.com/doxx-repo/{package-name}/releases/download/current/pkey.yaml
     
-    # Getter methods
+    # Attribute getter methods
     
     def get_package_targz_url(self, package_name):
         normalized_package_name = package_name.lower().strip()
