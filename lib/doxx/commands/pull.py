@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 import gzip
-from os import remove
+from os import remove, rename
 from Naked.toolshed.network import HTTP
 from Naked.toolshed.file import FileWriter
 from Naked.toolshed.system import stderr, stdout, stdout_xnl, file_exists
@@ -11,7 +11,7 @@ from doxx.commands.unpack import unpack_run
 
 
 def run_pull(url):
-    # confirm that the argument is a URL
+    # URL pulls for project archive packages, gzip files, text files
     if is_url(url):
         file_name = get_file_name(url)
         if len(file_name) == 0:
@@ -33,6 +33,9 @@ def run_pull(url):
                 stderr("[!] doxx: Unable to unpack the compressed project file. Error: " + str(e), exit=1)
             if file_exists(file_name):
                 remove_file(file_name)                # remove the archive file
+            if file_exists('pkey.yaml'):
+                if not file_exists('key.yaml'):
+                    rename('pkey.yaml', 'key.yaml')   # change name of pkey.yaml to key.yaml if there is not already a key.yaml file
             return root_dir                           # return the root directory path for calling code that needs it
         elif is_zip_archive(file_name):
             root_dir = None
@@ -47,6 +50,9 @@ def run_pull(url):
                 stderr("[!] doxx: Unable to unpack the compressed project file. Error: " + str(e), exit=1)
             if file_exists(file_name):
                 remove_file(file_name)                # remove the arhcive file
+            if file_exists('pkey.yaml'):
+                if not file_exists('key.yaml'):
+                    rename('pkey.yaml', 'key.yaml')   # change name of pkey.yaml to key.yaml if there is not already a key.yaml file      
             return root_dir                           # return the root directory path for calling code that needs it
         elif is_gzip_file(file_name):
             try:
@@ -66,7 +72,36 @@ def run_pull(url):
             except Exception as e:
                 stderr("[!] doxx: Unable to pull the requested file. Error: " + str(e), exit=1)
     else:
-        stderr("[!] doxx: Your URL is not properly formatted.  Please include the 'http://' or 'https://' protocol at the beginning of the requested URL.", exit=1)  
+        # if it is a URL formatted string, it's an error : provide user with message
+        if "/" in url:
+            stderr("[!] doxx: Your URL is not properly formatted.  Please include the 'http://' or 'https://' protocol at the beginning of the requested URL.", exit=1)
+        # PROJECT PACKAGES - official repository package pulls
+        else:  
+            from doxx.datatypes.package import OfficialPackage
+            package_name = url
+            package = OfficialPackage()
+            package_url = package.get_package_targz_url(package_name)
+            package_archive_name = package_name + ".tar.gz"
+            root_dir = None
+            # pull the package archive file
+            stdout("[*] doxx: Pulling package '" + package_name + "'...")
+            try:
+                pull_binary_file(package_url, package_archive_name)
+            except Exception as e:
+                stderr("[!] doxx: Unable to pull the doxx repository package.  Error: " + str(e), exit=1)
+            # unpack the archive file
+            stdout("[*] doxx: Unpacking...")
+            try:
+                root_dir = unpack_archive(package_archive_name)             # unpack archive and define the root directory
+            except Exception as e:
+                stderr("[!] doxx: Unable to unpack the project package. Error: " + str(e), exit=1)            
+            # remove the archive file
+            if file_exists(package_archive_name):
+                remove_file(package_archive_name)                # remove the archive file
+            if file_exists('pkey.yaml'):
+                if not file_exists('key.yaml'):
+                    rename('pkey.yaml', 'key.yaml')              # change name of pkey.yaml to key.yaml if there is not already a key.yaml file            
+            return root_dir                                      # return the root directory path for calling code that needs it            
 
 
 def is_url(url):
@@ -118,7 +153,10 @@ def pull_binary_file(url, binary_file_name):
                 stderr("[!] doxx: File write failed for '" + binary_file_name + "'.  Error: " + str(e), exit=1)
         else:
             fail_status_code = http.res.status_code
-            stderr("[!] doxx: Unable to pull '" + url + "'. (HTTP status code: " + str(fail_status_code) + ")", exit=1)
+            if fail_status_code == 404:
+                stderr("[!] doxx: That doesn't appear to exist. (HTTP status code: " + str(fail_status_code) + ")", exit=1)
+            else:
+                stderr("[!] doxx: Unable to pull '" + url + "'. (HTTP status code: " + str(fail_status_code) + ")", exit=1)
     except Exception as e:
         stderr("[!] doxx: Unable to pull '" + url + "'. Error: " + str(e), exit=1)
     
