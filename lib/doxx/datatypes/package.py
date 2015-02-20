@@ -9,7 +9,9 @@ class OfficialPackage(object):
         self.binary_package_url_postfix = "/releases/download/current/"
         self.package_key_file_url_prefix = "https://github.com/doxx-repo/"
         self.package_key_file_url_postfix = "/releases/download/current/pkey.yaml"
-        self.master_package_list_text_url = "https://objects.dreamhost.com/doxx/list.txt"
+        
+        self.master_package_list_text_url = "https://doxx-cdn.s3.amazonaws.com/list.txt"
+        self.master_package_description_json_url = "https://doxx-cdn.s3.amazonaws.com/packages.json"
         
         # Release file URL's
         # https://github.com/doxx-repo/{package-name}/releases/download/current/{package-name}.tar.gz
