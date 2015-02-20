@@ -118,6 +118,7 @@ def run_search(search_string):
         
     
 def _get_master_text():
+    ## add cache file check here
     package = OfficialPackage()
     master_package_list_url = package.get_master_package_list_url()
     http = HTTP(master_package_list_url)

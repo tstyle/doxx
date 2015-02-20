@@ -10,3 +10,4 @@ PROJECTS for Official Repository
  -- jekyll project
  -- ruby gem
  -- javascript package
+ -- font awesome
