@@ -10,6 +10,18 @@ from Naked.toolshed.network import HTTP
 def run_repoupdate():
     cache = DoxxCache()
     
+    # confirm that user is not attempting updates too rapidly (20 sec lockout)
+    lockout_time = 20
+    # test list.txt file
+    if cache.cached_file_exists(cache.package_repo_list_file):
+        if not cache.does_cache_file_require_update(cache.package_repo_list_file, lockout_time):
+            stderr("[!] doxx: There is a " + str(lockout_time) + " second lockout on repository file updates. Take a break, then try again.", exit=1)
+            
+    # test packages.json file
+    if cache.cached_file_exists(cache.package_repo_json_file):
+        if not cache.does_cache_file_require_update(cache.package_repo_json_file, lockout_time):
+            stderr("[!] doxx: There is a " + str(lockout_time) + " second lockout on repository file updates. Take a break, then try again.", exit=1)
+    
     stdout("[*] doxx: Pulling the list of packages in the Package Repository")
     # pull the master list of the packages included in the Package Repository
     master_list = _pull_official_repository_list()
