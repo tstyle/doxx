@@ -123,8 +123,8 @@ def _get_master_text():
     ## check the cache for a cached version of the file with appropriate cache duration
     cache = DoxxCache()
     max_cache_seconds = 86400  # 24 hour cache of the repository list
-    if cache.cached_file_exists('list.txt'):
-        if cache.does_cache_file_require_update('list.txt', max_cache_seconds):
+    if cache.cached_file_exists(cache.package_repo_list_file):
+        if cache.does_cache_file_require_update(cache.package_repo_list_file, max_cache_seconds):
             master_list = _pull_official_repository_list()  # pull the master list text from remote
             cache.cache_packagerepo_list(master_list)  # cache it
         else:
