@@ -35,6 +35,9 @@ class OfficialPackage(object):
     def get_master_package_list_url(self):
         return self.master_package_list_text_url
     
+    def get_master_package_description_json_url(self):
+        return self.master_package_description_json_url
+    
 
     
     
