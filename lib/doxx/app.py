@@ -137,7 +137,14 @@ def main():
                 stderr("[!] doxx: '" + c.arg1 + "' does not appear to be a file.  Please include a path to your compressed file.", exit=1)
         else:
             stderr("[!] doxx: Please include a path to your file.", exit=1)
-
+    #------------------------------------------------------------------------------------------
+    # UNDOCUMENTED TESTING COMMANDS
+    #  
+    #------------------------------------------------------------------------------------------    
+    elif c.cmd == "repoupdate":
+        from doxx.commands.repoupdate import run_repoupdate
+        run_repoupdate()
+    
     #------------------------------------------------------------------------------------------
     # [ DEFAULT MESSAGE FOR MATCH FAILURE ]
     #  Message to provide to the user when all above conditional logic fails to meet a true condition
