@@ -137,6 +137,12 @@ def main():
                 stderr("[!] doxx: '" + c.arg1 + "' does not appear to be a file.  Please include a path to your compressed file.", exit=1)
         else:
             stderr("[!] doxx: Please include a path to your file.", exit=1)
+    elif c.cmd == "whatis":
+        if c.argc > 1:
+            from doxx.commands.whatis import run_whatis
+            run_whatis(c.arg1)
+        else:
+            stderr("[!] doxx: Please enter a package name following your command.", exit=1)
     #------------------------------------------------------------------------------------------
     # UNDOCUMENTED TESTING COMMANDS
     #  
