@@ -5,11 +5,12 @@ import heapq
 
 from doxx.datatypes.package import OfficialPackage
 from doxx.utilities.fuzzysearch import FuzzySearcher
+from doxx.datatypes.cache import DoxxCache
 from Naked.toolshed.system import stdout, stderr
 from Naked.toolshed.network import HTTP
 
 def run_search(search_string):
-    # pull remote repository list
+    # check for local cached list of the repositories, if not present pull the remote repository list from Amazon S3 store
     stdout("[*] doxx: Searching remote doxx repositories...")
     master_text = _get_master_text()
     master_list = _get_master_list(master_text)
@@ -108,17 +109,35 @@ def run_search(search_string):
         stdout(" ")
         for result in final_best_results:
             stdout(result)
-    else:
-        pass  # handle with possible results
-    
-    if len(final_possible_results) > 0:
+    elif len(final_possible_results) > 0:
+        stdout("[*] doxx: There were no good matches for your search. Here are the possible matches:")
         stdout(" ")
         for result in final_possible_results:
             stdout(result)
+        pass  # handle with possible results
+    else:
+        stdout("[*] doxx: No matches found in the Package Repository.")
         
     
 def _get_master_text():
-    ## add cache file check here
+    ## check the cache for a cached version of the file with appropriate cache duration
+    cache = DoxxCache()
+    max_cache_seconds = 86400  # 24 hour cache of the repository list
+    if cache.cached_file_exists('list.txt'):
+        if cache.does_cache_file_require_update('list.txt', max_cache_seconds):
+            master_list = _pull_official_repository_list()  # pull the master list text from remote
+            cache.cache_packagerepo_list(master_list)  # cache it
+        else:
+            master_list = cache.get_cached_packagerepo_list()  # if cache duration hasn't expired, read the local cached file
+    else:
+        master_list = _pull_official_repository_list()  # pull the master list text from remote repository if there is no cached file
+        cache.cache_packagerepo_list(master_list)  # cache the remote file
+    
+    # return the master list to the calling function
+    return master_list
+    
+
+def _pull_official_repository_list():
     package = OfficialPackage()
     master_package_list_url = package.get_master_package_list_url()
     http = HTTP(master_package_list_url)

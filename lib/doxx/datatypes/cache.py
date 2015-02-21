@@ -10,9 +10,6 @@ from Naked.toolshed.file import FileReader, FileWriter
 class DoxxCache(object):
     def __init__(self):
         self.system = platform.system()
-        self.mac_cache_directory = self._get_mac_cachedir()
-        self.linux_cache_directory = self._get_linux_cachedir()
-        self.windows_cache_directory = self._get_windows_cachedir()
         self.package_repo_list_file = "list.txt"        # the list of packages in the package repository
         self.package_repo_json_file = "packages.json"   # the name:description JSON file of packages in the package repository
     
@@ -26,6 +23,8 @@ class DoxxCache(object):
         
         # confirm that the local variable was assigned based upon user system type
         if not cache_dir_path == None:
+            if not os.path.isdir(cache_dir_path):
+                os.mkdir(cache_dir_path)
             cache_file_path = os.path.join(cache_dir_path, file_name)    # create the path to the file in the cache directory
             if self._write_text_file(cache_file_path, file_text):  # write file to cache storage
                 return True   # return True if cached file write OK
@@ -130,14 +129,14 @@ class DoxxCache(object):
         except Exception as e:
             return ""  # return empty string if there is an exception during the read
         
-    def _get_platform_specific_cache_dirpath():
+    def _get_platform_specific_cache_dirpath(self):
         # detect user system
         if self.system == "Darwin":
-            return self.mac_cache_directory
+            return self._get_mac_cachedir()
         elif self.system == "Linux":
-            return self.linux_cache_directory
+            return self._get_linux_cachedir()
         elif self.system == "Windows":
-            return self.windows_cache_directory
+            return self._get_windows_cachedir()
         else:
             return None
     
