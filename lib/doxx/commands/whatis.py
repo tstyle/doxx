@@ -10,19 +10,19 @@ from Naked.toolshed.system import stdout, stderr
 
 def run_whatis(package_name):
     cache = DoxxCache()
-    max_cache_seconds = 86400  # 24 hour description file cache
+    max_cache_seconds = 86400  # 24 hour file cache
     stdout("[*] doxx: Looking up the package description...")
-    if cache.cached_file_exists('packages.json'):
-        if cache.does_cache_file_require_update(cache.package_repo_json_file, max_cache_seconds):
-            master_descriptions = _pull_official_repository_descriptions()
-            cache.cache_packagerepo_json(master_descriptions)
+    if cache.cached_file_exists('packages.json'):  # does the cached file already exist
+        if cache.does_cache_file_require_update(cache.package_repo_json_file, max_cache_seconds):  # if so, has the cache time elapsed?
+            master_descriptions = _pull_official_repository_descriptions()  # pull new file
+            cache.cache_packagerepo_json(master_descriptions)               # push it into the file cache
         else:
-            master_descriptions = cache.get_cached_packagerepo_json()
+            master_descriptions = cache.get_cached_packagerepo_json()       # get the cached file if there is no need to pull a new version
     else:
-        master_descriptions = _pull_official_repository_descriptions()
-        cache.cache_packagerepo_json(master_descriptions)
+        master_descriptions = _pull_official_repository_descriptions()      # doesn't exist, go get it
+        cache.cache_packagerepo_json(master_descriptions)                   # try to cache it
     
-    if len(master_descriptions) > 0:
+    if len(master_descriptions) > 0:  # dictionary from JSON that contains the package descriptions by package name key
         descriptions_dict = json.loads(master_descriptions)
         test_package_name = package_name.lower().strip()
         if test_package_name in descriptions_dict:
