@@ -22,11 +22,9 @@ debug = False
 # Usage String
 #------------------------------------------------------------------------------
 usage = """
-doxx [command] <options> <argument>
+doxx <option> [command] <argument>
 
-commands : [build | make]
-
-Use 'doxx --help' for additional information
+Use 'doxx help' for additional information
 """
 
 #------------------------------------------------------------------------------
@@ -35,31 +33,29 @@ Use 'doxx --help' for additional information
 help = """
 ----------------------------------------------------------
  doxx
- A simple, flexible text file templating system
+ A simple, flexible text file project build system
  Copyright 2015 Christopher Simpkins
  MIT license
  Source: http://github.com/chrissimpkins/doxx
- Docs:   http://chrissimpkins.github.io/doxx
+   Docs: http://doxx.org
 ----------------------------------------------------------
 
-doxx is a generic text file templating system that can be used to create reusable templates for projects with any combination of text file mime types and directory structure.
-
 USAGE
-  doxx [command] <options> <argument>
+  doxx <option> [command] <argument>
   
-COMMANDS
-  build    render text replacements & write files locally
-  make     generate a key or template stub file
+GENERAL COMMANDS
+  build    render string replacements in template files and build project
+  clean    remove doxx project files from a project directory
+  make     generate key, template, or project file stubs
+  pack     create a tar.gz or zip archive file for project distribution
+  pull     pull a key, template, or project archive from a remote repository
+  unpack   unpack a tar.gz or zip project archive
 
-BUILD COMMAND USE
-  doxx build <argument>
-  
-Use the build command without an argument if your key file is named `key.yaml` and is located in the working directory.  Use the key file path as an argument if you modify the name or directory path of the key file.
-
-MAKE COMMAND USE
-  doxx make [key | template]
-  
-Use `key` or `template` as a secondary command to generate the respective stub.
+PACKAGE REPOSITORY COMMANDS
+  pull     pull a project package from the doxx Package Repository
+  pullkey  pull the key file from a doxx Package Repository project
+  search   search the doxx Package Repository by keyword or project name
+  whatis   get descriptions of Package Repository packages by project name
 
 OPTIONS
   -h | --help      view application help
