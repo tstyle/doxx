@@ -783,4 +783,54 @@ class RemoteProjectZipBuildTests(unittest.TestCase):
             os.chdir(self.cwd)
         except Exception as e:
             os.chdir(self.cwd)
-            raise e        
+            raise e
+        
+
+# test a build from the doxx Package Repository
+class OfficialPackageRepositoryTests(unittest.TestCase):
+    
+    def setUp(self):
+        self.cwd = os.getcwd()
+        
+        self.remote_packagerepo_testdir = "build-tests/remote-package-repo/build"
+        self.package_repo_keypath = "build-tests/remote-package-repo/key.yaml"
+        self.package_repo_missing_keypath = "build-tests/remote-package-repo/key_missingpackage.yaml"
+        
+        # remove all contents of the build directory and build directory path from prior test run
+        if dir_exists(self.remote_packagerepo_testdir):
+            shutil.rmtree(self.remote_packagerepo_testdir)
+    
+        self.assertFalse(dir_exists(self.remote_packagerepo_testdir))
+        
+        # create the build directory path with empty directory
+        os.makedirs(self.remote_packagerepo_testdir)
+    
+        self.assertTrue(dir_exists(self.remote_packagerepo_testdir))
+        
+        # move the key with good file path into the build directory
+        fr_key = FileReader('build-tests/remote-package-repo/key.yaml')
+        key_data = fr_key.read()
+        fw_key = FileWriter('build-tests/remote-package-repo/build/key.yaml')
+        fw_key.write(key_data)
+        
+        # confirm that the build files are present
+        self.assertTrue(file_exists('build-tests/remote-package-repo/build/key.yaml'))
+        
+    
+    def test_package_repo_build_realpackage(self):
+        try:
+            # make the build directory the CWD
+            os.chdir(self.remote_packagerepo_testdir)
+            # run the project build
+            b = Builder('key.yaml')
+            b.run()
+            
+            self.assertTrue(file_exists('LICENSE'))
+            
+            os.chdir(self.cwd)
+        except Exception as e:
+            os.chdir(self.cwd)
+            raise e
+    
+    def test_package_repo_build_badpackage(self):
+        pass
