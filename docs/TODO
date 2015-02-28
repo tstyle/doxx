@@ -57,4 +57,4 @@ Low Priority
   
 
 DOCS:
-
+  - fix pull description in syntax doc to indicate that will pull key, template as well as archives
