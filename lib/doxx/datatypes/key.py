@@ -157,18 +157,7 @@ class DoxxKey(object):
         if not 'template' in test_metadata_keys:
             if not 'templates' in test_metadata_keys:
                 if not 'project' in test_metadata_keys:
-                    stderr("[!] doxx: There are no template or project files specified in your key. Please complete the meta data section of your key file.", exit=1)        
-    
-        # keys present but all keys are missing replacement values test
-        number_with_values = 0                
-        for key in test_key_data:
-            if test_key_data[key] == "" or test_key_data[key] == None:
-                pass
-            else:
-                number_with_values += 1  # iterate the number_with_values by 1 if the key is defined with a value
-                break
-        if number_with_values == 0 and self.no_replacements == False:  # there were keys included and none were defined with a text replacement string
-            stderr("[!] doxx: There are no text replacement values in your key.  Please include at least one replacement string.", exit=1)
+                    stderr("[!] doxx: There are no template or project files specified in your key. Please complete the meta data section of your key file.", exit=1)
             
         # TOO MANY FIELDS
         # meta data contains both template and templates fields test
