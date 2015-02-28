@@ -317,41 +317,44 @@ class Builder(object):
         
 
     def project_archive_run(self, key):
-        project_path = key.meta_data['project']
-        # Remote .tar.gz or .zip project archives
-        if is_url(project_path):
-            # define the archive file name from the URL
-            project_archive_file_name = get_file_name(project_path)
-            # pull the remote project and unpack it, define the root directory with the returned value from the function
-            root_dir = run_pull(project_path)
-            
-            # make the path to the 'project.yaml' key file
-            project_key_path = make_path(root_dir, 'project.yaml')           
-            
-            if file_exists(project_key_path):
-                self.write_project_runner_key(project_key_path)  # append the key data to the project.yaml key
-            else:
-                stderr("[!] doxx: Unable to locate the 'project.yaml' project settings file in your unpacked archive", exit=1)
-            
-            # instantiate a new Builder object with the updated 'project.yaml' local file
-            builder = Builder(project_key_path)
-            builder.run()  # build with the updated 'project.yaml' key
-        # Local .tar.gz or .zip project archives
-        else:
-            project_key_path = self.unpack_and_get_keypath(project_path)
-            
-            # create an updated 'project.yaml' key file from the remote project template paths and the local user key data
-            if file_exists(project_key_path):
-                self.write_project_runner_key(project_key_path)
-            else:
-                stderr("[!] doxx: Unable to locate the 'project.yaml' project settings file in your unpacked archive", exit=1)
+        try:
+            project_path = key.meta_data['project']
+            # Remote .tar.gz or .zip project archives
+            if is_url(project_path):
+                # define the archive file name from the URL
+                project_archive_file_name = get_file_name(project_path)
+                # pull the remote project and unpack it, define the root directory with the returned value from the function
+                root_dir = run_pull(project_path)
                 
-            # instantiate a new Builder object with the updated 'project.yaml' local file
-            builder = Builder(project_key_path)
-            builder.run()            # build with the updated 'project.yaml' key
-            
-            # remove the project archive
-            os.remove(project_path)
+                # make the path to the 'project.yaml' key file
+                project_key_path = make_path(root_dir, 'project.yaml')           
+                
+                if file_exists(project_key_path):
+                    self.write_project_runner_key(project_key_path)  # append the key data to the project.yaml key
+                else:
+                    stderr("[!] doxx: Unable to locate the 'project.yaml' project settings file in your unpacked archive", exit=1)
+                
+                # instantiate a new Builder object with the updated 'project.yaml' local file
+                builder = Builder(project_key_path)
+                builder.run()  # build with the updated 'project.yaml' key
+            # Local .tar.gz or .zip project archives
+            else:
+                project_key_path = self.unpack_and_get_keypath(project_path)
+                
+                # create an updated 'project.yaml' key file from the remote project template paths and the local user key data
+                if file_exists(project_key_path):
+                    self.write_project_runner_key(project_key_path)
+                else:
+                    stderr("[!] doxx: Unable to locate the 'project.yaml' project settings file in your unpacked archive", exit=1)
+                    
+                # instantiate a new Builder object with the updated 'project.yaml' local file
+                builder = Builder(project_key_path)
+                builder.run()            # build with the updated 'project.yaml' key
+                
+                # remove the project archive
+                os.remove(project_path)
+        except Exception as e:
+            stderr("[!] doxx: Unable to build from the project error because of an error.  Error: " + str(e), exit=1)
                 
     
     def unpack_and_get_keypath(self, project_path):
