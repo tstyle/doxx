@@ -8,6 +8,7 @@ TESTS:
             [X] verbatim template builds (no replacements)
             [] empty key builds (no replacements)
             [] project archive error tests - bad URL's, incorrect files in projects, etc
+            [X] Package Repository builds
            
  [X] clean
  [X] pack
@@ -24,9 +25,17 @@ NEW:
 
 High Priority
   
-  --  whatis command - display the description of the package archive files
   --  add try/except blocks to project package runs
-  --  exception handling when test remote package does not exist
+  --  test on Windows
+  --  test on Linux
+  --  test pullkey
+  --  test whatis
+  --  update in-application help string
+  --  update usage string
+  --  change setup.py setting to beta release
+  
+  [X]  whatis command - display the description of the package archive files
+  [X]  exception handling when test remote package does not exist
   [X] change pkey.yaml to key.yaml following pulls if key.yaml does not exist
   [X] automated builds and pulls from official GitHub project repository
   [X] pull project specific keys to local directories (raw text pkey.yaml pull from GitHub) - use `doxx pullkey` command?

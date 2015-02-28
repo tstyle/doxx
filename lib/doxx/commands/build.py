@@ -384,7 +384,7 @@ class Builder(object):
         
     
     def write_project_runner_key(self, project_key_path):
-        key_data_string = "\n\n"
+        key_data_string = "\n\n"  # maintain a couple of newlines between the build specification section and the key data section
         if len(self.key_data) > 0:
             for the_key in self.key_data:
                 key_data_string = key_data_string + the_key + ": " + self.key_data[the_key] + "\n" # recreate the YAML from the local key.yaml file to append to the project.yaml file
