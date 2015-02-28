@@ -371,8 +371,7 @@ class DoxxKeysErrorTests(unittest.TestCase):
     
     # there are key fields, but none are defined with replacement text
     def test_doxxkey_errors_emptykey(self):
-        with self.assertRaises(SystemExit):
-            key = DoxxKey(self.emptykey_key)
+        key = DoxxKey(self.emptykey_key)  # should not raise Exception, this is permitted so that users can erase template tags if desired
             
     # undefined template meta field
     def test_doxxkey_errors_emptytemplate(self):
