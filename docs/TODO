@@ -30,10 +30,11 @@ High Priority
   --  test pullkey
   --  test whatis
   --  test search
-  --  update in-application help string
-  --  update usage string
-  --  change setup.py setting to beta release
-  
+  --  update README on GitHub repository
+  --  update README.rst in docs directory
+  [X]  change setup.py setting to beta release
+  [X]  update usage string
+  [X]  update in-application help string
   [X]  add try/except blocks to project package runs
   [X]  whatis command - display the description of the package archive files
   [X]  exception handling when test remote package does not exist
@@ -46,11 +47,10 @@ High Priority
   [X] remove the tar.gz or .zip file following the build with a project archive file
   [X] remove project.yaml and pkey.yaml files with clean command
   [X] add project subcommand to `make` command (add project files/directories)
-  [-] (will not add, avoid overwrite of local key.yaml) pull command: change 'pkey.yaml' to 'key.yaml' following pull
 
 Medium Priority
   -- analyze: analyze a template, key file, or .tar.gz package archive
-  -- view: view a key or template file in the console
+  -- summary: view a summary of key or template file in the terminal
   
 Low Priority
   -- add bzip2 / lzma compression options to pack command?
