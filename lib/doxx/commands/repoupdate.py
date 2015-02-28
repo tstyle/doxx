@@ -10,8 +10,8 @@ from Naked.toolshed.network import HTTP
 def run_repoupdate():
     cache = DoxxCache()
     
-    # confirm that user is not attempting updates too rapidly (20 sec lockout)
-    lockout_time = 20
+    # confirm that user is not attempting updates too rapidly (10 sec lockout)
+    lockout_time = 10
     # test list.txt file
     if cache.cached_file_exists(cache.package_repo_list_file):
         if not cache.does_cache_file_require_update(cache.package_repo_list_file, lockout_time):
