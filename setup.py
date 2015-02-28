@@ -31,10 +31,10 @@ setup(
     version=version_read(),
     description='Simple, flexible text file templating system',
     long_description=(docs_read('README.rst')),
-    url='https://github.com/chrissimpkins/doxx',
+    url='http://doxx.org',
     license='MIT license',
     author='Christopher Simpkins',
-    author_email='',
+    author_email='git.simpkins@gmail.com',
     platforms=['any'],
     entry_points = {
         'console_scripts': [
@@ -44,11 +44,11 @@ setup(
     packages=find_packages("lib"),
     package_dir={'': 'lib'},
     install_requires=['Naked'],
-    keywords='text,template,templates,templating,key,documents,text files',
+    keywords='build,compile,text,template,templates,templating,project,tar.gz,zip,key,documents,text files',
     include_package_data=True,
     classifiers=[
         'Intended Audience :: End Users/Desktop',
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
         'Natural Language :: English',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
