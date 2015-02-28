@@ -57,7 +57,7 @@ class FuzzySearcher(object):
             first = 0
             last = self.needle_word_count
             best_ratio = 0
-            for x in xrange(haystack_word_count - (self.needle_word_count - 1)):
+            for x in range(haystack_word_count - (self.needle_word_count - 1)):
                 if last <= haystack_word_count:
                     sub_haystack_list = haystack_token_list[first:last]
                     sorted_sub_haystack_list = sorted(sub_haystack_list)

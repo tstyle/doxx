@@ -12,7 +12,7 @@ json_obj = json.loads(the_json)
 
 repo_list = []
 
-for x in xrange(len(json_obj)):
+for x in range(len(json_obj)):
     repository_name = json_obj[x]['name']
     if repository_name == "bin":
         pass

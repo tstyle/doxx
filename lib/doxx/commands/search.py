@@ -157,7 +157,7 @@ def _get_master_list(master_text):
 
 def _get_maxheap_results_list(maxheap_object):
     results_list = []
-    for x in xrange(len(maxheap_object)):
+    for x in range(len(maxheap_object)):
         results_list.append(heapq.heappop(maxheap_object)[-1])  # pop each result off the heap and append to the list
     
     return results_list
