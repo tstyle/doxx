@@ -12,8 +12,7 @@ from Naked.toolshed.system import stdout, stderr, file_exists, dir_exists
 key_stub = """
 ---
 
-# enter a template path (template), multiple template paths (templates), OR a project archive
-# path (projects) relative to this key file, then remove or comment out the other fields with # character:
+# Key file documentation: http://doxx.org/usage/keys/
 
 template: ***.doxt
 templates: [***.doxt, 'http://***/***.doxt']
@@ -21,10 +20,8 @@ project: ***.tar.gz
 
 ---
 
-# Enter the key to your template in YAML syntax below:
+# Enter the key for the template replacement strings below (YAML syntax):
 """
-
-#### END KEY STUB
 
 
 ###################
@@ -34,8 +31,7 @@ project: ***.tar.gz
 project_yaml_stub = """
 ---
 
-# enter a template path (template) or multiple template paths (templates)
-# then remove or comment out the other field with # character:
+# Project archive documentation: http://doxx.org/usage/archives/
 
 template: ***.doxt
 templates: [***.doxt, 'http://***/***.doxt']
@@ -50,7 +46,9 @@ templates: [***.doxt, 'http://***/***.doxt']
 template_stub = """
 ---doxx---
 
-# (REQUIRED) enter the file extension for files generated from this template or leave blank for no extension
+# Template file documentation: http://doxx.org/usage/templates/
+
+# (REQUIRED) enter the file extension for file rendered from this template, leave blank for no extension
 #  the use of a '.' in the extension definition is optional (e.g. you can use '.txt' or 'txt')
 extension:
 
@@ -58,11 +56,11 @@ extension:
 #  default: absent or undefined = use the template base file name for the generated file
 basename:
 
-# (OPTIONAL) enter a directory path relative to this file for files generated from this template:
-#  default : absent or undefined = write to current working directory where your build command was executed
+# (OPTIONAL) enter a sub-directory path relative to the KEY FILE for the template file build
+#  default : absent or undefined = write to root directory where the user's key file is located
 destination-directory:
 
-# (OPTIONAL): change to 'true' for templates that contain text that should write to disk verbatim (i.e. no replacements)
+# (OPTIONAL): change to 'true' for verbatim template writes (i.e. no text replacements)
 #  default: false or absent = attempt text replacements in this template file
 verbatim: false
 
