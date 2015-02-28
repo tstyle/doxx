@@ -24,16 +24,17 @@ BUGS:
 NEW:
 
 High Priority
-  
-  --  add try/except blocks to project package runs
+
   --  test on Windows
   --  test on Linux
   --  test pullkey
   --  test whatis
+  --  test search
   --  update in-application help string
   --  update usage string
   --  change setup.py setting to beta release
   
+  [X]  add try/except blocks to project package runs
   [X]  whatis command - display the description of the package archive files
   [X]  exception handling when test remote package does not exist
   [X] change pkey.yaml to key.yaml following pulls if key.yaml does not exist
@@ -57,5 +58,3 @@ Low Priority
 
 DOCS:
 
-
- 
