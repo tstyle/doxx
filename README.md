@@ -6,6 +6,6 @@
 
 ## What is doxx?
 
-doxx is a generic project build and distribution system that is used to generate projects with any combination of text file types, binary file types, and directory structure. It supports simple YAML formatted build specs and text file customization at build time with user-defined text string replacements. The goal is to provide a simple framework on which to build, distribute, and consume any text file containing project.
+doxx is a generic project build and distribution system that is used to generate projects with any combination of text file types, binary file types, and directory structure. It supports simple YAML formatted build specs and text file customization at build time with user-defined text string replacements in templates that can be stored locally or hosted remotely. The goal is to provide a simple, broadly available framework on which to build, distribute, and consume any text file containing project.
 
-The [doxx Package Repository](https://github.com/doxx-repo) hosts a growing list of resusable, common project types. These are built with a simple set of commands that are included in the doxx command line application. User collaboration on existing projects, and the development and contribution of brand new projects, are welcomed and encouraged.
+The [doxx Package Repository](https://github.com/doxx-repo) hosts a growing list of resusable, common project types. These are built with a simple set of commands that are included in the doxx command line application.
