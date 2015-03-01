@@ -15,7 +15,7 @@ The [doxx Package Repository](https://github.com/doxx-repo) hosts a growing list
 ### User Quickstart Guide
 
 
-The [User Quickstart Guide](http://doxx.org/quickstart/user/) is for anyone who would like to learn how to build projects from the third party developers or from the doxx Package Repository.
+The [User Quickstart Guide](http://doxx.org/quickstart/user/) is for anyone who would like to learn how to build projects from third party developers or from the doxx Package Repository.
 
 
 ### Developer Quickstart Guide
