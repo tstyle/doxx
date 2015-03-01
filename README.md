@@ -1,4 +1,4 @@
-<a href="http://doxx.org"><img src="https://raw.githubusercontent.com/chrissimpkins/doxx-docs-server/master/img/target-72.png" alt="doxx icon"><img src="https://raw.githubusercontent.com/chrissimpkins/doxx-docs-server/master/img/doxx-header.png" alt="doxx"></a>
+<a href="http://doxx.org"><img src="https://raw.githubusercontent.com/chrissimpkins/doxx-docs-server/master/img/target-72.png" alt="doxx icon">  <img src="https://raw.githubusercontent.com/chrissimpkins/doxx-docs-server/master/img/doxx-header.png" alt="doxx"></a>
 
 ## Documentation
 
