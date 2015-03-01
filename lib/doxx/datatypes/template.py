@@ -4,7 +4,7 @@
 from os.path import basename, splitext, normpath
 from Naked.toolshed.file import FileReader
 from Naked.toolshed.network import HTTP
-from Naked.toolshed.system import make_path, stderr
+from Naked.toolshed.system import make_path
 
 from yaml import load
 try:
@@ -45,13 +45,13 @@ class DoxxTemplate(object):
         meta_keys = self.meta_data.keys()
 
         # if user did not enter an extension type, 
-        if not 'extension' in meta_keys or self.meta_data['extension'] == None:
+        if 'extension' not in meta_keys or self.meta_data['extension'] == None:
             self.extension = ""  # default to no extension if user did not enter the meta data field, or the meta data field has no definition
         else:
             self.extension = self.meta_data['extension']  # define the instance extension attribute with the value from the template meta data
         
         # define rendered file destination directory relative to current working directory
-        if not 'destination_directory' in meta_keys or self.meta_data['destination_directory'] == None:
+        if 'destination_directory' not in meta_keys or self.meta_data['destination_directory'] == None:
             dest_dir = u""
         else:
             # replace user entered path with OS specific separators and re-define the destination directory attribute
@@ -66,7 +66,7 @@ class DoxxTemplate(object):
                 self.extension = "." + self.extension  # add a period if the user did not include it
 
         # define rendered file base file name (different approach for local vs. remote paths)
-        if not 'basename' in meta_keys or self.meta_data['basename'] == None:
+        if 'basename' not in meta_keys or self.meta_data['basename'] == None:
             # if it is a URL, split by '/' and obtain file path from the URL
             if len(self.inpath) > 6 and (self.inpath[0:7] == "http://" or self.inpath[0:8] == "https://"):
                 url_path = self.inpath.split("/")
@@ -95,11 +95,11 @@ class DoxxTemplate(object):
     def parse_template_for_errors(self):
         """evaluates template file for presence of meta data header and template text.  Returns a two-tuple. tuple[0] = True if error identified, False if error not identified.  tuple[1] = error message string"""
         # confirm meta data contains data
-        if self.meta_data == None or len(self.meta_data) == 0:
-            error_message =  u"[!] doxx: The template file '" + self.inpath + "' is not properly formatted.  Please include the required meta data block between '---doxx---' delimiters at the top of your file."
+        if self.meta_data is None or len(self.meta_data) == 0:
+            error_message = u"[!] doxx: The template file '" + self.inpath + "' is not properly formatted.  Please include the required meta data block between '---doxx---' delimiters at the top of your file."
             return (True, error_message)
         # confirm that there is template text
-        elif self.text == None or len(self.text) < 5:  # if self.text not defined or length of the string < 5 chars (because {{x}} == 5 so must not include any replacement tags)
+        elif self.text is None or len(self.text) < 5:  # if self.text not defined or length of the string < 5 chars (because {{x}} == 5 so must not include any replacement tags)
             error_message = u"[!] doxx: Unable to parse template text from the template file '" + self.inpath + "'. Please include a template in order to render this file."
             return (True, error_message)
         else:

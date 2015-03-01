@@ -7,6 +7,7 @@ import platform
 
 from Naked.toolshed.file import FileReader, FileWriter
 
+
 class DoxxCache(object):
     def __init__(self):
         self.system = platform.system()
@@ -22,7 +23,7 @@ class DoxxCache(object):
         cache_dir_path = self._get_platform_specific_cache_dirpath()    # get the platform specific path to the cache directory
         
         # confirm that the local variable was assigned based upon user system type
-        if not cache_dir_path == None:
+        if cache_dir_path is not None:
             if not os.path.isdir(cache_dir_path):
                 os.mkdir(cache_dir_path)
             cache_file_path = os.path.join(cache_dir_path, file_name)    # create the path to the file in the cache directory
@@ -33,13 +34,11 @@ class DoxxCache(object):
         else:
             return False  # return False if unable to detect user system
 
-    
     def cache_packagerepo_list(self, file_text):
         if self.cache_textfile(self.package_repo_list_file, file_text):
             return True
         else:
             return False
-        
         
     def cache_packagerepo_json(self, json_string):
         if self.cache_textfile(self.package_repo_json_file, json_string):
@@ -66,7 +65,6 @@ class DoxxCache(object):
         cache_file_dir = self._get_platform_specific_cache_dirpath()
         cache_file_path = os.path.join(cache_file_dir, self.package_repo_json_file)
         return self._read_text_file(cache_file_path)        
-    
     
     #################################
     #
@@ -119,14 +117,14 @@ class DoxxCache(object):
             fw = FileWriter(file_path)
             fw.write(file_text)
             return True
-        except Exception as e:
+        except Exception:
             return False
         
     def _read_text_file(self, file_path):
         try:
             fr = FileReader(file_path)
             return fr.read()  # return the file text
-        except Exception as e:
+        except Exception:
             return ""  # return empty string if there is an exception during the read
         
     def _get_platform_specific_cache_dirpath(self):

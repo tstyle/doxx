@@ -109,7 +109,7 @@ class Maker(object):
                 os.mkdir('templates')
                 
             # template.doxt file in templates directory
-            template_stub_path =  os.path.join('templates', 'stub.doxt')
+            template_stub_path = os.path.join('templates', 'stub.doxt')
             fw_template = FileWriter(template_stub_path)
             fw_template.write(template_stub)
             
@@ -128,13 +128,7 @@ class Maker(object):
                 stdout("[+] doxx: '" + template_stub_path + "' ... check")
             else:
                 stderr("[!] doxx: There was an error writing the '" + template_stub_path + "' template file to your project directory")
-                
-            
         except Exception as e:
             stderr("[!] doxx: Unable to write project files to disk.  Error: " + str(e), exit=1)
             
-            
-    
-
-    
-    
+        

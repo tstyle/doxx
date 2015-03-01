@@ -15,7 +15,6 @@ def main():
     from Naked.toolshed.system import stdout, stderr, is_dir, is_file, cwd
     from doxx.commands.build import Builder
     from doxx.commands.make import Maker
-    from doxx.datatypes.key import DoxxKey 
 
     #------------------------------------------------------------------------------------------
     # [ Instantiate command line object ]
@@ -43,7 +42,7 @@ def main():
         from doxx.settings import usage as doxx_usage
         print(doxx_usage)
         sys.exit(0)
-    elif c.version(): # User requested doxx version information
+    elif c.version():   # User requested doxx version information
         from doxx.settings import app_name, major_version, minor_version, patch_version
         version_display_string = app_name + ' ' + major_version + '.' + minor_version + '.' + patch_version
         print(version_display_string)

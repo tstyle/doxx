@@ -7,6 +7,7 @@ import tarfile
 import zipfile
 from Naked.toolshed.system import stderr
 
+
 def tar_gzip_package_directory(archive_name, root_dir):
     try:
         current_dir = os.getcwd()  

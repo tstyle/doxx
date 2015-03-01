@@ -3,9 +3,9 @@
 
 from doxx.datatypes.cache import DoxxCache
 from doxx.datatypes.package import OfficialPackage
-from Naked.toolshed.file import FileWriter
-from Naked.toolshed.system import file_exists, stdout, stderr
+from Naked.toolshed.system import stdout, stderr
 from Naked.toolshed.network import HTTP
+
 
 def run_repoupdate():
     cache = DoxxCache()
@@ -45,7 +45,8 @@ def run_repoupdate():
         stderr("[!] doxx: Unable to update the " + cache.package_repo_json_file + " file.", exit=1)
     
     stdout("[*] doxx: repoupdate complete")
-    
+
+
 def _pull_official_repository_list():
     package = OfficialPackage()
     master_package_list_url = package.get_master_package_list_url()
@@ -58,7 +59,8 @@ def _pull_official_repository_list():
             stderr("[!] Unable to pull the remote repository list (HTTP status code: " + str(http.res.status_code) + ")", exit=1)
     except Exception as e:
         stderr("[!] doxx: Unable to pull the remote repository list. Error: " + str(e), exit=1)
-        
+
+
 def _pull_official_repository_json():
     package = OfficialPackage()
     master_package_json_url = package.get_master_package_description_json_url()

@@ -6,13 +6,14 @@ import unicodedata
 from Naked.toolshed.file import FileReader
 from Naked.toolshed.system import directory, make_path
 from Naked.toolshed.system import file_exists, stderr
-from Naked.toolshed.python import is_py2, is_py3
+from Naked.toolshed.python import is_py2
 from yaml import load_all
 try:
     from yaml import CLoader as Loader
 except ImportError:
     from yaml import Loader
-    
+
+
 class DoxxKey(object):
     def __init__(self, inpath):
         # instance variables
@@ -50,7 +51,7 @@ class DoxxKey(object):
         
                 i += 1  # used to iterate through the_data
             # define the no replacements attribute as True if there is no key data
-            if self.key_data == None:
+            if self.key_data is None:
                 self.no_replacements = True
         else:
             stderr("[!] doxx: Unable to load the requested key " + inpath + ". Please check the path and try again.", exit=1)
@@ -58,7 +59,7 @@ class DoxxKey(object):
                     
     def _cast_values_to_unicode(self):
         unicode_key_data_dict = {}  # new dictionary that will contain the UTF-8 encoded unicode keys and values from self.key_data
-        if self.key_data == None or len(self.key_data) == 0:
+        if self.key_data is None or len(self.key_data) == 0:
             key_list = []
         else:
             key_list = self.key_data.keys()
@@ -89,12 +90,12 @@ class DoxxKey(object):
     
     def _generate_dir_path(self, inpath):
         """joins the directory path from the current working directory to the template file paths specified in the doxx key meta data (private method)"""
-        if self.meta_data == None:
+        if self.meta_data is None:
             meta_keys = []
         else:
             meta_keys = self.meta_data.keys()
         
-        if 'template' in meta_keys and not self.meta_data['template'] == None:     # single template file request
+        if 'template' in meta_keys and self.meta_data['template'] is not None:     # single template file request
             pre_file_path = self.meta_data['template']
             if len(pre_file_path) > 6 and (pre_file_path[0:7] == "http://" or pre_file_path[0:8] == "https://"):  # not necessary to build new path if it is a URL
                 pass
@@ -142,9 +143,8 @@ class DoxxKey(object):
     def _parse_yaml_for_errors(self):
         # confirm that there are key data
         # confirm that the meta data are complete
-        test_key_data = self.key_data
         test_meta_data = self.meta_data
-        if test_meta_data == None:
+        if test_meta_data is None:
             test_metadata_keys = []
         else:
             test_metadata_keys = self.meta_data.keys()
@@ -154,9 +154,9 @@ class DoxxKey(object):
             stderr("[!] doxx: The metadata header is missing from your key file.  Please include your template or project file path(s).", exit=1)
         
         # meta data does not contain a template, templates, or projects field test
-        if not 'template' in test_metadata_keys:
-            if not 'templates' in test_metadata_keys:
-                if not 'project' in test_metadata_keys:
+        if 'template' not in test_metadata_keys:
+            if 'templates' not in test_metadata_keys:
+                if 'project' not in test_metadata_keys:
                     stderr("[!] doxx: There are no template or project files specified in your key. Please complete the meta data section of your key file.", exit=1)
             
         # TOO MANY FIELDS

@@ -6,7 +6,6 @@ from Naked.toolshed.network import HTTP
 from Naked.toolshed.system import stdout, stderr
 from doxx.datatypes.package import OfficialPackage
 
-## TODO: change pulled key to include the remote repository path rather than local paths
 
 def run_pullkey(package_name):
     normalized_package_name = package_name.lower().strip()
@@ -16,7 +15,7 @@ def run_pullkey(package_name):
         stdout("[*] doxx: Pulling remote key file...")
         http = HTTP(key_file_url)
         if http.get_status_ok():
-            key_file_text =  http.res.text
+            key_file_text = http.res.text
             fr = FileWriter('key.yaml')
             try:
                 fr.write(key_file_text)
@@ -29,3 +28,4 @@ def run_pullkey(package_name):
             stderr("[!] doxx: Unable to pull the key file.  (HTTP status code: " + str(http.res.status_code) + ")", exit=1)
     except Exception as e:
         stderr("[!] doxx: Unable to pull the key file. Error: " + str(e), exit=1)
+        

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import heapq
 import difflib
+
 
 class FuzzySearcher(object):
     def __init__(self, needle):
@@ -43,7 +43,7 @@ class FuzzySearcher(object):
         haystack_tokens = normalized_haystack.split("-")
         best_ratio = 0
         for token in haystack_tokens:
-            the_ratio =  difflib.SequenceMatcher(None, self.needle_normalized, token).ratio()
+            the_ratio = difflib.SequenceMatcher(None, self.needle_normalized, token).ratio()
             if the_ratio > best_ratio:
                 best_ratio = the_ratio
         return best_ratio
@@ -96,19 +96,15 @@ class FuzzySearcher(object):
             else:
                 string_three = string_one  # if there were no tokens in the difference, it is just the intersection
             
-            token_match_ratio_one =  difflib.SequenceMatcher(None, string_one, string_two).ratio()
-            token_match_ratio_two =  difflib.SequenceMatcher(None, string_one, string_three).ratio()
-            token_match_ratio_three =  difflib.SequenceMatcher(None, string_two, string_three).ratio()
+            token_match_ratio_one = difflib.SequenceMatcher(None, string_one, string_two).ratio()
+            token_match_ratio_two = difflib.SequenceMatcher(None, string_one, string_three).ratio()
+            token_match_ratio_three = difflib.SequenceMatcher(None, string_two, string_three).ratio()
             
             # return an evenly weighted average of the match ratios
             weighted_average_ratio = (0.333 * token_match_ratio_one) + (0.333 * token_match_ratio_two) + (0.333 * token_match_ratio_three)
             return weighted_average_ratio
         else:
             return 0  # if there is no intersection tokens between the needle and haystack tokens, return 0
-        
-        
-        
-    
     
     # Utilities
     

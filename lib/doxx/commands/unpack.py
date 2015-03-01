@@ -6,6 +6,7 @@ import zipfile
 from os import remove
 from Naked.toolshed.system import stderr, file_exists
 
+
 def unpack_run(file_path):
     if tarfile.is_tarfile(file_path):
         return unpack_targz_archive_file(file_path)  # returns the root directory from the unpack function below
@@ -13,6 +14,7 @@ def unpack_run(file_path):
         return unpack_zip_archive_file(file_path)    # returns the root directory from the unpack function below
     else:
         stderr("[!] doxx: '" + file_path + "' does not appear to be a supported project archive type.  Please review the project archive documentation and try again.", exit=1)
+
 
 def unpack_targz_archive_file(targz_file_path):
     try:
@@ -33,7 +35,8 @@ def unpack_targz_archive_file(targz_file_path):
         return root_dir
     except Exception as e:
         stderr("[!] doxx: Unable to unpack the file '" + targz_file_path + "'. Error: " + str(e))
-        
+
+  
 def unpack_zip_archive_file(zip_file_path):
     try:
         zip_archive = zipfile.ZipFile(zip_file_path, 'r')
@@ -57,6 +60,7 @@ def unpack_zip_archive_file(zip_file_path):
         return root_dir
     except Exception as e:
         stderr("[!] doxx: Unable to unpack the file '" + zip_file_path + "'. Error: " + str(e))
+
         
 def remove_compressed_archive_file(targz_file_path):
     if file_exists(targz_file_path):

@@ -5,7 +5,7 @@ import gzip
 from os import remove, rename
 from Naked.toolshed.network import HTTP
 from Naked.toolshed.file import FileWriter
-from Naked.toolshed.system import stderr, stdout, stdout_xnl, file_exists
+from Naked.toolshed.system import stderr, stdout, file_exists
 from Naked.toolshed.python import is_py3
 from doxx.commands.unpack import unpack_run
 
@@ -110,21 +110,24 @@ def is_url(url):
         return True
     else:
         return False
-    
+
+
 def is_tar_gz_archive(file_name):
     """test for tar.gz file archive"""
     if file_name.lower().endswith('.tar.gz') or file_name.lower().endswith('.tar.gzip'):
         return True
     else:
         return False
-    
+
+
 def is_zip_archive(file_name):
     """test for zip file archive extension"""
     if file_name.lower().endswith('.zip'):
         return True
     else:
         return False
-    
+
+
 # must be tested AFTER tests for tar.gz archive because both will test true
 def is_gzip_file(file_name):
     """test for gzip compressed file extension"""
@@ -132,11 +135,13 @@ def is_gzip_file(file_name):
         return True
     else:
         return False
-    
+
+
 def get_file_name(url):
     """returns the filename from a URL"""
     split_url = url.split('/')
     return split_url[-1]
+
 
 def pull_binary_file(url, binary_file_name):
     """pulls a remote binary file and writes to disk"""
@@ -159,7 +164,8 @@ def pull_binary_file(url, binary_file_name):
                 stderr("[!] doxx: Unable to pull '" + url + "'. (HTTP status code: " + str(fail_status_code) + ")", exit=1)
     except Exception as e:
         stderr("[!] doxx: Unable to pull '" + url + "'. Error: " + str(e), exit=1)
-    
+
+
 def pull_text_file(url, text_file_name):
     """pulls a remote text file and writes to disk"""
     # pull the binary file data
@@ -178,12 +184,14 @@ def pull_text_file(url, text_file_name):
             stderr("[!] doxx: Unable to pull '" + url + "' (HTTP status code " + str(fail_status_code) + ")", exit=1)
     except Exception as e:
         stderr("[!] doxx: Unable to pull '" + url + "'. Error: " + str(e), exit=1)
-    
+
+
 def unpack_archive(archive_file_name):
     """unpacks a tar.gz or zip file archive and writes to local disk"""
     root_dir = unpack_run(archive_file_name)  # root directory of unpacked archive returned from the unpack function if, returned from this function if calling code needs it
     return root_dir
-    
+
+
 def decompress_gzip(gz_filename):
     """decompress gzip compressed file"""
     # decompress the gzip'd file
@@ -207,10 +215,10 @@ def decompress_gzip(gz_filename):
     # write the file locally
     fw = FileWriter(basename)
     fw.write(file_content)
-    
+
+
 def remove_file(file_name):
     """removes archive file that was pulled from a remote source"""
     if file_exists(file_name):
         remove(file_name)
-    
-    
+        

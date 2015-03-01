@@ -5,10 +5,12 @@ from os import remove
 from shutil import rmtree
 from Naked.toolshed.system import list_filter_files, list_filter_files_cwd, list_all_files, dir_exists, file_exists, make_path, stderr, stdout
 
+
 def run_clean():
     _remove_key()
     _remove_doxt()
     stdout("[*] doxx: Clean complete.")
+
 
 def _remove_key():
     # remove key.yaml
@@ -34,7 +36,8 @@ def _remove_key():
             stdout("[-] doxx: -- project.yaml ... removed")
         except Exception as e:
             stderr("[!] doxx: Unable to remove 'project.yaml'. Error: " + str(e), exit=0)     
-        
+
+     
 def _remove_doxt():
     # check main directory
     cwd_doxt_list = list_filter_files_cwd(".doxt")
@@ -73,3 +76,5 @@ def _remove_doxt():
                 stdout("[-] doxx: -- templates (directory) ... removed")
             except Exception as e:
                 stderr("[!] doxx: Unable to remove the 'templates' directory.  Error: " + str(e), exit=1)
+                
+                

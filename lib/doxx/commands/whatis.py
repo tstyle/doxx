@@ -8,6 +8,7 @@ from doxx.datatypes.package import OfficialPackage
 from Naked.toolshed.network import HTTP
 from Naked.toolshed.system import stdout, stderr
 
+
 def run_whatis(package_name):
     cache = DoxxCache()
     max_cache_seconds = 86400  # 24 hour file cache
@@ -47,3 +48,4 @@ def _pull_official_repository_descriptions():
             stderr("[!] doxx: Unable to pull remote repository descriptions (HTTP status code: " + str(http.res.status_code) + ")", exit=1)
     except Exception as e:
         stderr("[!] doxx: Unable to pull remote repository descriptions Error: " + str(e) + ")", exit=1)
+        

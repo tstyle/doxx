@@ -11,7 +11,7 @@ from Naked.toolshed.python import is_py2
 
 from doxx.datatypes.template import DoxxTemplate, RemoteDoxxTemplate
 from doxx.datatypes.key import DoxxKey
-from doxx.commands.pull import run_pull, is_url, is_gzip_file, is_zip_archive, get_file_name
+from doxx.commands.pull import run_pull, is_url
 from doxx.commands.unpack import unpack_run
 
 # need a different template for Python 2 & 3
@@ -22,11 +22,11 @@ else:
     from doxx.renderer.inkpy3 import Template as InkTemplate
     from doxx.renderer.inkpy3 import Renderer as InkRenderer
 
+
 def multi_process_build(key, key_path):
     processes = []       # list of spawned processes
     iolock = Lock()      # file read / write lock
     outputlock = Lock()  # stdout / stderr writes lock
-    
     
     # ## SINGLE PROCESS
     # for template in key.meta_data['templates']:
@@ -52,6 +52,7 @@ def multi_process_build(key, key_path):
     # else:
         # print("no active children detected")
 
+
 def single_process_runner(template_path, key, key_path, iolock, outputlock):
     b = Builder(key_path)
     b.set_key_data(key)
@@ -71,9 +72,9 @@ class Builder(object):
         self.set_key_data(doxxkey)  # assign key data from the doxx Key
         
         try:
-            if doxxkey.project_key == True:  # the key is set to run on a local or remote project archive
+            if doxxkey.project_key is True:  # the key is set to run on a local or remote project archive
                 self.project_archive_run(doxxkey)
-            elif doxxkey.multi_template_key == True:  # the key is set to run on multiple local or remote template files
+            elif doxxkey.multi_template_key is True:  # the key is set to run on multiple local or remote template files
                 multi_process_build(doxxkey, self.key_path)
             else:
                 self.single_template_run(doxxkey.meta_data['template']) # the key is set to run on a single local or remote template file
@@ -132,7 +133,7 @@ class Builder(object):
             stderr("[!] doxx: An error occurred while parsing your template file. Error message: " + str(e), exit=1)
     
         # determine whether this is a verbatim template file (no replacements) or the key file did not include replacement keys
-        if template.verbatim == True or self.no_key_replacements == True:
+        if template.verbatim is True or self.no_key_replacements is True:
             # write template.text out verbatim
             try:
             # if the requested destination directory path does not exist, make it
@@ -236,7 +237,7 @@ class Builder(object):
             sys.exit(1)  # release the lock before raising SystemExit
         
         # determine whether this is a verbatim template file (no replacements) or the key file did not include replacement keys
-        if template.verbatim == True or self.no_key_replacements == True:
+        if template.verbatim is True or self.no_key_replacements is True:
             # write template.text out verbatim
             try:
                 # if the requested destination directory path does not exist, make it
@@ -321,8 +322,6 @@ class Builder(object):
             project_path = key.meta_data['project']
             # Remote .tar.gz or .zip project archives
             if is_url(project_path):
-                # define the archive file name from the URL
-                project_archive_file_name = get_file_name(project_path)
                 # pull the remote project and unpack it, define the root directory with the returned value from the function
                 root_dir = run_pull(project_path)
                 
@@ -361,7 +360,7 @@ class Builder(object):
         # unpack the archive and get the root directory from the archive
         root_directory = unpack_run(project_path)
         
-        if root_directory == None or root_directory == "":
+        if root_directory is None or root_directory == "":
             key_path = None
             try:
                 for root, dirs, files in os.path.walk(cwd()):
@@ -371,7 +370,7 @@ class Builder(object):
             except Exception as e:
                 stderr("[!] doxx: Unable to locate the 'project.yaml' project settings file in your unpacked archive. Error: " + str(e), exit=1)
                 
-            if key_path == None:  # can't find key path
+            if key_path is None:  # can't find key path
                 stderr("[!] doxx: Unable to locate the 'project.yaml' project settings file in your unpacked archive.", exit=1)
             else:
                 return key_path  # return key path to the calling method

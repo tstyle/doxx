@@ -9,6 +9,7 @@ from doxx.datatypes.cache import DoxxCache
 from Naked.toolshed.system import stdout, stderr
 from Naked.toolshed.network import HTTP
 
+
 def run_search(search_string):
     # check for local cached list of the repositories, if not present pull the remote repository list from Amazon S3 store
     stdout("[*] doxx: Searching remote doxx repositories...")
@@ -42,7 +43,7 @@ def run_search(search_string):
             best_index += 1  # bump the index number
             
         # perfect match on first token in the repository name
-        if continue_match_attempts == True:
+        if continue_match_attempts is True:
             match_ratio_firsttoken = fuzzy.partial_firstindexitem_dashsplit_ratio(repository)
             if match_ratio_firsttoken > best_ratio:
                 best_ratio = match_ratio_firsttoken
@@ -52,7 +53,7 @@ def run_search(search_string):
                 best_index += 1  # bump index number
                 
         # slice the repository name by same number of characters if length > length of the search string
-        if continue_match_attempts == True:
+        if continue_match_attempts is True:
             match_ratio_startslice = fuzzy.partial_startslice_ratio(repository)
             if match_ratio_startslice > best_ratio:
                 best_ratio = match_ratio_startslice
@@ -62,7 +63,7 @@ def run_search(search_string):
                 best_index += 1
                 
         # (single word search strings ONLY) attempt match for repository tokens split on '-'
-        if continue_match_attempts == True and search_word_count == 1:
+        if continue_match_attempts is True and search_word_count == 1:
             match_ratio_dashtokens = fuzzy.partial_dashsplit_tokens_ratio(repository)
             if match_ratio_dashtokens > best_ratio:
                 best_ratio = match_ratio_dashtokens
@@ -72,7 +73,7 @@ def run_search(search_string):
                 best_index += 1
                 
         # (multi word search strings ONLY) attempt match for sequential groups of repository tokens that are same word count as search string word count
-        if continue_match_attempts == True and search_word_count > 1:
+        if continue_match_attempts is True and search_word_count > 1:
             match_ratio_nword = fuzzy.partial_nword_ratio(repository)
             if match_ratio_nword > best_ratio:
                 best_ratio = match_ratio_nword
@@ -82,25 +83,24 @@ def run_search(search_string):
                 best_index += 1
                 
         # (multi word search strings ONLY) set intersection + remainder matching attempt
-        if continue_match_attempts == True and search_word_count > 1:
+        if continue_match_attempts is True and search_word_count > 1:
             match_ratio_set = fuzzy.partial_set_ratio(repository)
             if match_ratio_set > best_ratio:
-                best_ratio = match_set_ratio
+                best_ratio = match_ratio_set
             if match_ratio_set == 1.0:
                 continue_match_attempts = False
                 heapq.heappush(best_results, (-0.97, best_index, repository))
                 best_index += 1
                 
         # match attempts are complete, determine the quality of match if not previously determined and push to appropriate maxheap to store it
-        if continue_match_attempts == True:
+        if continue_match_attempts is True:
             if best_ratio > 0.8:
                 heapq.heappush(best_results, (-best_ratio, best_index, repository))
                 best_index += 1
             elif best_ratio > 0.6 and best_ratio <= 0.8:
                 heapq.heappush(possible_results, (-best_ratio, possible_index, repository))
                 possible_index += 1
-        
-    
+                
     # report results of the fuzzy search for the user's search term
     final_best_results = _get_maxheap_results_list(best_results)
     final_possible_results = _get_maxheap_results_list(possible_results)
