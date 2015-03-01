@@ -8,6 +8,7 @@ import unittest
 from Naked.toolshed.system import file_exists, dir_exists
 
 from doxx.commands.pull import get_file_name, is_gzip_file, is_url, is_tar_gz_archive, is_zip_archive, run_pull
+from doxx.commands.pullkey import run_pullkey
 
 
 class DoxxPullTests(unittest.TestCase):
@@ -149,4 +150,37 @@ class DoxxPullTests(unittest.TestCase):
             run_pull('https://raw.githubusercontent.com/bit-store/testfiles/master/doxx/pull-tests/completelybogus.html')
     
     
+
+class DoxxPullkeyCommandTests(unittest.TestCase):
     
+    def setUp(self):
+        self.cwd = os.getcwd()
+        self.key_pull_dir = "pull-tests/key"
+        self.pulled_key_file = "key.yaml"
+        
+        if dir_exists(self.key_pull_dir):
+            if file_exists(os.path.join(self.key_pull_dir, self.pulled_key_file)):
+                os.remove(os.path.join(self.key_pull_dir, self.pulled_key_file))  # remove the file from the last test
+        else:
+            os.mkdir(self.key_pull_dir)
+            
+    def test_doxx_pullkey_command_goodpackage(self):
+        try:
+            os.chdir(self.key_pull_dir)
+            run_pullkey('license-mit')
+            self.assertTrue(file_exists(self.pulled_key_file))
+            os.chdir(self.cwd)
+        except Exception as e:
+            os.chdir(self.cwd)
+            raise e
+        
+    def test_doxx_pullkey_command_badpackage(self):
+        try:
+            os.chdir(self.key_pull_dir)
+            with self.assertRaises(SystemExit):
+                run_pullkey('completely-bogus-package')
+            self.assertFalse(file_exists(self.pulled_key_file))
+            os.chdir(self.cwd)
+        except Exception as e:
+            os.chdir(self.cwd)
+            raise e        
