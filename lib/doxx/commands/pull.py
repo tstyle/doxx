@@ -154,7 +154,7 @@ def pull_binary_file(url, binary_file_name):
         else:
             fail_status_code = http.res.status_code
             if fail_status_code == 404:
-                stderr("[!] doxx: That doesn't appear to exist. (HTTP status code: " + str(fail_status_code) + ")", exit=1)
+                stderr("[!] doxx: Unable to pull the file because it does not appear to exist. (HTTP status code: " + str(fail_status_code) + ")", exit=1)
             else:
                 stderr("[!] doxx: Unable to pull '" + url + "'. (HTTP status code: " + str(fail_status_code) + ")", exit=1)
     except Exception as e:

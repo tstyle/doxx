@@ -23,7 +23,9 @@ def run_pullkey(package_name):
             except Exception as e:
                 stderr("[!] doxx: Unable to write the 'key.yaml' file to disk. Error: " + str(e), exit=1)
             stdout("[*] doxx: Key file pull complete")
+        elif http.res.status_code == 404:
+            stderr("[!] doxx: Unable to pull the key file because the requested package could not be found. (HTTP status code: 404)", exit=1)
         else:
-            stderr("[!] doxx: Unable to pull the key file.  (HTTP status code: " + http.res.status_code + ")", exit=1)
+            stderr("[!] doxx: Unable to pull the key file.  (HTTP status code: " + str(http.res.status_code) + ")", exit=1)
     except Exception as e:
         stderr("[!] doxx: Unable to pull the key file. Error: " + str(e), exit=1)
