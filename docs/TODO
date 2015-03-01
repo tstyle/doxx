@@ -27,11 +27,11 @@ High Priority
 
   --  test on Windows
   --  test on Linux
-  --  test pullkey
-  --  test whatis
-  --  test search
   --  update README on GitHub repository
   --  update README.rst in docs directory
+  [X]  test pullkey
+  [X]  test whatis
+  [X]  test search
   [X]  change setup.py setting to beta release
   [X]  update usage string
   [X]  update in-application help string
