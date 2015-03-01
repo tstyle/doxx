@@ -7,3 +7,4 @@ PROJECTS for Official Repository
  -- jekyll project
  -- ruby gem
  -- npm package
+ -- .travis.yml files by language type
