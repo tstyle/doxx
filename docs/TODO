@@ -29,6 +29,7 @@ High Priority
   --  test on Linux
   --  update README on GitHub repository
   --  update README.rst in docs directory
+  --  update documentation with first two paragraphs in GitHub README
   [X]  test pullkey
   [X]  test whatis
   [X]  test search
