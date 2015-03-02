@@ -10,6 +10,8 @@ doxx is a generic text file project build and distribution system. It supports s
 
 For those who prefer the ready-made approach, the [doxx Package Repository](https://github.com/doxx-repo) contains a growing list of resusable, common project types that can be built with a simple set of doxx commands.
 
+A detailed list of features is available in [the documentation](http://doxx.org).
+
 ## Quickstart Guides
 
 ### User Quickstart Guide
@@ -22,6 +24,11 @@ The [User Quickstart Guide](http://doxx.org/quickstart/user/) is for anyone who 
 
 
 The [Developer Quickstart Guide](http://doxx.org/quickstart/dev/) is for anyone who would like to learn how to develop and distribute text file containing projects with doxx.
+
+
+## Usage
+
+The [Usage Documentation](http://doxx.org/usage/syntax/) details the full set of available commands and options.
 
 
 ## License
