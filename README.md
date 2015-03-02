@@ -23,7 +23,7 @@ The [User Quickstart Guide](http://doxx.org/quickstart/user/) is for anyone who 
 ### Developer Quickstart Guide
 
 
-The [Developer Quickstart Guide](http://doxx.org/quickstart/dev/) is for anyone who would like to learn how to develop and distribute text file containing projects with doxx.
+The [Developer Quickstart Guide](http://doxx.org/quickstart/dev/) is for anyone who would like to learn how to develop and distribute reusable, templated text file projects with doxx.
 
 
 ## Usage
