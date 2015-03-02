@@ -28,7 +28,12 @@ The [Developer Quickstart Guide](http://doxx.org/quickstart/dev/) is for anyone 
 
 ## Usage
 
-The [Usage Documentation](http://doxx.org/usage/syntax/) details the full set of available commands and options.
+The [Usage Documentation](http://doxx.org/usage/syntax/) lists the complete set of available commands and options.
+
+
+## Changes
+
+Are found on [the Changelog](http://doxx.org/more/changelog/).
 
 
 ## License
