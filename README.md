@@ -21,7 +21,7 @@ Features include:
 - Multi-processor template file build support
 - Cruft-free approach to project builds. All build files are removed from your system with a single command after a project build.
 
-Additional information about project features is available in [the documentation](http://doxx.org).
+Additional information is available in [the documentation](http://doxx.org).
 
 ## Quickstart Guides
 
