@@ -10,7 +10,18 @@ doxx is a generic text file project build and distribution system. It supports s
 
 For those who prefer the ready-made approach, the [doxx Package Repository](https://github.com/doxx-repo) contains a growing list of resusable, common project types that can be built with a simple set of doxx commands.
 
-A detailed list of features is available in [the documentation](http://doxx.org).
+Features include:
+
+- Simple, legible YAML syntax build specs that do not require scripting/programming know-how
+- Local template file support
+- Remote template file support (from any hosting site that supports GET requests)
+- Full UTF-8 character set support in templates, named text replacement tags in templates, and replacement strings entered by users
+- Generic text project support.  Use it for anything from a Bootstrap framework driven website to a statistical analysis script stub.  If it contains text, it should work.
+- Support for the distribution of binary files with your projects
+- Multi-processor template file build support
+- Cruft-free approach to project builds. All build files are removed from your system with a single command after a project build.
+
+Additional information about project features is available in [the documentation](http://doxx.org).
 
 ## Quickstart Guides
 
