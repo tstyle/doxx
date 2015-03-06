@@ -27,9 +27,8 @@ High Priority
 
   --  test on Windows
   --  test on Linux
-  --  update README on GitHub repository
-  --  update README.rst in docs directory
-  --  update documentation with first two paragraphs in GitHub README
+  [X]  update README on GitHub repository
+  --  update README.rst in docs directory (user README.md text)
   [X]  test pullkey
   [X]  test whatis
   [X]  test search
@@ -50,6 +49,9 @@ High Priority
   [X] add project subcommand to `make` command (add project files/directories)
 
 Medium Priority
+  -- pull from GitHub with shorthand path (user/repo)
+  -- pull from CDNJS with shorthand path (project/version/etc)
+  -- pull from other repositories like BitBucket?
   -- analyze: analyze a template, key file, or .tar.gz package archive
   -- summary: view a summary of key or template file in the terminal
   
