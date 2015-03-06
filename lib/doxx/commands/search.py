@@ -110,7 +110,8 @@ def run_search(search_string):
         for result in final_best_results:
             stdout(result)
     elif len(final_possible_results) > 0:
-        stdout("[*] doxx: There were no good matches for your search. Here are the possible matches:")
+        stdout("[*] doxx: There were no good matches for your search.")
+        stdout("[*] doxx: Do any of these work? :")
         stdout(" ")
         for result in final_possible_results:
             stdout(result)
