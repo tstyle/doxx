@@ -34,7 +34,7 @@ The [User Quickstart Guide](http://doxx.org/quickstart/user/) is for anyone who 
 ### Developer Quickstart Guide
 
 
-The [Developer Quickstart Guide](http://doxx.org/quickstart/dev/) is for anyone who would like to learn how to develop and distribute reusable, templated text file projects with doxx.
+The [Developer Quickstart Guide](http://doxx.org/quickstart/dev/) is for anyone who would like to learn how to develop and distribute reusable, templated projects with doxx.
 
 
 ## Usage
@@ -44,7 +44,12 @@ The [Usage Documentation](http://doxx.org/usage/syntax/) lists the complete set 
 
 ## Changes
 
-Are found on [the Changelog](http://doxx.org/more/changelog/).
+Changes are found on [the Changelog](http://doxx.org/more/changelog/).
+
+
+## Issues
+
+Please [submit a new issue report](https://github.com/chrissimpkins/doxx/issues/new) on the Github repository.
 
 
 ## License
