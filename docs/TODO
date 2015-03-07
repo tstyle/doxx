@@ -28,7 +28,7 @@ High Priority
   --  test on Windows
   --  test on Linux
   [X]  update README on GitHub repository
-  --  update README.rst in docs directory (user README.md text)
+  [X]  update README.rst in docs directory (user README.md text)
   [X]  test pullkey
   [X]  test whatis
   [X]  test search
@@ -49,6 +49,7 @@ High Priority
   [X] add project subcommand to `make` command (add project files/directories)
 
 Medium Priority
+  -- improve: simple access to repository to improve the templates/keys
   -- pull from GitHub with shorthand path (user/repo)
   -- pull from CDNJS with shorthand path (project/version/etc)
   -- pull from other repositories like BitBucket?
