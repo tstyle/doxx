@@ -117,7 +117,7 @@ def run_search(search_string):
             stdout(result)
         pass  # handle with possible results
     else:
-        stdout("[*] doxx: No matches found in the Package Repository.")
+        stdout("[*] doxx: No matches found in the Package Repository.")  ##TODO: add prompt to develop a new package
         
     
 def _get_master_text():
