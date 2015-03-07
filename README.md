@@ -19,7 +19,6 @@ Features include:
 - Generic text project support.  Use it for anything from a Bootstrap framework driven website to a statistical analysis script stub.  If it contains text, it should work.
 - Support for the distribution of binary files with your projects
 - Multi-processor template file build support
-- Cruft-free approach to project builds. All build files are removed from your system with a single command after a project build.
 
 Additional information is available in [the documentation](http://doxx.org).
 
