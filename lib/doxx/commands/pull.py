@@ -72,9 +72,66 @@ def run_pull(url):
             except Exception as e:
                 stderr("[!] doxx: Unable to pull the requested file. Error: " + str(e), exit=1)
     else:
-        # if it is a URL formatted string, it's an error : provide user with message
+        # SHORT CODES for Github repository, CDNJS, etc
         if "/" in url:
-            stderr("[!] doxx: Your URL is not properly formatted.  Please include the 'http://' or 'https://' protocol at the beginning of the requested URL.", exit=1)
+            short_code = url
+            short_code_parts = short_code.split('/')
+            
+            if short_code.startswith('cdnjs:'):
+                pass  # add code for cdnjs pulls
+            else:
+                # default to Github repositories
+                if len(short_code_parts) == 2:
+                    if "#" in short_code_parts[1]:
+                        # contains a request for a specific branch of the Github repository
+                        user = short_code_parts[0]
+                        if "#" in user:
+                            stderr("[!] doxx: the short code for Github repositories is not properly formed")
+                            stderr("[!] doxx: the syntax is [user]/[repository]#[branch]", exit=1)
+                        repo_parts = short_code_parts[1].split('#')
+                        repo = repo_parts[0]
+                        branch = repo_parts[1]
+                        targz_filename = repo + "-" + branch + ".tar.gz"
+                        url = "https://github.com/{{user}}/{{repository}}/archive/{{branch}}.tar.gz"
+                        url = url.replace("{{user}}", user)
+                        url = url.replace("{{repository}}", repo)
+                        url = url.replace("{{branch}}", branch)
+                        user_message = "[*] doxx: Pulling branch '" + branch + "' of Github repository '" + user + "/" + repo + "'..."
+                    else:
+                        # default to the master Github repository branch
+                        user = short_code_parts[0]
+                        if "#" in user:
+                            stderr("[!] doxx: the short code for Github repositories is not properly formed")
+                            stderr("[!] doxx: the syntax is [user]/[repository]#[branch]", exit=1)                        
+                        repo = short_code_parts[1]
+                        targz_filename = repo + "-master.tar.gz"
+                        url = "https://github.com/{{user}}/{{repository}}/archive/master.tar.gz"
+                        url = url.replace("{{user}}", user)
+                        url = url.replace("{{repository}}", repo)
+                        user_message = "[*] doxx: Pulling master branch of Github repository '" + user + "/" + repo + "'..."
+                     
+                    # notify user of the pull   
+                    stdout(user_message)
+                        
+                    try:
+                        pull_binary_file(url, targz_filename)  # pull the archive file
+                    except Exception as e:
+                        stderr("[!] doxx: Unable to pull the Github repository.  Error: " + str(e), exit=1)
+                        
+                    if file_exists(targz_filename):
+                        try:
+                            unpack_archive(targz_filename)  # unpack the archive locally
+                            remove(targz_filename)          # remove the archive file
+                        except Exception as e:
+                            stderr("[!] doxx: Unable to unpack the pulled Github repository. Error: " + str(e), exit=1)
+                    else:
+                        stderr("[!] doxx: The Github repository pull did not complete successfully.  Please try again.")
+                else:
+                    stderr("[!] doxx: short code syntax for Github repository pulls:", exit=0)
+                    stderr("  $ doxx pull [user]/[repository]")
+                    stderr("with an optional branch")
+                    stderr("  $ [user]/[repository]#[branch]")
+            
         # PROJECT PACKAGES - official repository package pulls
         else:  
             from doxx.datatypes.package import OfficialPackage
@@ -188,7 +245,7 @@ def pull_text_file(url, text_file_name):
 
 def unpack_archive(archive_file_name):
     """unpacks a tar.gz or zip file archive and writes to local disk"""
-    root_dir = unpack_run(archive_file_name)  # root directory of unpacked archive returned from the unpack function if, returned from this function if calling code needs it
+    root_dir = unpack_run(archive_file_name)  # root directory of unpacked archive returned from the unpack function, returned from this function if calling code needs it
     return root_dir
 
 
