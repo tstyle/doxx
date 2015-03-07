@@ -29,7 +29,7 @@ def version_read():
 setup(
     name='doxx',
     version=version_read(),
-    description='Simple, flexible text file templating system',
+    description='A Simple, Flexible Text Templating, Build, & Project Distribution System',
     long_description=(docs_read('README.rst')),
     url='http://doxx.org',
     license='MIT license',
@@ -44,7 +44,7 @@ setup(
     packages=find_packages("lib"),
     package_dir={'': 'lib'},
     install_requires=['Naked'],
-    keywords='build,compile,text,template,templates,templating,project,tar.gz,zip,key,documents,text files',
+    keywords='build,compile,text,template,templates,templating,scaffold,framework,project,tar.gz,zip,key,documents,text files',
     include_package_data=True,
     classifiers=[
         'Intended Audience :: End Users/Desktop',
