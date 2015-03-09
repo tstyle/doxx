@@ -2,10 +2,12 @@
 # encoding: utf-8
 
 import gzip
+import shutil
 from os import remove, rename
+from os.path import join
 from Naked.toolshed.network import HTTP
 from Naked.toolshed.file import FileWriter
-from Naked.toolshed.system import stderr, stdout, file_exists
+from Naked.toolshed.system import stderr, stdout, file_exists, dir_exists
 from Naked.toolshed.python import is_py3
 from doxx.commands.unpack import unpack_run
 
@@ -75,20 +77,29 @@ def run_pull(url):
         # SHORT CODES for Github repository, CDNJS, etc
         if "/" in url:
             short_code = url
-            short_code_parts = short_code.split('/')
             
             if short_code.startswith('cdnjs:'):
                 pass  # add code for cdnjs pulls
             else:
                 # default to Github repositories
+                keep_a_file_or_dir = False    # indicator for user request to maintain single file or dir from repository
+                
+                # parse the file or directory path keep request
+                if "+" in short_code:    # user requested single directory or file from the repository
+                    short_code_keep = short_code.split("+")
+                    short_code = short_code_keep[0]  # split on the + char and eliminate it from the request argument at this point
+                    keep_path = short_code_keep[1]   # the file or dir path to keep
+                    keep_a_file_or_dir = True        # switch the indicator
+    
+                short_code_parts = short_code.split('/')
                 if len(short_code_parts) == 2:
-                    if "#" in short_code_parts[1]:
+                    if ":" in short_code_parts[1]:
                         # contains a request for a specific branch of the Github repository
                         user = short_code_parts[0]
-                        if "#" in user:
+                        if ":" in user:
                             stderr("[!] doxx: the short code for Github repositories is not properly formed")
-                            stderr("[!] doxx: the syntax is [user]/[repository]#[branch]", exit=1)
-                        repo_parts = short_code_parts[1].split('#')
+                            stderr("[!] doxx: the syntax is user/repository:branch]", exit=1)
+                        repo_parts = short_code_parts[1].split(':')
                         repo = repo_parts[0]
                         branch = repo_parts[1]
                         targz_filename = repo + "-" + branch + ".tar.gz"
@@ -100,9 +111,9 @@ def run_pull(url):
                     else:
                         # default to the master Github repository branch
                         user = short_code_parts[0]
-                        if "#" in user:
-                            stderr("[!] doxx: the short code for Github repositories is not properly formed")
-                            stderr("[!] doxx: the syntax is [user]/[repository]#[branch]", exit=1)                        
+                        if ":" in user:
+                            stderr("[!] doxx: the short code for Github repositories does not have a proper format")
+                            stderr("[!] doxx: the syntax is user/repository:branch", exit=1)                        
                         repo = short_code_parts[1]
                         targz_filename = repo + "-master.tar.gz"
                         url = "https://github.com/{{user}}/{{repository}}/archive/master.tar.gz"
@@ -120,17 +131,33 @@ def run_pull(url):
                         
                     if file_exists(targz_filename):
                         try:
-                            unpack_archive(targz_filename)  # unpack the archive locally
-                            remove(targz_filename)          # remove the archive file
+                            # Unpack and remove the archive file
+                            targz_basename = unpack_archive(targz_filename)  # unpack the archive locally
+                            remove(targz_filename)                           # remove the archive file
+                            
+                            ###TODO### wrap in try/except block 
+                            # Did user request keep of a specific file or directory path?
+                            if keep_a_file_or_dir is True:
+                                ## TODO ## support multilevel path strings on Windows (split on '/' and reconstruct the path string)
+                                joined_keep_path = join(targz_basename, keep_path)
+                                print(joined_keep_path)
+                                if dir_exists(joined_keep_path):
+                                    pass  # process directory  ####TODO####
+                                elif file_exists(joined_keep_path):
+                                    shutil.copy2(joined_keep_path, keep_path)  # write the file to the top level directory
+                                    shutil.rmtree(targz_basename)              # remove the rest of the repository
+                                else:
+                                    stderr("[!] doxx: '" + joined_keep_path + "' does not appear to be a file or directory in the requested repository.")
+                            
                         except Exception as e:
                             stderr("[!] doxx: Unable to unpack the pulled Github repository. Error: " + str(e), exit=1)
-                    else:
+                    else:  # archive file not found locally
                         stderr("[!] doxx: The Github repository pull did not complete successfully.  Please try again.")
-                else:
+                else:  # length of short_code_parts > 2
                     stderr("[!] doxx: short code syntax for Github repository pulls:", exit=0)
-                    stderr("  $ doxx pull [user]/[repository]")
-                    stderr("with an optional branch")
-                    stderr("  $ [user]/[repository]#[branch]")
+                    stderr("    $ doxx pull user/repository")
+                    stderr("[!] doxx: with an optional branch or release:")
+                    stderr("    $ user/repository:branch")
             
         # PROJECT PACKAGES - official repository package pulls
         else:  
