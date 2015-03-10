@@ -3,8 +3,8 @@
 
 import gzip
 import shutil
-from os import remove, rename
-from os.path import join
+from os import remove, rename, makedirs
+from os.path import join, dirname, basename
 from Naked.toolshed.network import HTTP
 from Naked.toolshed.file import FileWriter
 from Naked.toolshed.system import stderr, stdout, file_exists, dir_exists
@@ -74,12 +74,12 @@ def run_pull(url):
             except Exception as e:
                 stderr("[!] doxx: Unable to pull the requested file. Error: " + str(e), exit=1)
     else:
-        # SHORT CODES for Github repository, CDNJS, etc
+        # SHORT CODE PULL REQUESTS for Github repository, CDNJS, etc
         if "/" in url:
             short_code = url
             
             if short_code.startswith('cdnjs:'):
-                pass  # add code for cdnjs pulls
+                pass  # add code for cdnjs pulls (syntax: 'cdnjs:/project')
             else:
                 # default to Github repositories
                 keep_a_file_or_dir = False    # indicator for user request to maintain single file or dir from repository
@@ -97,8 +97,8 @@ def run_pull(url):
                         # contains a request for a specific branch of the Github repository
                         user = short_code_parts[0]
                         if ":" in user:
-                            stderr("[!] doxx: the short code for Github repositories is not properly formed")
-                            stderr("[!] doxx: the syntax is user/repository:branch]", exit=1)
+                            stderr("[!] doxx: the short code for a Github repository does not have the proper format")
+                            stderr("[!] doxx: the syntax is user/repository[:branch][+keepath]", exit=1)
                         repo_parts = short_code_parts[1].split(':')
                         repo = repo_parts[0]
                         branch = repo_parts[1]
@@ -113,7 +113,7 @@ def run_pull(url):
                         user = short_code_parts[0]
                         if ":" in user:
                             stderr("[!] doxx: the short code for Github repositories does not have a proper format")
-                            stderr("[!] doxx: the syntax is user/repository:branch", exit=1)                        
+                            stderr("[!] doxx: the syntax is user/repository[:branch][+keeppath]", exit=1)                        
                         repo = short_code_parts[1]
                         targz_filename = repo + "-master.tar.gz"
                         url = "https://github.com/{{user}}/{{repository}}/archive/master.tar.gz"
@@ -134,30 +134,66 @@ def run_pull(url):
                             # Unpack and remove the archive file
                             targz_basename = unpack_archive(targz_filename)  # unpack the archive locally
                             remove(targz_filename)                           # remove the archive file
+                        except Exception as e:
+                            stderr("[!] doxx: Unable to unpack the pulled Github repository. Error: " + str(e), exit=1)                        
                             
-                            ###TODO### wrap in try/except block 
+                        try:
                             # Did user request keep of a specific file or directory path?
                             if keep_a_file_or_dir is True:
-                                ## TODO ## support multilevel path strings on Windows (split on '/' and reconstruct the path string)
-                                joined_keep_path = join(targz_basename, keep_path)
-                                print(joined_keep_path)
+                                # is this a multilevel path request?
+                                # if so, make OS dependent file path from the user argument (keep path argument syntax uses POSIX path style on all platforms)
+                                if "/" in keep_path:
+                                    keep_path_parts = keep_path.split('/')
+                                    keep_path_depth = len(keep_path_parts)
+                                    if keep_path_depth > 3:
+                                        stderr("[!] doxx: doxx supports up to 3 levels of depth in the keep shortcode. Your request exceeded that level of depth and the requested file or directory was not retrieved from the repository.", exit=1)
+                                    
+                                    # make the OS dependent paths
+                                    if keep_path_depth == 2:
+                                        path_part_one = keep_path_parts[0]
+                                        path_part_two = keep_path_parts[1]
+                                        keep_path = join(path_part_one, path_part_two)
+                                    elif keep_path_depth == 3:
+                                        path_part_one = keep_path_parts[0]
+                                        path_part_two = keep_path_parts[1]
+                                        path_part_three = keep_path_parts[2]
+                                        keep_path = join(path_part_one, path_part_two, path_part_three)
+                                else:
+                                    keep_path_depth = 1  # need to have a definition of depth of file/dir keep for mkdirs code below
+                                    
+                                joined_keep_path = join(targz_basename, keep_path)  # the path to the local version of the file or directory following pull
+                                
                                 if dir_exists(joined_keep_path):
-                                    pass  # process directory  ####TODO####
+                                    stdout("[*] doxx: keeping the directory '" + keep_path + "'")
+                                    if dir_exists(keep_path):
+                                        shutil.rmtree(targz_basename)  # remove the pulled repository file prior to raising the error message
+                                        stderr("[!] doxx: the directory path " + keep_path + "' already exists and the requested write did not occur. Please remove it and repeat your pull request.", exit=1)
+                                    shutil.copytree(joined_keep_path, keep_path)
+                                    shutil.rmtree(targz_basename)
                                 elif file_exists(joined_keep_path):
-                                    shutil.copy2(joined_keep_path, keep_path)  # write the file to the top level directory
-                                    shutil.rmtree(targz_basename)              # remove the rest of the repository
+                                    stdout("[*] doxx: keeping the file '" + keep_path + "'")
+                                    if keep_path_depth > 1:
+                                        if dir_exists(dirname(keep_path)):
+                                            pass  # do nothing if the path already exists
+                                        else:
+                                            makedirs(dirname(keep_path))       # make the necessary directory path to the file in the root directory for the pull
+                                    ##TODO## : keep file overwrite by default or remove it?
+                                    shutil.copy2(joined_keep_path, keep_path)  # write the file relative to the top level pull directory
+                                    shutil.rmtree(targz_basename)              # remove the rest of the repository that was pulled
                                 else:
                                     stderr("[!] doxx: '" + joined_keep_path + "' does not appear to be a file or directory in the requested repository.")
-                            
                         except Exception as e:
-                            stderr("[!] doxx: Unable to unpack the pulled Github repository. Error: " + str(e), exit=1)
+                            stderr("[!] doxx: Unable to process the requested keep file or directory path. Error" + str(e), exit=1)
+                    
                     else:  # archive file not found locally
                         stderr("[!] doxx: The Github repository pull did not complete successfully.  Please try again.")
                 else:  # length of short_code_parts > 2
                     stderr("[!] doxx: short code syntax for Github repository pulls:", exit=0)
                     stderr("    $ doxx pull user/repository")
                     stderr("[!] doxx: with an optional branch or release:")
-                    stderr("    $ user/repository:branch")
+                    stderr("    $ doxx pull user/repository:branch")
+                    stderr("[!] doxx: with an optional branch or release AND optional keep file or directory path:")
+                    stderr("    $ doxx pull user/repository:branch+path", exit=1)
             
         # PROJECT PACKAGES - official repository package pulls
         else:  
