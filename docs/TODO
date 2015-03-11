@@ -6,15 +6,15 @@ NEW:
  
  
 BUGFIXES:
-  [ ] correct template user messages with the term "build specification header" not metadata
-  [ ] correct key user messages with the term "build specification header"
+  [X] correct template user messages with the term "build specification header" not metadata
+  [X] correct key user messages with the term "build specification header"
  
 
 TESTS:
   [x] Github shortcodes
   
 DOCS:
-  [ ] update pull documentation with Github shortcodes
+  [X] update pull documentation with Github shortcodes
 
 
 ROADMAP:
