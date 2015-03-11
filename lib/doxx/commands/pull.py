@@ -185,7 +185,7 @@ def run_pull(url):
                                             makedirs(dirname(keep_path))       # make the necessary directory path to the file in the root directory for the pull
                                     if file_exists(keep_path):                 # the file already exists
                                         the_filename = basename(keep_path)
-                                        if '.' in the_filename:                # there is a file extension in the base filename
+                                        if '.' in the_filename:     # there is a file extension in the base filename
                                             file_name_parts = the_filename.split('.')
                                             the_basename = file_name_parts[0]
                                             file_extension = file_name_parts[1]
@@ -194,7 +194,7 @@ def run_pull(url):
                                                 file_extension_two = "." + file_name_parts[2]
                                             new_filename = the_basename + "-new" + "." + file_extension + file_extension_two  # add -new suffix to filename
                                             updated_keep_path = join(dirname(keep_path), new_filename)
-                                        else:
+                                        else:   # there is no file extension
                                             updated_keep_path = keep_path + "-new"    # file path without file extension, so just add the -new suffix to prevent overwrite
                                         if file_exists(updated_keep_path):
                                             remove(updated_keep_path)         # if the '-new' modified file exists, remove it
