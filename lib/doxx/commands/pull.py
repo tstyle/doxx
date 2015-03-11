@@ -98,8 +98,8 @@ def run_pull(url):
                         # non-master branch request (syntax: `user/repo:branch`)
                         user = short_code_parts[0]
                         if ":" in user or "+" in user:
-                            stderr("[!] doxx: the short code for a Github repository does not have the proper format")
-                            stderr("[!] doxx: the syntax is user/repository[:branch][+cherrypick_path]", exit=1)
+                            stderr("[!] doxx: your short code for a Github repository does not have the proper format")
+                            stderr("[!] doxx: the syntax is `user/repository[:branch][+cherrypick_path]`", exit=1)
                         repo_parts = short_code_parts[1].split(':')
                         repo = repo_parts[0]
                         branch = repo_parts[1]
@@ -114,7 +114,7 @@ def run_pull(url):
                         user = short_code_parts[0]
                         if ":" in user or "+" in user:
                             stderr("[!] doxx: the short code for Github repositories does not have the proper format")
-                            stderr("[!] doxx: the syntax is user/repository[:branch][+cherrypick_path]", exit=1)                        
+                            stderr("[!] doxx: the syntax is `user/repository[:branch][+cherrypick_path]`", exit=1)                        
                         repo = short_code_parts[1]
                         targz_filename = repo + "-master.tar.gz"
                         url = "https://github.com/{{user}}/{{repository}}/archive/master.tar.gz"
@@ -147,7 +147,7 @@ def run_pull(url):
                                     keep_path_parts = keep_path.split('/')
                                     keep_path_depth = len(keep_path_parts)
                                     if keep_path_depth > 3:
-                                        stderr("[!] doxx: doxx supports up to 3 levels of depth in the cherry pick shortcode. Your request exceeded that level and the requested file or directory was not cherry picked from the repository.", exit=1)
+                                        stderr("[!] doxx: doxx supports up to 3 levels of depth in the cherry pick shortcode path. Your request exceeded that level and the requested file or directory was not cherry picked from the repository.", exit=1)
                                     
                                     # make the OS dependent paths
                                     if keep_path_depth == 2:
@@ -303,7 +303,7 @@ def pull_binary_file(url, binary_file_name):
         else:
             fail_status_code = http.res.status_code
             if fail_status_code == 404:
-                stderr("[!] doxx: Unable to pull the file because it does not appear to exist. (HTTP status code: " + str(fail_status_code) + ")", exit=1)
+                stderr("[!] doxx: Unable to pull the file because it cannot be found. (HTTP status code: " + str(fail_status_code) + ")", exit=1)
             else:
                 stderr("[!] doxx: Unable to pull '" + url + "'. (HTTP status code: " + str(fail_status_code) + ")", exit=1)
     except Exception as e:
