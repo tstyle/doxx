@@ -200,6 +200,18 @@ class DoxxPullGithubRepoShortcodeTests(unittest.TestCase):
         self.repo_shortcode_branch_cherry_file = "bit-store/testfiles:v1.1+doxx/testfile.txt"
         self.repo_shortcode_branch_cherry_file_no_ext = "bit-store/testfiles:v1.1+doxx/testfile"
         
+        # error shortcodes
+        self.error_plus_char_wrong_position = "bit-store+test.txt/testfiles"             # plus symbol found after user, not repo
+        self.error_colon_char_wrong_position = "bit-store:v1.1/testfiles"                # colon symbol found after user, not repo
+        self.error_plus_char_wrong_position_branch = "bit-store+test.txt/testfiles:v1.1"  # plus symbol wrong position, non-master branch
+        self.error_colon_char_wrong_position_branch = "bit-store:v1.1/testfiles:v1.1"     # colon symbol wrong position, non-master branch
+        self.error_missing_user = "totally-bogus/testfile"                                # user doesn't exist on GH
+        self.error_missing_repo = "bit-store/verybogus"                                   # repo doesn't exist for actual GH user
+        self.error_missing_branch = "bit-store/testfiles:v100.100.100"                    # missing branch number
+        self.error_missing_file = "bit-store/testfiles+nonexistent.txt"                   # missing file in repo
+        self.error_missing_dir = "bit-store/testfiles+baddir"                             # missing directory in repo
+        self.error_deep_path = "bit-store/testfiles+"
+        
         # remove any previous testing directories
         if dir_exists(os.path.join(self.test_dir, 'testfiles')):
             shutil.rmtree(os.path.join(self.test_dir, 'testfiles-master'))
@@ -345,6 +357,64 @@ class DoxxPullGithubRepoShortcodeTests(unittest.TestCase):
             raise e
         
         
+    # ERROR TESTS
+    
     def test_doxx_github_shortcode_errors(self):
-        pass
+        try:
+            os.chdir(self.test_dir)
+            
+            # + char in wrong position master branch pulls
+            with self.assertRaises(SystemExit):
+                run_pull(self.error_plus_char_wrong_position)
+                
+            # : char in wrong position master branch pulls
+            with self.assertRaises(SystemExit):
+                run_pull(self.error_colon_char_wrong_position)
+                
+            # + char in wrong position non-master branch pulls
+            with self.assertRaises(SystemExit):
+                run_pull(self.error_plus_char_wrong_position_branch)
+                
+            # : char in wrong position non-master branch pulls
+            with self.assertRaises(SystemExit):
+                run_pull(self.error_colon_char_wrong_position_branch)
+                
+            # bad username/org name in request
+            with self.assertRaises(SystemExit):
+                run_pull(self.error_missing_user)
+                
+            # bad repo name in request for an actual user/org
+            with self.assertRaises(SystemExit):
+                run_pull(self.error_missing_repo)
+                
+            # bad branch name for actual repository
+            with self.assertRaises(SystemExit):
+                run_pull(self.error_missing_branch)
+            
+                                   # cleanup
+            if dir_exists('testfiles-master'):
+                shutil.rmtree('testfiles-master')
+                
+            # bad file path for actual repository
+            with self.assertRaises(SystemExit):
+                run_pull(self.error_missing_file)
+            
+                                   # cleanup
+            if dir_exists('testfiles_master'):
+                shutil.rmtree('testfiles-master')
+                
+            # bad directory path for actual repository
+            with self.assertRaises(SystemExit):
+                run_pull(self.error_missing_dir)
+                
+                                   # cleanup
+            if dir_exists('testfiles-master'):
+                shutil.rmtree('testfiles-master')
+                
+            
+            os.chdir(self.cwd)
+        except Exception as e:
+            os.chdir(self.cwd)
+            raise e
+        
     
