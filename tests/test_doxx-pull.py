@@ -4,8 +4,10 @@
 import sys
 import os
 import unittest
+import shutil
 
 from Naked.toolshed.system import file_exists, dir_exists
+from Naked.toolshed.file import FileReader
 
 from doxx.commands.pull import get_file_name, is_gzip_file, is_url, is_tar_gz_archive, is_zip_archive, run_pull
 from doxx.commands.pullkey import run_pullkey
@@ -183,4 +185,236 @@ class DoxxPullkeyCommandTests(unittest.TestCase):
             os.chdir(self.cwd)
         except Exception as e:
             os.chdir(self.cwd)
-            raise e        
+            raise e
+        
+        
+class DoxxPullGithubRepoShortcodeTests(unittest.TestCase):
+    
+    def setUp(self):
+        self.cwd = os.getcwd()
+        self.test_dir = "pull-tests/ghrepo"
+        self.repo_shortcode_master = "bit-store/testfiles"
+        self.repo_shortcode_version = "bit-store/testfiles:v1.1"
+        self.repo_shortcode_master_cherry_file = "bit-store/testfiles+doxx/testfile.txt"
+        self.repo_shortcode_master_cherry_file_no_ext = "bit-store/testfiles+doxx/testfile"
+        self.repo_shortcode_branch_cherry_file = "bit-store/testfiles:v1.1+doxx/testfile.txt"
+        self.repo_shortcode_branch_cherry_file_no_ext = "bit-store/testfiles:v1.1+doxx/testfile"
+        
+        # error shortcodes
+        self.error_plus_char_wrong_position = "bit-store+test.txt/testfiles"             # plus symbol found after user, not repo
+        self.error_colon_char_wrong_position = "bit-store:v1.1/testfiles"                # colon symbol found after user, not repo
+        self.error_plus_char_wrong_position_branch = "bit-store+test.txt/testfiles:v1.1"  # plus symbol wrong position, non-master branch
+        self.error_colon_char_wrong_position_branch = "bit-store:v1.1/testfiles:v1.1"     # colon symbol wrong position, non-master branch
+        self.error_missing_user = "totally-bogus/testfile"                                # user doesn't exist on GH
+        self.error_missing_repo = "bit-store/verybogus"                                   # repo doesn't exist for actual GH user
+        self.error_missing_branch = "bit-store/testfiles:v100.100.100"                    # missing branch number
+        self.error_missing_file = "bit-store/testfiles+nonexistent.txt"                   # missing file in repo
+        self.error_missing_dir = "bit-store/testfiles+baddir"                             # missing directory in repo
+        self.error_deep_path = "bit-store/testfiles+"
+        
+        # remove any previous testing directories
+        if dir_exists(os.path.join(self.test_dir, 'testfiles')):
+            shutil.rmtree(os.path.join(self.test_dir, 'testfiles-master'))
+            
+        if dir_exists(os.path.join(self.test_dir, 'testfiles-1.1')):
+            shutil.rmtree(os.path.join(self.test_dir, 'testfiles-1.1'))
+            
+        if dir_exists(os.path.join(self.test_dir, "doxx")):
+            shutil.rmtree(os.path.join(self.test_dir, "doxx"))
+        
+    def test_doxx_github_shortcode_master(self):
+        try:
+            os.chdir(self.test_dir)
+            run_pull(self.repo_shortcode_master)
+            self.assertTrue(dir_exists("testfiles-master"))
+            self.assertTrue(dir_exists("testfiles-master/doxx"))
+            self.assertTrue(dir_exists("testfiles-master/doxx/templates"))
+            self.assertTrue(file_exists("testfiles-master/doxx/testfile"))
+            self.assertTrue(file_exists("testfiles-master/doxx/testfile.txt"))
+            
+            # execute the command a second time and confirm that the repository overwrites the testfiles directory without exception
+            run_pull(self.repo_shortcode_master)
+            
+            # cleanup
+            shutil.rmtree("testfiles-master")
+
+            os.chdir(self.cwd)
+        except Exception as e:
+            os.chdir(self.cwd)
+            raise e
+        
+        
+    def test_doxx_github_shortcode_branch(self):
+        try:
+            os.chdir(self.test_dir)
+            run_pull(self.repo_shortcode_version)
+            self.assertTrue(dir_exists("testfiles-1.1"))
+            self.assertTrue(dir_exists("testfiles-1.1/doxx"))
+            self.assertTrue(dir_exists("testfiles-1.1/doxx/templates"))
+            self.assertTrue(file_exists("testfiles-1.1/doxx/testfile"))
+            self.assertTrue(file_exists("testfiles-1.1/doxx/testfile.txt"))
+            
+            # execute the command again and confirm that it overwrites the directory with same name
+            run_pull(self.repo_shortcode_version)
+            
+            #cleanup
+            shutil.rmtree("testfiles-1.1")
+            
+            os.chdir(self.cwd)
+        except Exception as e:
+            os.chdir(self.cwd)
+            raise e
+    
+    def test_doxx_github_shortcode_master_cherrypick_files(self):
+        try:
+            os.chdir(self.test_dir)
+            
+            # FILE with file extension
+            run_pull(self.repo_shortcode_master_cherry_file)
+            self.assertTrue(file_exists("doxx/testfile.txt"))
+            fr_tft = FileReader("doxx/testfile.txt")
+            text_tft = fr_tft.read()
+            self.assertEqual(u"testfile.txt\n", text_tft)
+            
+            # execute the command again and confirm that overwrite does not occur, adds -new to the filename
+            run_pull(self.repo_shortcode_master_cherry_file)
+            self.assertTrue(file_exists("doxx/testfile.txt"))
+            self.assertTrue(file_exists("doxx/testfile-new.txt"))
+            fr_tftn = FileReader("doxx/testfile-new.txt")
+            text_tftn = fr_tftn.read()
+            self.assertEqual(u"testfile.txt\n", text_tftn)
+            
+            #cleanup
+            shutil.rmtree("doxx")
+            
+            # FILE without file extension
+            run_pull(self.repo_shortcode_master_cherry_file_no_ext)
+            self.assertTrue(file_exists("doxx/testfile"))
+            fr_tf = FileReader("doxx/testfile")
+            text_tf = fr_tf.read()
+            self.assertEqual(u"testfile\n", text_tf)
+            
+            # execute the command again and confirm that overwrite does not occur, adds -new to the filename
+            run_pull(self.repo_shortcode_master_cherry_file_no_ext)
+            self.assertTrue(file_exists("doxx/testfile"))
+            self.assertTrue(file_exists("doxx/testfile-new"))
+            fr_tfn = FileReader("doxx/testfile-new")
+            text_tfn = fr_tfn.read()
+            self.assertEqual(u"testfile\n", text_tfn)              
+            
+            #cleanup
+            shutil.rmtree("doxx")
+            
+            os.chdir(self.cwd)
+        except Exception as e:
+            os.chdir(self.cwd)
+            raise e
+        
+        
+    def test_doxx_github_shortcode_branch_cherrypick_files(self):
+        try:
+            os.chdir(self.test_dir)
+            
+            # FILE with file extension
+            run_pull(self.repo_shortcode_branch_cherry_file)
+            self.assertTrue(file_exists("doxx/testfile.txt"))
+            fr_tft = FileReader("doxx/testfile.txt")
+            text_tft = fr_tft.read()
+            self.assertEqual(u"testfile.txt branch v1.1\n", text_tft)
+            
+            # execute the command again and confirm that overwrite does not occur, adds -new to the filename
+            run_pull(self.repo_shortcode_branch_cherry_file)
+            self.assertTrue(file_exists("doxx/testfile.txt"))
+            self.assertTrue(file_exists("doxx/testfile-new.txt"))
+            fr_tftn = FileReader("doxx/testfile-new.txt")
+            text_tftn = fr_tftn.read()
+            self.assertEqual(u"testfile.txt branch v1.1\n", text_tftn)
+            
+            #cleanup
+            shutil.rmtree("doxx")                        
+        
+            # FILE without file extension
+            run_pull(self.repo_shortcode_branch_cherry_file_no_ext)
+            self.assertTrue(file_exists("doxx/testfile"))
+            fr_tf = FileReader("doxx/testfile")
+            text_tf = fr_tf.read()
+            self.assertEqual(u"testfile branch v1.1\n", text_tf)
+            
+            # execute the command again and confirm that overwrite does not occur, adds -new to the filename
+            run_pull(self.repo_shortcode_branch_cherry_file_no_ext)
+            self.assertTrue(file_exists("doxx/testfile"))
+            self.assertTrue(file_exists("doxx/testfile-new"))
+            fr_tfn = FileReader("doxx/testfile-new")
+            text_tfn = fr_tfn.read()
+            self.assertEqual(u"testfile branch v1.1\n", text_tfn)              
+            
+            #cleanup
+            shutil.rmtree("doxx")
+            
+            os.chdir(self.cwd)
+        except Exception as e:
+            os.chdir(self.cwd)
+            raise e
+        
+        
+    # ERROR TESTS
+    
+    def test_doxx_github_shortcode_errors(self):
+        try:
+            os.chdir(self.test_dir)
+            
+            # + char in wrong position master branch pulls
+            with self.assertRaises(SystemExit):
+                run_pull(self.error_plus_char_wrong_position)
+                
+            # : char in wrong position master branch pulls
+            with self.assertRaises(SystemExit):
+                run_pull(self.error_colon_char_wrong_position)
+                
+            # + char in wrong position non-master branch pulls
+            with self.assertRaises(SystemExit):
+                run_pull(self.error_plus_char_wrong_position_branch)
+                
+            # : char in wrong position non-master branch pulls
+            with self.assertRaises(SystemExit):
+                run_pull(self.error_colon_char_wrong_position_branch)
+                
+            # bad username/org name in request
+            with self.assertRaises(SystemExit):
+                run_pull(self.error_missing_user)
+                
+            # bad repo name in request for an actual user/org
+            with self.assertRaises(SystemExit):
+                run_pull(self.error_missing_repo)
+                
+            # bad branch name for actual repository
+            with self.assertRaises(SystemExit):
+                run_pull(self.error_missing_branch)
+            
+                                   # cleanup
+            if dir_exists('testfiles-master'):
+                shutil.rmtree('testfiles-master')
+                
+            # bad file path for actual repository
+            with self.assertRaises(SystemExit):
+                run_pull(self.error_missing_file)
+            
+                                   # cleanup
+            if dir_exists('testfiles_master'):
+                shutil.rmtree('testfiles-master')
+                
+            # bad directory path for actual repository
+            with self.assertRaises(SystemExit):
+                run_pull(self.error_missing_dir)
+                
+                                   # cleanup
+            if dir_exists('testfiles-master'):
+                shutil.rmtree('testfiles-master')
+                
+            
+            os.chdir(self.cwd)
+        except Exception as e:
+            os.chdir(self.cwd)
+            raise e
+        
+    
