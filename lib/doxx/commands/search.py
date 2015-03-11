@@ -124,7 +124,7 @@ def run_search(search_string):
 def _get_master_text():
     ## check the cache for a cached version of the file with appropriate cache duration
     cache = DoxxCache()
-    max_cache_seconds = 86400  # 24 hour cache of the repository list
+    max_cache_seconds = 86400  # 24 hour cache of the repository list (same as whatis module)
     if cache.cached_file_exists(cache.package_repo_list_file):
         if cache.does_cache_file_require_update(cache.package_repo_list_file, max_cache_seconds):
             master_list = _pull_official_repository_list()  # pull the master list text from remote
