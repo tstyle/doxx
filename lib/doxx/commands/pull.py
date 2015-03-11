@@ -81,10 +81,10 @@ def run_pull(url):
             if short_code.startswith('cdnjs:'):
                 pass  # add code for cdnjs pulls (syntax: 'cdnjs:/project')
             else:
-                # default to Github repositories
+                # default to Github repository shortcode
                 keep_a_file_or_dir = False    # indicator for user request to maintain single file or dir from repository
                 
-                # parse the file or directory path keep request
+                # cherry-pick file or directory request
                 if "+" in short_code:    # user requested single directory or file from the repository
                     short_code_keep = short_code.split("+")
                     short_code = short_code_keep[0]  # split on the + char and eliminate it from the request argument at this point
@@ -110,7 +110,7 @@ def run_pull(url):
                         url = url.replace("{{branch}}", branch)
                         user_message = "[*] doxx: Pulling branch '" + branch + "' of Github repository '" + user + "/" + repo + "'..."
                     else:
-                        # master branch request (default; syntax: `user/repo`)
+                        # master branch request (default- syntax: `user/repo`)
                         user = short_code_parts[0]
                         if ":" in user or "+" in user:
                             stderr("[!] doxx: the short code for Github repositories does not have the proper format")
@@ -147,7 +147,7 @@ def run_pull(url):
                                     keep_path_parts = keep_path.split('/')
                                     keep_path_depth = len(keep_path_parts)
                                     if keep_path_depth > 3:
-                                        stderr("[!] doxx: doxx supports up to 3 levels of depth in the keep shortcode. Your request exceeded that level and the requested file or directory was not cherry picked from the repository.", exit=1)
+                                        stderr("[!] doxx: doxx supports up to 3 levels of depth in the cherry pick shortcode. Your request exceeded that level and the requested file or directory was not cherry picked from the repository.", exit=1)
                                     
                                     # make the OS dependent paths
                                     if keep_path_depth == 2:
@@ -205,7 +205,7 @@ def run_pull(url):
                                         shutil.copy2(joined_keep_path, keep_path)  # write the file relative to the top level pull directory
                                         shutil.rmtree(targz_basename)              # remove the rest of the repository that was pulled
                                 else:  # could not find the file or dir in the pulled repo
-                                    stderr("[!] doxx: '" + joined_keep_path + "' does not appear to be a file or directory in the requested repository.")
+                                    stderr("[!] doxx: '" + joined_keep_path + "' does not appear to be a file or directory in the requested repository.", exit=1)
                         except Exception as e:
                             stderr("[!] doxx: Unable to process the requested keep file or directory path. Error" + str(e), exit=1)
                     
