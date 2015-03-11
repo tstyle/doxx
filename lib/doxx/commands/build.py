@@ -130,7 +130,7 @@ class Builder(object):
         try:
             template.parse_template_text()
         except Exception as e:
-            stderr("[!] doxx: An error occurred while parsing your template file. Error message: " + str(e), exit=1)
+            stderr("[!] doxx: An error occurred while parsing the template file. Error message: " + str(e), exit=1)
     
         # determine whether this is a verbatim template file (no replacements) or the key file did not include replacement keys
         if template.verbatim is True or self.no_key_replacements is True:
@@ -232,7 +232,7 @@ class Builder(object):
             template.parse_template_text()
         except Exception as e:
             outputlock.acquire()
-            stderr("[!] doxx: An error occurred while parsing your template file. Error message: " + str(e), exit=0)
+            stderr("[!] doxx: An error occurred during the attempt to parse the template file. Error message: " + str(e), exit=0)
             outputlock.release()
             sys.exit(1)  # release the lock before raising SystemExit
         
@@ -353,7 +353,7 @@ class Builder(object):
                 # remove the project archive
                 os.remove(project_path)
         except Exception as e:
-            stderr("[!] doxx: Unable to build from the project error because of an error.  Error: " + str(e), exit=1)
+            stderr("[!] doxx: Unable to build from the project archive because of an error.  Error: " + str(e), exit=1)
                 
     
     def unpack_and_get_keypath(self, project_path):

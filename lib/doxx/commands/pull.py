@@ -2,10 +2,12 @@
 # encoding: utf-8
 
 import gzip
-from os import remove, rename
+import shutil
+from os import remove, rename, makedirs
+from os.path import join, dirname, basename
 from Naked.toolshed.network import HTTP
 from Naked.toolshed.file import FileWriter
-from Naked.toolshed.system import stderr, stdout, file_exists
+from Naked.toolshed.system import stderr, stdout, file_exists, dir_exists
 from Naked.toolshed.python import is_py3
 from doxx.commands.unpack import unpack_run
 
@@ -72,23 +74,33 @@ def run_pull(url):
             except Exception as e:
                 stderr("[!] doxx: Unable to pull the requested file. Error: " + str(e), exit=1)
     else:
-        # SHORT CODES for Github repository, CDNJS, etc
+        # SHORT CODE PULL REQUESTS for Github repository, CDNJS, etc
         if "/" in url:
             short_code = url
-            short_code_parts = short_code.split('/')
             
             if short_code.startswith('cdnjs:'):
-                pass  # add code for cdnjs pulls
+                pass  # add code for cdnjs pulls (syntax: 'cdnjs:/project')
             else:
-                # default to Github repositories
+                # default to Github repository shortcode
+                keep_a_file_or_dir = False    # indicator for user request to maintain single file or dir from repository
+                
+                # cherry-pick file or directory request
+                if "+" in short_code:    # user requested single directory or file from the repository
+                    short_code_keep = short_code.split("+")
+                    short_code = short_code_keep[0]  # split on the + char and eliminate it from the request argument at this point
+                    keep_path = short_code_keep[1]   # the file or dir path to cherry pick
+                    keep_a_file_or_dir = True        # switch the indicator
+    
+                short_code_parts = short_code.split('/')
+                
                 if len(short_code_parts) == 2:
-                    if "#" in short_code_parts[1]:
-                        # contains a request for a specific branch of the Github repository
+                    if ":" in short_code_parts[1]:
+                        # non-master branch request (syntax: `user/repo:branch`)
                         user = short_code_parts[0]
-                        if "#" in user:
-                            stderr("[!] doxx: the short code for Github repositories is not properly formed")
-                            stderr("[!] doxx: the syntax is [user]/[repository]#[branch]", exit=1)
-                        repo_parts = short_code_parts[1].split('#')
+                        if ":" in user or "+" in user:
+                            stderr("[!] doxx: your short code for a Github repository does not have the proper format")
+                            stderr("[!] doxx: the syntax is `user/repository[:branch][+cherrypick_path]`", exit=1)
+                        repo_parts = short_code_parts[1].split(':')
                         repo = repo_parts[0]
                         branch = repo_parts[1]
                         targz_filename = repo + "-" + branch + ".tar.gz"
@@ -98,11 +110,11 @@ def run_pull(url):
                         url = url.replace("{{branch}}", branch)
                         user_message = "[*] doxx: Pulling branch '" + branch + "' of Github repository '" + user + "/" + repo + "'..."
                     else:
-                        # default to the master Github repository branch
+                        # master branch request (default- syntax: `user/repo`)
                         user = short_code_parts[0]
-                        if "#" in user:
-                            stderr("[!] doxx: the short code for Github repositories is not properly formed")
-                            stderr("[!] doxx: the syntax is [user]/[repository]#[branch]", exit=1)                        
+                        if ":" in user or "+" in user:
+                            stderr("[!] doxx: the short code for Github repositories does not have the proper format")
+                            stderr("[!] doxx: the syntax is `user/repository[:branch][+cherrypick_path]`", exit=1)                        
                         repo = short_code_parts[1]
                         targz_filename = repo + "-master.tar.gz"
                         url = "https://github.com/{{user}}/{{repository}}/archive/master.tar.gz"
@@ -120,17 +132,92 @@ def run_pull(url):
                         
                     if file_exists(targz_filename):
                         try:
-                            unpack_archive(targz_filename)  # unpack the archive locally
-                            remove(targz_filename)          # remove the archive file
+                            # Unpack and remove the archive file
+                            targz_basename = unpack_archive(targz_filename)  # unpack the archive locally
+                            remove(targz_filename)                           # remove the archive file
                         except Exception as e:
-                            stderr("[!] doxx: Unable to unpack the pulled Github repository. Error: " + str(e), exit=1)
-                    else:
+                            stderr("[!] doxx: Unable to unpack the pulled Github repository. Error: " + str(e), exit=1)                        
+                            
+                        try:
+                            # Did user request keep of a specific file or directory path?
+                            if keep_a_file_or_dir is True:
+                                # is this a multilevel path request?
+                                # if so, make OS dependent file path from the user argument (keep path argument syntax uses POSIX path style on all platforms)
+                                if "/" in keep_path:
+                                    keep_path_parts = keep_path.split('/')
+                                    keep_path_depth = len(keep_path_parts)
+                                    if keep_path_depth > 3:
+                                        stderr("[!] doxx: doxx supports up to 3 levels of depth in the cherry pick shortcode path. Your request exceeded that level and the requested file or directory was not cherry picked from the repository.", exit=1)
+                                    
+                                    # make the OS dependent paths
+                                    if keep_path_depth == 2:
+                                        path_part_one = keep_path_parts[0]
+                                        path_part_two = keep_path_parts[1]
+                                        keep_path = join(path_part_one, path_part_two)
+                                    elif keep_path_depth == 3:
+                                        path_part_one = keep_path_parts[0]
+                                        path_part_two = keep_path_parts[1]
+                                        path_part_three = keep_path_parts[2]
+                                        keep_path = join(path_part_one, path_part_two, path_part_three)
+                                else:
+                                    keep_path_depth = 1  # need to have a definition of depth of file/dir keep for mkdirs code below
+                                    
+                                joined_keep_path = join(targz_basename, keep_path)  # the path to the local version of the file or directory following pull
+                                
+                                if dir_exists(joined_keep_path):
+                                    stdout("[*] doxx: Cherry picking the directory '" + keep_path + "'")
+                                    if dir_exists(keep_path):
+                                        new_dir_path = keep_path + "-new"
+                                        if dir_exists(new_dir_path):
+                                            shutil.rmtree(new_dir_path)
+                                        stdout("[*] doxx: The requested directory already exists locally. Writing to '" + new_dir_path + "' instead.")
+                                        shutil.copytree(joined_keep_path, new_dir_path)  # write to `dir-new` instead of existing `dir`
+                                        shutil.rmtree(targz_basename)                    # remove the pulled repository file
+                                    else:
+                                        shutil.copytree(joined_keep_path, keep_path)     # write to the requested dir path
+                                        shutil.rmtree(targz_basename)                    # remove the pulled repository file
+                                elif file_exists(joined_keep_path):
+                                    stdout("[*] doxx: Cherry picking the file '" + keep_path + "'")
+                                    if keep_path_depth > 1:
+                                        if dir_exists(dirname(keep_path)):
+                                            pass  # do nothing if the path already exists
+                                        else:
+                                            makedirs(dirname(keep_path))       # make the necessary directory path to the file in the root directory for the pull
+                                    if file_exists(keep_path):                 # the file already exists
+                                        the_filename = basename(keep_path)
+                                        if '.' in the_filename:     # there is a file extension in the base filename
+                                            file_name_parts = the_filename.split('.')
+                                            the_basename = file_name_parts[0]
+                                            file_extension = file_name_parts[1]
+                                            file_extension_two = ""             # in case there are two file extensions (e.g. file.tar.gz)
+                                            if len(file_name_parts) == 3:
+                                                file_extension_two = "." + file_name_parts[2]
+                                            new_filename = the_basename + "-new" + "." + file_extension + file_extension_two  # add -new suffix to filename
+                                            updated_keep_path = join(dirname(keep_path), new_filename)
+                                        else:   # there is no file extension
+                                            updated_keep_path = keep_path + "-new"    # file path without file extension, so just add the -new suffix to prevent overwrite
+                                        if file_exists(updated_keep_path):
+                                            remove(updated_keep_path)         # if the '-new' modified file exists, remove it
+                                        stdout("[*] doxx: The requested file path already exists locally.  Writing to '" + updated_keep_path + "' instead.")
+                                        shutil.copy2(joined_keep_path, updated_keep_path)  # write new file
+                                        shutil.rmtree(targz_basename)                      # remove repo file
+                                    else:   # cherry picked file does not already exist, go ahead with file write
+                                        shutil.copy2(joined_keep_path, keep_path)  # write the file relative to the top level pull directory
+                                        shutil.rmtree(targz_basename)              # remove the rest of the repository that was pulled
+                                else:  # could not find the file or dir in the pulled repo
+                                    stderr("[!] doxx: '" + joined_keep_path + "' does not appear to be a file or directory in the requested repository.", exit=1)
+                        except Exception as e:
+                            stderr("[!] doxx: Unable to process the requested keep file or directory path. Error" + str(e), exit=1)
+                    
+                    else:  # archive file not found locally
                         stderr("[!] doxx: The Github repository pull did not complete successfully.  Please try again.")
-                else:
-                    stderr("[!] doxx: short code syntax for Github repository pulls:", exit=0)
-                    stderr("  $ doxx pull [user]/[repository]")
-                    stderr("with an optional branch")
-                    stderr("  $ [user]/[repository]#[branch]")
+                else:  # length of short_code_parts > 2
+                    stderr("[!] doxx: Short code syntax for Github repository pulls:", exit=0)
+                    stderr("    $ doxx pull user/repository")
+                    stderr("[!] doxx: with an optional branch or release:")
+                    stderr("    $ doxx pull user/repository[:branch]")
+                    stderr("[!] doxx: with an optional branch or release AND optional cherry pick file or directory path:")
+                    stderr("    $ doxx pull user/repository[:branch][+cherrypick_path]", exit=1)
             
         # PROJECT PACKAGES - official repository package pulls
         else:  
@@ -216,7 +303,7 @@ def pull_binary_file(url, binary_file_name):
         else:
             fail_status_code = http.res.status_code
             if fail_status_code == 404:
-                stderr("[!] doxx: Unable to pull the file because it does not appear to exist. (HTTP status code: " + str(fail_status_code) + ")", exit=1)
+                stderr("[!] doxx: Unable to pull the file because it cannot be found. (HTTP status code: " + str(fail_status_code) + ")", exit=1)
             else:
                 stderr("[!] doxx: Unable to pull '" + url + "'. (HTTP status code: " + str(fail_status_code) + ")", exit=1)
     except Exception as e:
