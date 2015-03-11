@@ -23,6 +23,7 @@ High Priority
   [ ] docs: command - open default web browser to the documentation site
   [ ] improve: vs. view: simple access to repository to improve the templates/keys
   [ ] Travis testing of package builds
+  [ ] mechanism for new package build requests/submissions
 
 Medium Priority
   -- pull from CDNJS with shorthand path (project/version/etc)
