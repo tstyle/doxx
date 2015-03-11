@@ -15,7 +15,7 @@ Features include:
 - Simple, legible YAML syntax build specs that do not require scripting/programming know-how
 - Local template file support
 - Remote template file support (from any hosting site that supports GET requests)
-- Github pull shortcodes allow you include entire Github repositories or cherry pick specific repository files or directories for your project
+- Github pull shortcodes allow you to include entire Github repositories or cherry pick specific repository files or directories for your project
 - Full UTF-8 character set support in templates, named text replacement tags in templates, and replacement strings entered by users
 - Generic text project support.  Use it for anything from a Bootstrap framework driven website to a statistical analysis script stub.  If it contains text, it should work.
 - Support for the distribution of binary files with your projects
