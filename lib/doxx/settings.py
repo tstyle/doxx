@@ -11,7 +11,7 @@ app_name = 'doxx'
 #------------------------------------------------------------------------------
 major_version = "0"
 minor_version = "9"
-patch_version = "0"
+patch_version = "1"
 
 #------------------------------------------------------------------------------
 # Debug Flag (switch to False for production release code)
@@ -48,7 +48,7 @@ GENERAL COMMANDS
   clean    remove doxx project files from a project directory
   make     generate key, template, or project file stubs
   pack     create a tar.gz or zip archive file for project distribution
-  pull     pull a key, template, or project archive from a remote repository
+  pull     pull remote files, archives, & Github repos (with shortcodes)
   unpack   unpack a tar.gz or zip project archive
 
 PACKAGE REPOSITORY COMMANDS
@@ -61,5 +61,7 @@ OPTIONS
   -h | --help      view application help
        --usage     view application usage
   -v | --version   view installed application version
+  
+Command documentation is available at http://doxx.org/usage/syntax/
 """
 
