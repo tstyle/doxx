@@ -20,7 +20,7 @@ DOCS:
 ROADMAP:
 
 High Priority
-  [ ] docs: command - open default web browser to the documentation site
+  [ ] docs: command - open default web browser to the documentation site for commands
   [ ] improve: vs. view: simple access to repository to improve the templates/keys
   [ ] Travis testing of package builds
   [ ] mechanism for new package build requests/submissions
