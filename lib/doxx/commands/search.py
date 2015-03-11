@@ -110,14 +110,15 @@ def run_search(search_string):
         for result in final_best_results:
             stdout(result)
     elif len(final_possible_results) > 0:
-        stdout("[*] doxx: There were no good matches for your search.")
+        stdout("[*] doxx: There were no good matches for your search term.")
         stdout("[*] doxx: Do any of these work? :")
         stdout(" ")
         for result in final_possible_results:
             stdout(result)
         pass  # handle with possible results
     else:
-        stdout("[*] doxx: No matches found in the Package Repository.")  ##TODO: add prompt to develop a new package
+        stdout("[*] doxx: No matches found in the Package Repository.")
+        stdout("[*] doxx: Get in touch so that we can build it...")   ## TODO: add mechanism for user package submit
         
     
 def _get_master_text():
