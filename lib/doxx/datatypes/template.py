@@ -96,7 +96,7 @@ class DoxxTemplate(object):
         """evaluates template file for presence of meta data header and template text.  Returns a two-tuple. tuple[0] = True if error identified, False if error not identified.  tuple[1] = error message string"""
         # confirm meta data contains data
         if self.meta_data is None or len(self.meta_data) == 0:
-            error_message = u"[!] doxx: The template file '" + self.inpath + "' is not properly formatted.  Please include the required meta data block between '---doxx---' delimiters at the top of your file."
+            error_message = u"[!] doxx: The template file '" + self.inpath + "' is not properly formatted.  Please include the required build specification block between '---doxx---' delimiters at the top of your file."
             return (True, error_message)
         # confirm that there is template text
         elif self.text is None or len(self.text) < 5:  # if self.text not defined or length of the string < 5 chars (because {{x}} == 5 so must not include any replacement tags)

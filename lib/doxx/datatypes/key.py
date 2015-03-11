@@ -151,13 +151,13 @@ class DoxxKey(object):
             
         # missing metadata
         if len(test_metadata_keys) == 0:
-            stderr("[!] doxx: The metadata header is missing from your key file.  Please include your template or project file path(s).", exit=1)
+            stderr("[!] doxx: The build specification header is missing from your key file.  Please include your template or project file path(s).", exit=1)
         
         # meta data does not contain a template, templates, or projects field test
         if 'template' not in test_metadata_keys:
             if 'templates' not in test_metadata_keys:
                 if 'project' not in test_metadata_keys:
-                    stderr("[!] doxx: There are no template or project files specified in your key. Please complete the meta data section of your key file.", exit=1)
+                    stderr("[!] doxx: There are no template or project files specified in your key. Please complete the build specification section at the head of your key file.", exit=1)
             
         # TOO MANY FIELDS
         # meta data contains both template and templates fields test
