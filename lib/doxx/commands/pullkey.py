@@ -12,7 +12,7 @@ def run_pullkey(package_name):
     package = OfficialPackage()
     key_file_url = package.get_package_key_url(normalized_package_name)
     try:
-        stdout("[*] doxx: Pulling remote key file...")
+        stdout("[*] doxx: Pulling the remote key file...")
         http = HTTP(key_file_url)
         if http.get_status_ok():
             key_file_text = http.res.text

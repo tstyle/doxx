@@ -11,7 +11,7 @@ from Naked.toolshed.system import stdout, stderr
 
 def run_whatis(package_name):
     cache = DoxxCache()
-    max_cache_seconds = 86400  # 24 hour file cache
+    max_cache_seconds = 86400  # 24 hour file cache (same as search module)
     stdout("[*] doxx: Looking up the package description...")
     if cache.cached_file_exists('packages.json'):  # does the cached file already exist
         if cache.does_cache_file_require_update(cache.package_repo_json_file, max_cache_seconds):  # if so, has the cache time elapsed?

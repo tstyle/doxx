@@ -110,20 +110,21 @@ def run_search(search_string):
         for result in final_best_results:
             stdout(result)
     elif len(final_possible_results) > 0:
-        stdout("[*] doxx: There were no good matches for your search.")
+        stdout("[*] doxx: There were no good matches for your search term.")
         stdout("[*] doxx: Do any of these work? :")
         stdout(" ")
         for result in final_possible_results:
             stdout(result)
         pass  # handle with possible results
     else:
-        stdout("[*] doxx: No matches found in the Package Repository.")  ##TODO: add prompt to develop a new package
+        stdout("[*] doxx: No matches found in the Package Repository.")
+        stdout("[*] doxx: Get in touch so that we can build it...")   ## TODO: add mechanism for user package submit
         
     
 def _get_master_text():
     ## check the cache for a cached version of the file with appropriate cache duration
     cache = DoxxCache()
-    max_cache_seconds = 86400  # 24 hour cache of the repository list
+    max_cache_seconds = 86400  # 24 hour cache of the repository list (same as whatis module)
     if cache.cached_file_exists(cache.package_repo_list_file):
         if cache.does_cache_file_require_update(cache.package_repo_list_file, max_cache_seconds):
             master_list = _pull_official_repository_list()  # pull the master list text from remote
