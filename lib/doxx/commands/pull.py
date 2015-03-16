@@ -178,34 +178,24 @@ def run_pull(url):
                                         shutil.rmtree(targz_basename)                    # remove the pulled repository file
                                 elif file_exists(joined_keep_path):
                                     stdout("[*] doxx: Cherry picking the file '" + keep_path + "'")
-                                    if keep_path_depth > 1:
-                                        if dir_exists(dirname(keep_path)):
-                                            pass  # do nothing if the path already exists
+                                    local_filepath = basename(keep_path)  # outfile write path (filename to root directory where user pulled)
+                                    ## NEW
+                                    # handle file path if the file already exists to avoid overwrite
+                                    if file_exists(local_filepath):       # the file already exists in the local directory
+                                        if '.' in local_filepath:
+                                            file_name_parts = local_filepath.split('.')
+                                            file_name_parts[0] = file_name_parts[0] + "-new"  # add '-new' to the basename of the file, not extension
+                                            local_filepath = '.'.join(file_name_parts)
                                         else:
-                                            makedirs(dirname(keep_path))       # make the necessary directory path to the file in the root directory for the pull
-                                    if file_exists(keep_path):                 # the file already exists
-                                        the_filename = basename(keep_path)
-                                        if '.' in the_filename:     # there is a file extension in the base filename
-                                            file_name_parts = the_filename.split('.')
-                                            the_basename = file_name_parts[0]
-                                            file_extension = file_name_parts[1]
-                                            file_extension_two = ""             # in case there are two file extensions (e.g. file.tar.gz)
-                                            if len(file_name_parts) == 3:
-                                                file_extension_two = "." + file_name_parts[2]
-                                            new_filename = the_basename + "-new" + "." + file_extension + file_extension_two  # add -new suffix to filename
-                                            updated_keep_path = join(dirname(keep_path), new_filename)
-                                        else:   # there is no file extension
-                                            updated_keep_path = keep_path + "-new"    # file path without file extension, so just add the -new suffix to prevent overwrite
-                                        if file_exists(updated_keep_path):
-                                            remove(updated_keep_path)         # if the '-new' modified file exists, remove it
-                                        stdout("[*] doxx: The requested file path already exists locally.  Writing to '" + updated_keep_path + "' instead.")
-                                        shutil.copy2(joined_keep_path, updated_keep_path)  # write new file
-                                        shutil.rmtree(targz_basename)                      # remove repo file
-                                    else:   # cherry picked file does not already exist, go ahead with file write
-                                        shutil.copy2(joined_keep_path, keep_path)  # write the file relative to the top level pull directory
-                                        shutil.rmtree(targz_basename)              # remove the rest of the repository that was pulled
+                                            local_filepath = local_filepath + "-new"         # add '-new' to the filename (that does not have an extension)
+                                        stdout("[*] doxx: The requested file already exists in the working directory.  Writing the new file to '" + local_filepath + "' instead.")
+                                        
+                                    # write the file
+                                    shutil.copy2(joined_keep_path, local_filepath)
+                                    # remove the tar.gz archive file
+                                    shutil.rmtree(targz_basename)
                                 else:  # could not find the file or dir in the pulled repo
-                                    stderr("[!] doxx: '" + joined_keep_path + "' does not appear to be a file or directory in the requested repository.", exit=1)
+                                    stderr("[!] doxx: '" + joined_keep_path + "' does not appear to be a file or directory in the pulled repository.  The entire pulled repository was left in the working directory for review.", exit=1)
                         except Exception as e:
                             stderr("[!] doxx: Unable to process the requested keep file or directory path. Error" + str(e), exit=1)
                     
