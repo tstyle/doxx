@@ -271,39 +271,39 @@ class DoxxPullGithubRepoShortcodeTests(unittest.TestCase):
             
             # FILE with file extension
             run_pull(self.repo_shortcode_master_cherry_file)
-            self.assertTrue(file_exists("doxx/testfile.txt"))
-            fr_tft = FileReader("doxx/testfile.txt")
+            self.assertTrue(file_exists("testfile.txt"))
+            fr_tft = FileReader("testfile.txt")
             text_tft = fr_tft.read()
             self.assertEqual(u"testfile.txt\n", text_tft)
             
             # execute the command again and confirm that overwrite does not occur, adds -new to the filename
             run_pull(self.repo_shortcode_master_cherry_file)
-            self.assertTrue(file_exists("doxx/testfile.txt"))
-            self.assertTrue(file_exists("doxx/testfile-new.txt"))
-            fr_tftn = FileReader("doxx/testfile-new.txt")
+            self.assertTrue(file_exists("testfile.txt"))
+            self.assertTrue(file_exists("testfile-new.txt"))
+            fr_tftn = FileReader("testfile-new.txt")
             text_tftn = fr_tftn.read()
             self.assertEqual(u"testfile.txt\n", text_tftn)
             
-            #cleanup
-            shutil.rmtree("doxx")
-            
             # FILE without file extension
             run_pull(self.repo_shortcode_master_cherry_file_no_ext)
-            self.assertTrue(file_exists("doxx/testfile"))
-            fr_tf = FileReader("doxx/testfile")
+            self.assertTrue(file_exists("testfile"))
+            fr_tf = FileReader("testfile")
             text_tf = fr_tf.read()
             self.assertEqual(u"testfile\n", text_tf)
             
             # execute the command again and confirm that overwrite does not occur, adds -new to the filename
             run_pull(self.repo_shortcode_master_cherry_file_no_ext)
-            self.assertTrue(file_exists("doxx/testfile"))
-            self.assertTrue(file_exists("doxx/testfile-new"))
-            fr_tfn = FileReader("doxx/testfile-new")
+            self.assertTrue(file_exists("testfile"))
+            self.assertTrue(file_exists("testfile-new"))
+            fr_tfn = FileReader("testfile-new")
             text_tfn = fr_tfn.read()
             self.assertEqual(u"testfile\n", text_tfn)              
             
             #cleanup
-            shutil.rmtree("doxx")
+            os.remove("testfile.txt")
+            os.remove("testfile-new.txt")
+            os.remove("testfile")
+            os.remove("testfile-new")
             
             os.chdir(self.cwd)
         except Exception as e:
@@ -317,39 +317,39 @@ class DoxxPullGithubRepoShortcodeTests(unittest.TestCase):
             
             # FILE with file extension
             run_pull(self.repo_shortcode_branch_cherry_file)
-            self.assertTrue(file_exists("doxx/testfile.txt"))
-            fr_tft = FileReader("doxx/testfile.txt")
+            self.assertTrue(file_exists("testfile.txt"))
+            fr_tft = FileReader("testfile.txt")
             text_tft = fr_tft.read()
             self.assertEqual(u"testfile.txt branch v1.1\n", text_tft)
             
             # execute the command again and confirm that overwrite does not occur, adds -new to the filename
             run_pull(self.repo_shortcode_branch_cherry_file)
-            self.assertTrue(file_exists("doxx/testfile.txt"))
-            self.assertTrue(file_exists("doxx/testfile-new.txt"))
-            fr_tftn = FileReader("doxx/testfile-new.txt")
+            self.assertTrue(file_exists("testfile.txt"))
+            self.assertTrue(file_exists("testfile-new.txt"))
+            fr_tftn = FileReader("testfile-new.txt")
             text_tftn = fr_tftn.read()
-            self.assertEqual(u"testfile.txt branch v1.1\n", text_tftn)
-            
-            #cleanup
-            shutil.rmtree("doxx")                        
+            self.assertEqual(u"testfile.txt branch v1.1\n", text_tftn)                       
         
             # FILE without file extension
             run_pull(self.repo_shortcode_branch_cherry_file_no_ext)
-            self.assertTrue(file_exists("doxx/testfile"))
-            fr_tf = FileReader("doxx/testfile")
+            self.assertTrue(file_exists("testfile"))
+            fr_tf = FileReader("testfile")
             text_tf = fr_tf.read()
             self.assertEqual(u"testfile branch v1.1\n", text_tf)
             
             # execute the command again and confirm that overwrite does not occur, adds -new to the filename
             run_pull(self.repo_shortcode_branch_cherry_file_no_ext)
-            self.assertTrue(file_exists("doxx/testfile"))
-            self.assertTrue(file_exists("doxx/testfile-new"))
-            fr_tfn = FileReader("doxx/testfile-new")
+            self.assertTrue(file_exists("testfile"))
+            self.assertTrue(file_exists("testfile-new"))
+            fr_tfn = FileReader("testfile-new")
             text_tfn = fr_tfn.read()
             self.assertEqual(u"testfile branch v1.1\n", text_tfn)              
             
             #cleanup
-            shutil.rmtree("doxx")
+            os.remove("testfile.txt")
+            os.remove("testfile-new.txt")
+            os.remove("testfile")
+            os.remove("testfile-new")
             
             os.chdir(self.cwd)
         except Exception as e:
