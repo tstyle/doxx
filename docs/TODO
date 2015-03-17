@@ -1,20 +1,19 @@
-v0.9.1
+v0.9.2
 
 NEW:
-  [x] Github shortcodes
+[] support for GH pulls/cherry picks from keyfile 'github' build spec
 
+UPDATES:
+[X] modified github pull shortcode for files.  Now pulls file to root directory instead of the repo defined directory path
  
  
 BUGFIXES:
-  [X] correct template user messages with the term "build specification header" not metadata
-  [X] correct key user messages with the term "build specification header"
- 
+
 
 TESTS:
-  [x] Github shortcodes
+
   
 DOCS:
-  [X] update pull documentation with Github shortcodes
 
 
 ROADMAP:
@@ -26,6 +25,7 @@ High Priority
   [ ] mechanism for new package build requests/submissions
 
 Medium Priority
+  -- create an approach that permits users to distribute their packages on their own GH repos similar to Package Repo
   -- pull from CDNJS with shorthand path (project/version/etc)
   -- ? create a settings file so users can create their own shortcode specs
   -- pre-build and post-build script execution support (task runner style)
