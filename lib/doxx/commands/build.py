@@ -72,12 +72,19 @@ class Builder(object):
         self.set_key_data(doxxkey)  # assign key data from the doxx Key
         
         try:
+            # is there a Github repo to pull into the build?
+            if doxxkey.github_key is True:
+                print(doxxkey.meta_data['github'])
+                
+            # process templates/archive files
             if doxxkey.project_key is True:  # the key is set to run on a local or remote project archive
                 self.project_archive_run(doxxkey)
             elif doxxkey.multi_template_key is True:  # the key is set to run on multiple local or remote template files
                 multi_process_build(doxxkey, self.key_path)
-            else:
+            elif doxxkey.single_template_key is True:
                 self.single_template_run(doxxkey.meta_data['template']) # the key is set to run on a single local or remote template file
+            else:
+                pass  # no default condition
         except Exception as e:
             stderr("[!] doxx: Error: " + str(e), exit=1)
             

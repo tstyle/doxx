@@ -21,8 +21,10 @@ class DoxxKey(object):
         self.key_data = {}       # holds key data (user specified keys)
         self.key_path = inpath
         self.no_replacements = False     # changed to True in _read_yaml if there are no replacement string keys included
+        self.single_template_key = False  # changed to True in teh _generate_dir_paths method if 'template' in meta data
         self.multi_template_key = False  # changed to True in the _generate_dir_paths method if 'templates' detected in meta data
         self.project_key = False  # changed to True in the _generate_dir_paths method if 'project' detected in meta data
+        self.github_key = False   # changed to True in the _generate_dir_paths method if 'github' detected in meta data
         
         # define instance variables on object instantiation
         self._read_yaml(inpath)  # define self.meta_data & self.key_data with the yaml key file
@@ -96,6 +98,7 @@ class DoxxKey(object):
             meta_keys = self.meta_data.keys()
         
         if 'template' in meta_keys and self.meta_data['template'] is not None:     # single template file request
+            self.single_template_key = True                                        # single template key property set to True
             pre_file_path = self.meta_data['template']
             if len(pre_file_path) > 6 and (pre_file_path[0:7] == "http://" or pre_file_path[0:8] == "https://"):  # not necessary to build new path if it is a URL
                 pass
@@ -130,10 +133,11 @@ class DoxxKey(object):
                 # create OS specific path string from the user entered value in the 'project:' field
                 os_specific_filepath = self.normalize_filepath(pre_file_path)
                 self.meta_data['project'] = make_path(dir_path, os_specific_filepath)
+        elif 'github' in meta_keys and not self.meta_data['github'] == None:
+            self.github_key = True  # convert to True because this includes a Github pull request
         else:
             pass  # if the meta data is missing, the check will be performed in the _parse_yaml_for_errors method below. do nothing here
-    
-    
+
         
     def normalize_filepath(self, pre_filepath):
         """returns a filepath with the correct OS-dependent path separators"""
@@ -153,11 +157,12 @@ class DoxxKey(object):
         if len(test_metadata_keys) == 0:
             stderr("[!] doxx: The build specification header is missing from your key file.  Please include your template or project file path(s).", exit=1)
         
-        # meta data does not contain a template, templates, or projects field test
+        # meta data does not contain a template, templates, projects, or github field test
         if 'template' not in test_metadata_keys:
             if 'templates' not in test_metadata_keys:
                 if 'project' not in test_metadata_keys:
-                    stderr("[!] doxx: There are no template or project files specified in your key. Please complete the build specification section at the head of your key file.", exit=1)
+                    if 'github' not in test_metadata_keys:
+                        stderr("[!] doxx: There are no template or project files specified in your key. Please complete the build specification section at the head of your key file.", exit=1)
             
         # TOO MANY FIELDS
         # meta data contains both template and templates fields test
