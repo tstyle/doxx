@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from Naked.toolshed.system import stderr, stdout
+from doxx.commands.pull import pull_binary_file
+from doxx.commands.unpack import unpack_run
+from os import remove
+
 class GithubRepository(object):
     def __init__(self):
         self.user = ""
@@ -44,13 +49,9 @@ class GithubRepository(object):
         self.url_pull = self.url_pull_template.replace("{{user}}", self.user)
         self.url_pull = self.url_pull.replace("{{repository}}", self.repo)
         self.url_pull = self.url_pull.replace("{{branch}}", self.branch)
-            
-            
-    def add_another_keeppath_with_shortcode(self, shortcode):
-        pass
     
     def get_pull_url(self):
-        pass
+        return self.url_pull
     
     def is_partial_repo(self):
         return self.is_partial_repo
@@ -93,8 +94,29 @@ class GithubRepoPuller(object):
                     github_partialrepo_collection.append(repo)
                
         # TESTING     
+        # Full Repo Pulls
+        if len(github_fullrepo_collection) > 0:
+            for repo in github_fullrepo_collection:
+                gh_repo_url = repo.get_pull_url()
+                targz_filename = repo.repo + "-" + repo.branch + ".tar.gz"  # the name of the pulled archive file
+                stdout("[*] doxx: Pulling '" + repo.branch + "' branch of '" + repo.user + "/" + repo.repo + "'")
+                
+                # pull the github repo as a tar.gz archive
+                try:
+                    pull_binary_file(gh_repo_url, targz_filename)
+                except Exception as e:
+                    stderr("[!] doxx: Unable to pull the Github repository.  Error: " + str(e), exit=1)
+                    
+                # unpack the archive
+                if file_exists(targz_filename):
+                    root_dir = unpack_run(targz_filename)
+                    remove(targz_filename)
+                    stdout("[+] doxx: Unpacked to '" + root_dir + "'")
+                
+        # Cherry picked files and/or directory pulls
         for repo in github_partialrepo_collection:
             print(repo.keep_paths_map)
+            print(repo.get_pull_url())
     
     def is_same_repo(self, first_repo, second_repo):
         if first_repo.user == second_repo.user and first_repo.repo == second_repo.repo and first_repo.branch == second_repo.branch:
