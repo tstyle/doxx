@@ -11,7 +11,6 @@ from Naked.toolshed.python import is_py2
 
 from doxx.datatypes.template import DoxxTemplate, RemoteDoxxTemplate
 from doxx.datatypes.key import DoxxKey
-from doxx.datatypes.github import GithubRepoPuller
 from doxx.commands.pull import run_pull, is_url
 from doxx.commands.unpack import unpack_run
 
@@ -73,11 +72,20 @@ class Builder(object):
         self.set_key_data(doxxkey)  # assign key data from the doxx Key
         
         try:
-            # is there a Github repo to pull into the build?
-            if doxxkey.github_key is True:
-                gh_puller = GithubRepoPuller()
-                gh_puller.pull_from_key_shortcode_dictionary(doxxkey.meta_data['github'])
+            # are there Github repository(ies) to pull? if so, do it
+            if doxxkey.github_repo_key is True:
+                from doxx.datatypes.github import pull_github_repo_runner
+                pull_github_repo_runner(doxxkey.meta_data['github-repos'])
+            
+            # are there text file(s) to pull? if so, do it
+            if doxxkey.textfile_key is True:
+                from doxx.datatypes.github import pull_textfile_runner
+                pull_textfile_runner(doxxkey.meta_data['textfiles'])
                 
+            # are there binary files to pull? if so, do it
+            if doxxkey.binaryfile_key is True:
+                from doxx.datatypes.github import pull_binaryfile_runner
+                pull_binaryfile_runner(doxxkey.meta_data['binaryfiles'])
                 
             # process templates/archive files
             if doxxkey.project_key is True:  # the key is set to run on a local or remote project archive

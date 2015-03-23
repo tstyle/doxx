@@ -24,7 +24,9 @@ class DoxxKey(object):
         self.single_template_key = False  # changed to True in teh _generate_dir_paths method if 'template' in meta data
         self.multi_template_key = False  # changed to True in the _generate_dir_paths method if 'templates' detected in meta data
         self.project_key = False  # changed to True in the _generate_dir_paths method if 'project' detected in meta data
-        self.github_key = False   # changed to True in the _generate_dir_paths method if 'github' detected in meta data
+        self.github_repo_key = False
+        self.textfile_key = False
+        self.binaryfile_key = False
         
         # define instance variables on object instantiation
         self._read_yaml(inpath)  # define self.meta_data & self.key_data with the yaml key file
@@ -133,10 +135,16 @@ class DoxxKey(object):
                 # create OS specific path string from the user entered value in the 'project:' field
                 os_specific_filepath = self.normalize_filepath(pre_file_path)
                 self.meta_data['project'] = make_path(dir_path, os_specific_filepath)
-        elif 'github' in meta_keys and not self.meta_data['github'] == None:
-            self.github_key = True  # convert to True because this includes a Github pull request
         else:
             pass  # if the meta data is missing, the check will be performed in the _parse_yaml_for_errors method below. do nothing here
+        
+        # Github repository request property definitions in the Key
+        if 'github-repos' in meta_keys and not self.meta_data['github-repos'] == None:
+            self.github_repo_key = True  # used in build command processing
+        if 'textfiles' in meta_keys and not self.meta_data['textfiles'] == None:
+            self.textfile_key = True
+        if 'binaryfiles' in meta_keys and not self.meta_data['binaryfiles'] == None:
+            self.binaryfile_key = True       
 
         
     def normalize_filepath(self, pre_filepath):
@@ -157,12 +165,14 @@ class DoxxKey(object):
         if len(test_metadata_keys) == 0:
             stderr("[!] doxx: The build specification header is missing from your key file.  Please include your template or project file path(s).", exit=1)
         
-        # meta data does not contain a template, templates, projects, or github field test
+        # test for absence of all appropriate build spec field types
         if 'template' not in test_metadata_keys:
             if 'templates' not in test_metadata_keys:
                 if 'project' not in test_metadata_keys:
-                    if 'github' not in test_metadata_keys:
-                        stderr("[!] doxx: There are no template or project files specified in your key. Please complete the build specification section at the head of your key file.", exit=1)
+                    if 'github-repos' not in test_metadata_keys:
+                        if 'textfiles' not in test_metadata_keys:
+                            if 'binaryfiles' not in test_metadata_keys:
+                                stderr("[!] doxx: There are no template or project files specified in your key. Please complete the build specification section at the head of your key file.", exit=1)
             
         # TOO MANY FIELDS
         # meta data contains both template and templates fields test
