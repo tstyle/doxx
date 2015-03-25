@@ -74,17 +74,17 @@ class Builder(object):
         try:
             # are there Github repository(ies) to pull? if so, do it
             if doxxkey.github_repo_key is True:
-                from doxx.datatypes.github import pull_github_repo_runner
+                from doxx.datatypes.remotefiles import pull_github_repo_runner
                 pull_github_repo_runner(doxxkey.meta_data['github-repos'])
             
             # are there text file(s) to pull? if so, do it
             if doxxkey.textfile_key is True:
-                from doxx.datatypes.github import pull_textfile_runner
+                from doxx.datatypes.remotefiles import pull_textfile_runner
                 pull_textfile_runner(doxxkey.meta_data['textfiles'])
                 
             # are there binary files to pull? if so, do it
             if doxxkey.binaryfile_key is True:
-                from doxx.datatypes.github import pull_binaryfile_runner
+                from doxx.datatypes.remotefiles import pull_binaryfile_runner
                 pull_binaryfile_runner(doxxkey.meta_data['binaryfiles'])
                 
             # process templates/archive files
