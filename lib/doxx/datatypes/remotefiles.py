@@ -81,13 +81,13 @@ def pull_binaryfile_runner(binary_url_dict):
         stderr("[!] doxx: Unable to find binary files to pull in the key file", exit=0)
 
 
-########################################
+###########################################
 #
 #  [pull_github_repo_runner]
 #       public function
 #       - pull remote Github repo archives
 #
-########################################
+###########################################
 
 
 def pull_github_repo_runner(repo_url_dict):
