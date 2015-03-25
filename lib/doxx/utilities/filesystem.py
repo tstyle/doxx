@@ -10,11 +10,15 @@ from Naked.toolshed.system import dir_exists
 #
 ########################################
 def _make_os_dependent_path(file_path):
-    """Makes an OS dependent file path from a POSIX file path"""
-    if "/" in file_path:
+    """Makes an OS dependent file path from a POSIX or DOS file path"""
+    if "/" in file_path:  # POSIX style
         path_list = file_path.split("/")
         os_file_path = os.path.join(*path_list)  # use splat operator to unpack list to tuple of path names
         return os_file_path                      # return the OS dependent path if there are path separators
+    elif "\\" in file_path:  # DOS style
+        path_list = file_path.split("\\")
+        os_file_path = os.path.join(*path_list)  # use splat operator to unpack list to tuple of path names
+        return os_file_path         
     else:
         return file_path                         # else simply return file or dir name if there are no path separators
     
