@@ -1,0 +1,12 @@
+---
+
+template: template.doxt
+
+github-repo:
+    glue-master: "https://github.com/chrissimpkins/glue/archive/master.tar.gz"
+
+textfiles:
+    font-awesome.css: "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/master/css/font-awesome.css"
+    font-awesome.min.css: "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/master/css/font-awesome.min.css"
+
+---

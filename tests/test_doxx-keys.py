@@ -328,6 +328,39 @@ class DoxxUnicodeKeysTests(unittest.TestCase):
         self.assertEqual(u'ΔϾϘ', key.key_data['string'])
         
 
+class DoxxKeysTextFilePullBuildSpecTests(unittest.TestCase):
+    
+    def setUp(self):
+        self.text_buildspec_key = "keys/textfile_buildspec_key.yaml"
+        self.text_buildspec_otherfiles_key = "keys/textfile_buildspec_otherfields_key.yaml"
+        
+    # appropriately forms a dictionary of localfilepath : URL
+    def test_doxx_text_buildspec_key_read(self):
+        key = DoxxKey(self.text_buildspec_key)
+        expected_dict = {"font-awesome.css": "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/master/css/font-awesome.css", "font-awesome.min.css": "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/master/css/font-awesome.min.css"}
+        self.assertDictEqual(key.meta_data['textfiles'], expected_dict)
+    
+    # local filepaths are as expected
+    def test_doxx_text_buildspec_filepaths_read(self):
+        key = DoxxKey(self.text_buildspec_key)
+        filepaths = key.meta_data['textfiles'].keys()
+        self.assertIn("font-awesome.css", filepaths)
+        self.assertIn("font-awesome.min.css", filepaths)
+        
+    def test_doxx_text_buildspec_URL_read(self):
+        key = DoxxKey(self.text_buildspec_key)
+        url_one = key.meta_data['textfiles']['font-awesome.css']
+        url_two = key.meta_data['textfiles']['font-awesome.min.css']
+        self.assertEqual(url_one, "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/master/css/font-awesome.css")
+        self.assertEqual(url_two, "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/master/css/font-awesome.min.css")
+        
+    # confirm that still reads in presence of other build spec keys in the YAML header
+    def test_doxx_text_buildspec_otherkeys_read(self):
+        key = DoxxKey(self.text_buildspec_otherfiles_key)
+        expected_dict = {"font-awesome.css": "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/master/css/font-awesome.css", "font-awesome.min.css": "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/master/css/font-awesome.min.css"}
+        self.assertDictEqual(key.meta_data['textfiles'], expected_dict)        
+    
+
 ## Error tests
     
 class DoxxKeysErrorTests(unittest.TestCase):

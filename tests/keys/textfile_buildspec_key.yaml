@@ -1,0 +1,7 @@
+---
+
+textfiles:
+    font-awesome.css: "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/master/css/font-awesome.css"
+    font-awesome.min.css: "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/master/css/font-awesome.min.css"
+
+---
