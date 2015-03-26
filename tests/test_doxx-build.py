@@ -6,6 +6,7 @@ import os
 import unittest
 import unicodedata
 import shutil
+
 from Naked.toolshed.system import make_path, file_exists, dir_exists
 from Naked.toolshed.file import FileReader, FileWriter
 from doxx.datatypes.key import DoxxKey
