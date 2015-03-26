@@ -1,8 +1,10 @@
 v0.9.3
 
 NEW:
-[X] support for GH repo, text file, binary file pulls from new keyfile build spec
-[ ] 'docs' command (0.9.3)
+[X] support for text file pulls from new keyfile build spec
+[X] 'browse' command (0.9.3)
+[+/-] support for Github repo pulls from new keyfile build spec (0.9.4) - requires testing
+[+/-] support for binary file pulls from new keyfile build spec (0.9.5) - requires testing
 
 UPDATES:
 
@@ -13,7 +15,7 @@ BUGFIXES:
 TESTS:
 
 [X] test pulls with text file build spec (0.9.3)
-[ ] test key file build spec field YAML reads (0.9.3)
+[X] test key file build spec field YAML reads (0.9.3)
 
 [ ] test pulls with GH repo key build spec (0.9.4)
 [ ] test pulls with binary file build spec (0.9.5)
@@ -21,11 +23,11 @@ TESTS:
 DOCS:
 
 [ ] add docs on text file pull build spec fields (0.9.3)
+[ ] add docs on 'browse' command
 
 ROADMAP:
 
 High Priority
-  [ ] docs command - open default web browser to the documentation site for commands (0.9.3)
   [ ] improve command - simple access to repository to improve the templates/keys (0.9.4)
   [ ] Travis testing of package builds
   [ ] mechanism for new package build requests/submissions
