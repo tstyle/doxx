@@ -60,6 +60,15 @@ def main():
         b = Builder(key_path)
         b.run()
         stdout("[*] doxx: Build complete.")
+    elif c.cmd == "browse":
+        from doxx.commands.browse import browse_docs
+        if c.argc > 1:
+            query = c.arg1
+            browse_docs(query)
+        else:
+            # default to open the main documentation page
+            query = "docs"
+            browse_docs(query)
     elif c.cmd == "clean":
         from doxx.commands.clean import run_clean
         run_clean()  # execute the clean routines
