@@ -11,7 +11,7 @@ app_name = 'doxx'
 #------------------------------------------------------------------------------
 major_version = "0"
 minor_version = "9"
-patch_version = "2"
+patch_version = "3"
 
 #------------------------------------------------------------------------------
 # Debug Flag (switch to False for production release code)
@@ -44,6 +44,7 @@ USAGE
   doxx <option> [command] <argument>
   
 GENERAL COMMANDS
+  browse   browse to doxx source code, docs, and associated project files
   build    render string replacements in template files and build project
   clean    remove doxx project files from a project directory
   make     generate key, template, or project file stubs
