@@ -21,8 +21,8 @@ from doxx.utilities.filesystem import _create_dirs, _make_os_dependent_path
 
 
 def pull_textfile_runner(text_url_dict):
-    """pulls remote text files to local filesystem (public function)"""
-    file_list = text_url_dict.keys()      # the local outfile names in a list    
+    """pulls remote text files to local filesystem (public function)"""     
+    file_list = list(text_url_dict)       # the local outfile names in a list
     number_of_files = len(file_list)      # the number of files included in the list
     if number_of_files > 0:   
         if number_of_files > 1:  # multiple text file pull, each in separate process
@@ -57,7 +57,7 @@ def pull_textfile_runner(text_url_dict):
 
 def pull_binaryfile_runner(binary_url_dict):
     """pulls remote binary files to local filesystem (public function)"""
-    file_list = binary_url_dict.keys()      # the local outfile names in a list    
+    file_list = list(binary_url_dict)     # the local outfile names in a list    
     number_of_files = len(file_list)      # the number of files included in the list
     if number_of_files > 0:   
         if number_of_files > 1:  # multiple binary file pull, each in separate process
@@ -92,7 +92,7 @@ def pull_binaryfile_runner(binary_url_dict):
 
 def pull_github_repo_runner(repo_url_dict):
     """pulls remote Github repository archives to the local filesystem and unpacks (public function)"""
-    file_list = repo_url_dict.keys()      # the local outfile names in a list    
+    file_list = list(repo_url_dict)       # the local outfile names in a list    
     number_of_files = len(file_list)      # the number of files included in the list
     if number_of_files > 0:   
         if number_of_files > 1:  # multiple binary file pull, each in separate process
