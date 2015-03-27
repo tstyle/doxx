@@ -14,13 +14,26 @@ key_stub = """
 
 # Key file documentation: http://doxx.org/usage/keys/
 
+###################################################
+# Exclusive build specification fields (choose one)
+###################################################
+
 template: ***.doxt
 templates: [***.doxt, 'http://***/***.doxt']
 project: ***.tar.gz
 
+
+#####################################################
+# Non-exclusive build specification fields (optional)
+#####################################################
+
+textfiles:
+    localfile.txt: "https://files.com/some/great/file.txt"
+    localfile2.txt: ""https://files.com/some/great/file2.txt"
+
 ---
 
-# Enter the key for the template replacement strings below (YAML syntax):
+# Enter the key for the available template replacement strings below (YAML syntax):
 """
 
 
@@ -33,8 +46,21 @@ project_yaml_stub = """
 
 # Project archive documentation: http://doxx.org/usage/archives/
 
+###################################################
+# Exclusive build specification fields (choose one)
+###################################################
+
 template: ***.doxt
 templates: [***.doxt, 'http://***/***.doxt']
+
+
+#####################################################
+# Non-exclusive build specification fields (optional)
+#####################################################
+
+textfiles:
+    localfile.txt: "https://files.com/some/great/file.txt"
+    localfile2.txt: ""https://files.com/some/great/file2.txt"
 
 ---
 """
@@ -81,7 +107,7 @@ class Maker(object):
             fw = FileWriter(outpath)
             fw.write(key_stub)
             if file_exists(outpath):
-                stdout("[+] doxx: The key stub '" + outpath + "' is available in the current directory.")
+                stdout("[+] doxx: The key stub '" + outpath + "' is now available in the current directory.")
         except Exception as e:
             stderr("[!] doxx: Unable to write the key stub to disk.  Error: " + str(e), exit=1)
         
@@ -90,7 +116,7 @@ class Maker(object):
             fw = FileWriter(outpath)
             fw.write(template_stub)
             if file_exists(outpath):
-                stdout("[+] doxx: The template stub '" + outpath + "' is available in the current directory.")
+                stdout("[+] doxx: The template stub '" + outpath + "' is now available in the current directory.")
         except Exception as e:
             stderr("[!] doxx: Unable to write the template stub to disk. Error: " + str(e), exit=1)
             
