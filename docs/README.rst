@@ -5,7 +5,7 @@ What is doxx?
 
 doxx is a generic text file project build and distribution system. It supports simple YAML formatted build specs and build time text file customization using local or remote text templates (that can be hosted anywhere).
 
-For those who prefer the ready-made approach, the `doxx Package Repository <https://github.com/doxx-repo>`_ contains a growing list of resusable, common project types that can be built with a simple set of doxx commands.
+For those who prefer the ready-made approach, the `doxx Package Repository <https://github.com/doxx-repo>`_ contains a growing list of resusable, common project types that can be built with a simple set of doxx commands. If you're looking for a quick way to build Bootstrap, Zurb Foundation, Font Awesome, angular.js, ember.js, Ionic mobile apps, software licenses, settings & testing file stubs, and much more, the packages are already built for you.  Use 'doxx search [query]' to see if your favorite package is available.
 
 Features include:
 
