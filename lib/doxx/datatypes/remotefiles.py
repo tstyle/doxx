@@ -6,7 +6,7 @@ import os.path
 from multiprocessing import Process, Lock
 
 from Naked.toolshed.system import stderr, stdout, file_exists
-from doxx.commands.pull import pull_binary_file, pull_text_file
+from doxx.commands.pull import pull_binary_file, pull_text_file, pull_archive_file
 from doxx.commands.unpack import unpack_run
 from doxx.utilities.filesystem import _create_dirs, _make_os_dependent_path
 
@@ -92,18 +92,30 @@ def pull_binaryfile_runner(binary_url_dict):
 
 def pull_github_repo_runner(repo_url_dict):
     """pulls remote Github repository archives to the local filesystem and unpacks (public function)"""
-    file_list = list(repo_url_dict)       # the local outfile names in a list    
+    pull_archive_runner(repo_url_dict)  # execute through the pull_archive_runner function
+        
+        
+###########################################
+#
+#  [pull_archive_runner]
+#       public function
+#       - pull remote archive file
+#
+###########################################
+
+def pull_archive_runner(archive_url_dict):
+    file_list = list(archive_url_dict)       # the local outfile names in a list    
     number_of_files = len(file_list)      # the number of files included in the list
     if number_of_files > 0:   
         if number_of_files > 1:  # multiple binary file pull, each in separate process
-            stdout("[*] doxx: Hang in there. Pulling " + str(number_of_files) + " entire repositories. This may take a bit of time...")
+            stdout("[*] doxx: Hang in there. Pulling " + str(number_of_files) + " entire file archives. This may take a bit of time...")
             processes = []       # list of spawned processes
             outputlock = Lock()  # stdout / stderr writes lock
             iolock = Lock()      # input/output lock
             
             # iterate through requested files and execute pull in separate process for each one
             for file_path in file_list:
-                p = Process(target=_pull_github_repo_multiprocess, args=(file_path, repo_url_dict[file_path], outputlock, iolock))
+                p = Process(target=_pull_archive_multiprocess, args=(file_path, archive_url_dict[file_path], outputlock, iolock))
                 p.start()
                 processes.append(p)
                 
@@ -111,11 +123,11 @@ def pull_github_repo_runner(repo_url_dict):
                 process.join(timeout=120)
                 
         else:  # single text file pull
-            stdout("[*] doxx: Hang in there. Pulling an entire repository. This may take a bit of time...")
+            stdout("[*] doxx: Hang in there. Pulling the entire file archive. This may take a bit of time...")
             file_path = file_list[0]
-            _pull_github_repo(file_path, repo_url_dict[file_path])  # file_path is local path for write, dictionary value is the URL
+            _pull_archive(file_path, archive_url_dict[file_path])  # file_path is local path for write, dictionary value is the URL
     else:
-        stderr("[!] doxx: Unable to find binary files to pull in the key file", exit=0)   
+        stderr("[!] doxx: Unable to find binary files to pull in the key file", exit=0)    
 
 
 ###############################################
@@ -247,7 +259,7 @@ def _pull_binaryfile_multiprocess(file_path, url, outputlock, iolock):
 
 ########################################
 #
-#  [_pull_github_repo]
+#  [_pull_archive]
 #       private function
 #       - execute single process Github
 #             repository archive pulls
@@ -255,8 +267,8 @@ def _pull_binaryfile_multiprocess(file_path, url, outputlock, iolock):
 ########################################
 
 
-def _pull_github_repo(file_path, url):
-    """executes single process Github repository archive pulls (private function)"""
+def _pull_archive(file_path, url):
+    """executes single process archive file pulls (private function)"""
     # create OS dependent file path (if necessary)
     file_path = _make_os_dependent_path(file_path)
     # make directory structure if necessary for the file path
@@ -264,9 +276,9 @@ def _pull_github_repo(file_path, url):
         _create_dirs(file_path)
     # pull the file and write to local filesystem    
     try:
-        pull_binary_file(url, file_path)
+        pull_archive_file(url, file_path)
     except Exception as e:
-        stderr("[!] doxx: Unable to pull the archive file from the URL '" + url + "'. Error: " + str(e), exit=0)
+        stderr("[!] doxx: Unable to pull the archive file from the URL '" + url + "'. Error: " + str(e), exit=1)
     if file_exists(file_path):
         root_dir = unpack_run(file_path)
         remove(file_path)
@@ -277,15 +289,16 @@ def _pull_github_repo(file_path, url):
 
 ########################################
 #
-#  [_pull_github_repo_multiprocess]
+#  [_pull_archive_multiprocess]
 #       private function
 #       - execute multiprocess multi-file 
-#             Github repo archive pulls
+#             archive file pulls
 #
 ########################################
 
 
-def _pull_github_repo_multiprocess(file_path, url, outputlock, iolock):
+def _pull_archive_multiprocess(file_path, url, outputlock, iolock):
+    """executes multi-process archive file pulls with I/O and stdout/stderr locks (private function)"""
     # create OS dependent file path (if necessary)
     file_path = _make_os_dependent_path(file_path)
     # make directory structure if necessary for the file path
@@ -295,10 +308,10 @@ def _pull_github_repo_multiprocess(file_path, url, outputlock, iolock):
         iolock.release()
     # pull the file and write to local filesystem    
     try:
-        pull_binary_file(url, file_path)
+        pull_archive_file(url, file_path)
     except Exception as e:
         outputlock.acquire()
-        stderr("[!] doxx: Unable to pull the archive file from the URL '" + url + "'. Error: " + str(e), exit=0)
+        stderr("[!] doxx: Unable to pull the archive file from the URL '" + url + "'. Error: " + str(e), exit=1)
         outputlock.release()
     if file_exists(file_path):
         root_dir = unpack_run(file_path)

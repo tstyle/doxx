@@ -3,6 +3,7 @@
 
 import gzip
 import shutil
+import requests
 from os import remove, rename, makedirs
 from os.path import join, dirname, basename
 from Naked.toolshed.network import HTTP
@@ -296,6 +297,24 @@ def pull_binary_file(url, binary_file_name):
                 stderr("[!] doxx: Unable to pull the file because it cannot be found. (HTTP status code: " + str(fail_status_code) + ")", exit=1)
             else:
                 stderr("[!] doxx: Unable to pull '" + url + "'. (HTTP status code: " + str(fail_status_code) + ")", exit=1)
+    except Exception as e:
+        stderr("[!] doxx: Unable to pull '" + url + "'. Error: " + str(e), exit=1)
+        
+        
+def pull_archive_file(url, archive_filename):
+    """pulls a remote binary archive file and writes to disk"""
+    # solution from http://stackoverflow.com/questions/16694907/how-to-download-large-file-in-python-with-requests-py
+    # note: keep the stream=True to write to disk in chunks
+    try:
+        r = requests.get(url, stream=True)
+        if r.status_code == requests.codes.ok:
+            with open(archive_filename, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=10240):   # pull in 10kb chunks & write out
+                    if chunk: # filter out keep-alive new chunks
+                        f.write(chunk)
+                        f.flush()
+        else:
+            stderr("[!] doxx: Unable to pull '" + url + "'. HTTP status code: " + str(r.status_code), exit=1)
     except Exception as e:
         stderr("[!] doxx: Unable to pull '" + url + "'. Error: " + str(e), exit=1)
 
