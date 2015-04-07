@@ -280,23 +280,20 @@ def get_file_name(url):
 
 def pull_binary_file(url, binary_file_name):
     """pulls a remote binary file and writes to disk"""
-    # pull the binary file data
-    http = HTTP(url)
+    # solution from http://stackoverflow.com/questions/16694907/how-to-download-large-file-in-python-with-requests-py
+    # note: keep the stream=True to write to disk in chunks
     try:
-        if http.get_status_ok():
-            binary_data = http.res.content    
-            # write binary data to disk
-            try:
-                fw = FileWriter(binary_file_name)
-                fw.write_bin(binary_data)
-            except Exception as e:
-                stderr("[!] doxx: File write failed for '" + binary_file_name + "'.  Error: " + str(e), exit=1)
+        r = requests.get(url, stream=True)
+        if r.status_code == requests.codes.ok:
+            with open(binary_file_name, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=10240):   # pull in 10kb chunks & write out
+                    if chunk: # filter out keep-alive new chunks
+                        f.write(chunk)
+                        f.flush()
+        elif r.status_code == 404:
+            stderr("[!] doxx: Unable to pull '" + url + "' because it cannot be found. (HTTP status code: 404)", exit=1)
         else:
-            fail_status_code = http.res.status_code
-            if fail_status_code == 404:
-                stderr("[!] doxx: Unable to pull the file because it cannot be found. (HTTP status code: " + str(fail_status_code) + ")", exit=1)
-            else:
-                stderr("[!] doxx: Unable to pull '" + url + "'. (HTTP status code: " + str(fail_status_code) + ")", exit=1)
+            stderr("[!] doxx: Unable to pull '" + url + "'. HTTP status code: " + str(r.status_code), exit=1)
     except Exception as e:
         stderr("[!] doxx: Unable to pull '" + url + "'. Error: " + str(e), exit=1)
         
@@ -313,6 +310,8 @@ def pull_archive_file(url, archive_filename):
                     if chunk: # filter out keep-alive new chunks
                         f.write(chunk)
                         f.flush()
+        elif r.status_code == 404:
+            stderr("[!] doxx: Unable to pull '" + url + "' because it cannot be found. (HTTP status code: 404)", exit=1)
         else:
             stderr("[!] doxx: Unable to pull '" + url + "'. HTTP status code: " + str(r.status_code), exit=1)
     except Exception as e:
