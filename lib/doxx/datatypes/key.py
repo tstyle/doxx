@@ -98,7 +98,7 @@ class DoxxKey(object):
         if self.meta_data is None:
             meta_keys = []
         else:
-            meta_keys = self.meta_data.keys()
+            meta_keys = set(self.meta_data.keys())
         
         if 'template' in meta_keys and self.meta_data['template'] is not None:     # single template file request
             self.single_template_key = True                                        # single template key property set to True
