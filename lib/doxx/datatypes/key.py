@@ -13,6 +13,7 @@ try:
 except ImportError:
     from yaml import Loader
 
+## TODO: add support for 'archives:' build spec field
 
 class DoxxKey(object):
     def __init__(self, inpath):
@@ -159,7 +160,7 @@ class DoxxKey(object):
         if test_meta_data is None:
             test_metadata_keys = []
         else:
-            test_metadata_keys = self.meta_data.keys()
+            test_metadata_keys = set(self.meta_data.keys())
             
         # missing metadata
         if len(test_metadata_keys) == 0:
@@ -172,7 +173,7 @@ class DoxxKey(object):
                     if 'github-repos' not in test_metadata_keys:
                         if 'textfiles' not in test_metadata_keys:
                             if 'binaryfiles' not in test_metadata_keys:
-                                stderr("[!] doxx: There are no template or project files specified in your key. Please complete the build specification section at the head of your key file.", exit=1)
+                                stderr("[!] doxx: The build specification head section of your key file does not contain an appropriate spec type. Please review the key documentation and give it another try.", exit=1)
             
         # TOO MANY FIELDS
         # meta data contains both template and templates fields test
