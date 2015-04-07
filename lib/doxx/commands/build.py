@@ -72,10 +72,6 @@ class Builder(object):
         self.set_key_data(doxxkey)  # assign key data from the doxx Key
         
         try:
-            # are there Github repository(ies) to pull? if so, do it
-            if doxxkey.github_repo_key is True:
-                from doxx.datatypes.remotefiles import pull_github_repo_runner
-                pull_github_repo_runner(doxxkey.meta_data['github-repos'])
             
             # are there text file(s) to pull? if so, do it
             if doxxkey.textfile_key is True:
@@ -86,6 +82,16 @@ class Builder(object):
             if doxxkey.binaryfile_key is True:
                 from doxx.datatypes.remotefiles import pull_binaryfile_runner
                 pull_binaryfile_runner(doxxkey.meta_data['binaryfiles'])
+            
+            # are there archive files to pull? if so, do it
+            if doxxkey.archives_key is True:
+                from doxx.datatypes.remotefiles import pull_archive_runner
+                pull_archive_runner(doxxkey.meta_data['archives'])
+             
+            # are there Github repository(ies) to pull? if so, do it
+            if doxxkey.github_repo_key is True:
+                from doxx.datatypes.remotefiles import pull_github_repo_runner
+                pull_github_repo_runner(doxxkey.meta_data['github-repos'])            
                 
             # process templates/archive files
             if doxxkey.project_key is True:  # the key is set to run on a local or remote project archive
