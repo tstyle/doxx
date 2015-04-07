@@ -13,7 +13,6 @@ try:
 except ImportError:
     from yaml import Loader
 
-## TODO: add support for 'archives:' build spec field
 
 class DoxxKey(object):
     def __init__(self, inpath):
@@ -26,13 +25,14 @@ class DoxxKey(object):
         self.multi_template_key = False  # changed to True in the _generate_dir_paths method if 'templates' detected in meta data
         self.project_key = False  # changed to True in the _generate_dir_paths method if 'project' detected in meta data
         self.github_repo_key = False
+        self.archives_key = False
         self.textfile_key = False
         self.binaryfile_key = False
         
         # define instance variables on object instantiation
         self._read_yaml(inpath)  # define self.meta_data & self.key_data with the yaml key file
         self._cast_values_to_unicode()  # cast non-string values to strings (necessary for the Ink Renderer class)
-        self._generate_dir_path(inpath)  # join the directory path to the template files specified in the key (for keys executed from outside of containing directory)
+        self._parse_build_specifications(inpath)  # join the directory path to the template files specified in the key (for keys executed from outside of containing directory)
         
         # confirm the integrity of the key file
         self._parse_yaml_for_errors()
@@ -93,8 +93,8 @@ class DoxxKey(object):
                 return str(unknown_encoding_string)             # convert to utf-8 encoded string   
     
     
-    def _generate_dir_path(self, inpath):
-        """joins the directory path from the current working directory to the template file paths specified in the doxx key meta data (private method)"""
+    def _parse_build_specifications(self, inpath):
+        """parses build specification fields in the key file and sets instance properties, defines appropriate file paths (private method)"""
         if self.meta_data is None:
             meta_keys = []
         else:
@@ -139,9 +139,11 @@ class DoxxKey(object):
         else:
             pass  # if the meta data is missing, the check will be performed in the _parse_yaml_for_errors method below. do nothing here
         
-        # Github repository request property definitions in the Key
+        # verbatim file and archive type key build spec fields
         if 'github-repos' in meta_keys and not self.meta_data['github-repos'] == None:
             self.github_repo_key = True  # used in build command processing
+        if 'archives' in meta_keys and not self.meta_data['archives'] == None:
+            self.archives_key = True
         if 'textfiles' in meta_keys and not self.meta_data['textfiles'] == None:
             self.textfile_key = True
         if 'binaryfiles' in meta_keys and not self.meta_data['binaryfiles'] == None:
@@ -171,9 +173,10 @@ class DoxxKey(object):
             if 'templates' not in test_metadata_keys:
                 if 'project' not in test_metadata_keys:
                     if 'github-repos' not in test_metadata_keys:
-                        if 'textfiles' not in test_metadata_keys:
-                            if 'binaryfiles' not in test_metadata_keys:
-                                stderr("[!] doxx: The build specification head section of your key file does not contain an appropriate spec type. Please review the key documentation and give it another try.", exit=1)
+                        if 'archives' not in test_metadata_keys:
+                            if 'textfiles' not in test_metadata_keys:
+                                if 'binaryfiles' not in test_metadata_keys:
+                                    stderr("[!] doxx: The build specification head section of your key file does not contain an appropriate spec type. Please review the key documentation and give it another try.", exit=1)
             
         # TOO MANY FIELDS
         # meta data contains both template and templates fields test
@@ -188,7 +191,8 @@ class DoxxKey(object):
         if 'project' in test_metadata_keys and 'templates' in test_metadata_keys:
             stderr("[!] doxx: The 'templates' and 'project' fields are both included in your key file.  Please remove one field and run your command again.", exit=1)
             
-        # UNDEFINED TEMPLATES
+        
+        # UNDEFINED BUILD SPEC FIELDS
         # meta data template field does not include a template path value
         if 'template' in test_metadata_keys and test_meta_data['template'] == None:
             stderr("[!] doxx: The template field in your key does not include a template path. Please include a path to your template file.", exit=1)
@@ -199,13 +203,24 @@ class DoxxKey(object):
         
         # meta data project field does not include a template path value
         if 'project' in test_metadata_keys and test_meta_data['project'] == None:
-            stderr("[!] doxx: The project field in your key is empty. Please include a path to your template file.", exit=1)     
+            stderr("[!] doxx: The project field in your key does not include a project path. Please include a path to your file.", exit=1)     
             
         # meta data templates field includes an empty string file path
         if 'templates' in test_metadata_keys:
             for template in test_meta_data['templates']:
                 if template == '':
                     stderr("[!] doxx: The templates field in your key file contains an empty file path.  Please fix this and try again.", exit=1)
+        
+        # textfiles build spec field is not defined         
+        if 'textfiles' in test_metadata_keys and test_meta_data['textfiles'] == None:
+            stderr("[!] doxx: The textfiles field in your key is not defined.  Please include the paths to one or more text files and try again.", exit=1)
                     
-                    
-                    
+        # binaryfiles build spec field is not defined
+        if 'binaryfiles' in test_metadata_keys and test_meta_data['binaryfiles'] == None:
+            stderr("[!] doxx: The binaryfiles field in your key is not defined.  Please include the paths to one or more binary files and try again.", exit=1)
+            
+        # archives build spec field is not defined
+        if 'archives' in test_metadata_keys and test_meta_data['archives'] == None:
+            stderr("[!] doxx: The archives field in your key is not defined.  Please include the paths to one or more archive files and try again.", exit=1)
+            
+        
