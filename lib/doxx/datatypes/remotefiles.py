@@ -127,7 +127,7 @@ def pull_archive_runner(archive_url_dict):
             file_path = file_list[0]
             _pull_archive(file_path, archive_url_dict[file_path])  # file_path is local path for write, dictionary value is the URL
     else:
-        stderr("[!] doxx: Unable to find binary files to pull in the key file", exit=0)    
+        stderr("[!] doxx: Unable to find archive files to pull in the key file", exit=0)    
 
 
 ###############################################
