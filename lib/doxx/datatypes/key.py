@@ -43,6 +43,7 @@ class DoxxKey(object):
             fr = FileReader(inpath)
             the_yaml = fr.read()  # FileReader reads in utf-8 encoded bytes data
             the_data = load_all(the_yaml, Loader=Loader)
+            
             i = 0
             for x in the_data:
                 if i == 0:
@@ -61,7 +62,6 @@ class DoxxKey(object):
         else:
             stderr("[!] doxx: Unable to load the requested key " + inpath + ". Please check the path and try again.", exit=1)
             
-                    
     def _cast_values_to_unicode(self):
         unicode_key_data_dict = {}  # new dictionary that will contain the UTF-8 encoded unicode keys and values from self.key_data
         if self.key_data is None or len(self.key_data) == 0:
@@ -69,19 +69,22 @@ class DoxxKey(object):
         else:
             key_list = self.key_data.keys()
             
+        is_python_2 = is_py2()  # Loop Speedup: remove the Python 2 interpreter checks from the loop below
+        normalize = unicodedata.normalize  # Loop Speedup: remove unicodedata module lookups in the loop below
+            
         for key in key_list:
-            unicode_key = unicodedata.normalize('NFKD', self._create_python_dependent_unicode(key))                    # encode the key
+            unicode_key = normalize('NFKD', self._create_python_dependent_unicode(key, is_python_2))                    # encode the key
             if self.key_data[key] == None:
-                unicode_value = unicodedata.normalize('NFKD', self._create_python_dependent_unicode(""))              # if value == None (i.e. key present but no definition included), replace with empty string = empty string replacement
+                unicode_value = normalize('NFKD', self._create_python_dependent_unicode("", is_python_2))              # if value == None (i.e. key present but no definition included), replace with empty string = empty string replacement
             else:
-                unicode_value = unicodedata.normalize('NFKD', self._create_python_dependent_unicode(self.key_data[key]))  # otherwise normalize it
+                unicode_value = normalize('NFKD', self._create_python_dependent_unicode(self.key_data[key], is_python_2))  # otherwise normalize it
             unicode_key_data_dict[unicode_key] = unicode_value       # assign the encoded values to the new dictionary
         
         self.key_data = unicode_key_data_dict     # define the instance key_data with the new unicode encoded keys and values
                 
     
-    def _create_python_dependent_unicode(self, unknown_encoding_string):
-        if is_py2():  # python 2 only 
+    def _create_python_dependent_unicode(self, unknown_encoding_string, is_python_2):      
+        if is_python_2:  # python 2 only 
             if isinstance(unknown_encoding_string, unicode):    # test for Python 2 unicode type
                 return unknown_encoding_string                  # it is already unicode, just return it
             else:
