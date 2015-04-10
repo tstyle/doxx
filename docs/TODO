@@ -38,3 +38,5 @@ Low Priority
 Maybe?
   -- analyze: analyze a template, key file, or .tar.gz package archive
   -- summary: view a summary of key or template file in the terminal
+  -- user defined open and close delimiters for templates
+  -- user settings file
